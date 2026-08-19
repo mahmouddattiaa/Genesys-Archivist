@@ -159,6 +159,10 @@ export default tseslint.config(
     },
     rules: {
       'no-console': 'off',
+      'no-unused-vars': [
+        'error',
+        { ignoreRestSiblings: true, varsIgnorePattern: '^_', argsIgnorePattern: '^_' },
+      ],
     },
   },
 );
