@@ -1,0 +1,23 @@
+{
+  "name": "@genesys-archivist/narrative",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Evidence-pack builder, resumable narration work queue, and the claim validator.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@genesys-archivist/domain": "*",
+    "@genesys-archivist/security": "*"
+  }
+}

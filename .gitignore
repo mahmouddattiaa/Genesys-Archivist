@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+coverage/
+
+# ---------------------------------------------------------------
+# CUSTOMER DATA. Never commit any of these.
+# Capture bundles are classified `restricted`: they contain endpoint
+# URLs, DIDs, routing logic, data-table rows, and prompt audio.
+# ---------------------------------------------------------------
+bundles/
+derived/
+documentation/
+.archivist/
+*.capture-bundle/
+spike-evidence/
+
+# Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Playwright
+playwright-report/
+test-results/

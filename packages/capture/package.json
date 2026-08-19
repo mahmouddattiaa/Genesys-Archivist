@@ -1,0 +1,27 @@
+{
+  "name": "@genesys-archivist/capture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Stage 1: resource reference-graph walker, asset deduplication, bundle writer and sealer.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@genesys-archivist/domain": "*",
+    "@genesys-archivist/genesys-platform": "*",
+    "@genesys-archivist/genesys-source": "*",
+    "@genesys-archivist/storage": "*",
+    "@genesys-archivist/security": "*",
+    "@genesys-archivist/observability": "*"
+  }
+}

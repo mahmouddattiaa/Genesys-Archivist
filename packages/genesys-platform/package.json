@@ -1,0 +1,24 @@
+{
+  "name": "@genesys-archivist/genesys-platform",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Genesys Cloud Platform API adapter: auth, discovery, resource fetching, asset download, pagination, retries.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@genesys-archivist/domain": "*",
+    "@genesys-archivist/security": "*",
+    "@genesys-archivist/observability": "*"
+  }
+}

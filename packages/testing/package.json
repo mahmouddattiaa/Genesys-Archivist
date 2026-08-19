@@ -1,0 +1,22 @@
+{
+  "name": "@genesys-archivist/testing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fakes, deterministic fixtures, secret canaries, and the adversarial prompt-injection corpus.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@genesys-archivist/domain": "*"
+  }
+}

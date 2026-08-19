@@ -1,0 +1,34 @@
+{
+  "name": "@genesys-archivist/composition",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The composition root: the one place concrete adapters are wired to application interfaces.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@genesys-archivist/domain": "*",
+    "@genesys-archivist/application": "*",
+    "@genesys-archivist/security": "*",
+    "@genesys-archivist/observability": "*",
+    "@genesys-archivist/storage": "*",
+    "@genesys-archivist/genesys-platform": "*",
+    "@genesys-archivist/genesys-source": "*",
+    "@genesys-archivist/capture": "*",
+    "@genesys-archivist/normalization": "*",
+    "@genesys-archivist/analysis": "*",
+    "@genesys-archivist/documentation": "*",
+    "@genesys-archivist/rendering": "*",
+    "@genesys-archivist/narrative": "*"
+  }
+}

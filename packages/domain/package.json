@@ -1,0 +1,19 @@
+{
+  "name": "@genesys-archivist/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Contracts, DTOs, and domain types. Pure: no I/O, no SDK types, no filesystem, no network.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  }
+}

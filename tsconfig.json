@@ -1,0 +1,56 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "packages/domain"
+    },
+    {
+      "path": "packages/security"
+    },
+    {
+      "path": "packages/observability"
+    },
+    {
+      "path": "packages/storage"
+    },
+    {
+      "path": "packages/testing"
+    },
+    {
+      "path": "packages/genesys-platform"
+    },
+    {
+      "path": "packages/genesys-source"
+    },
+    {
+      "path": "packages/capture"
+    },
+    {
+      "path": "packages/normalization"
+    },
+    {
+      "path": "packages/analysis"
+    },
+    {
+      "path": "packages/documentation"
+    },
+    {
+      "path": "packages/rendering"
+    },
+    {
+      "path": "packages/narrative"
+    },
+    {
+      "path": "packages/application"
+    },
+    {
+      "path": "packages/composition"
+    },
+    {
+      "path": "apps/cli"
+    },
+    {
+      "path": "apps/mcp-server"
+    }
+  ]
+}

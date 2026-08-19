@@ -1,0 +1,22 @@
+{
+  "name": "@genesys-archivist/security",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Secret resolution, deterministic redaction, path safety, and data classification.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@genesys-archivist/domain": "*"
+  }
+}

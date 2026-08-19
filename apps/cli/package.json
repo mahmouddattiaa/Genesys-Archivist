@@ -1,0 +1,24 @@
+{
+  "name": "@genesys-archivist/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The archivist CLI: profile provisioning, diagnostics, capture, documentation, and headless sync.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@genesys-archivist/domain": "*",
+    "@genesys-archivist/application": "*",
+    "@genesys-archivist/composition": "*"
+  }
+}
