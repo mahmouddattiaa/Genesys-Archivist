@@ -48,14 +48,14 @@ Movement is not considered semantic if stable tracking IDs and relationships pro
 
 ## Review classification
 
-| Change class | Example | Default review |
-| --- | --- | --- |
-| Cosmetic | Description or display label only | Light review |
-| Documentation-only | Template or wording update | Automated plus spot check |
-| Behavioral | Menu route, decision, queue, schedule, error path | Human review required |
-| Dependency | Data action or integration reference | Engineer review required |
-| Security-sensitive | Secure-flow marker, redaction, auth-related dependency | Security/lead review |
-| Coverage regression | Previously supported node becomes opaque | Block approval |
+| Change class        | Example                                                | Default review            |
+| ------------------- | ------------------------------------------------------ | ------------------------- |
+| Cosmetic            | Description or display label only                      | Light review              |
+| Documentation-only  | Template or wording update                             | Automated plus spot check |
+| Behavioral          | Menu route, decision, queue, schedule, error path      | Human review required     |
+| Dependency          | Data action or integration reference                   | Engineer review required  |
+| Security-sensitive  | Secure-flow marker, redaction, auth-related dependency | Security/lead review      |
+| Coverage regression | Previously supported node becomes opaque               | Block approval            |
 
 ## Deleted, renamed, and inaccessible flows
 

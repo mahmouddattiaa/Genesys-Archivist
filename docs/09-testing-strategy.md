@@ -94,16 +94,16 @@ Compare SDK-derived structure with an Architect UI YAML export containing tracki
 
 Pin the exact tested versions in release evidence.
 
-| Scenario | Claude Code | Cursor | Codex | Kimi |
-| --- | --- | --- | --- | --- |
-| Configure local STDIO | Required | Required | Required | Required |
-| Initialize/list tools | Required | Required | Required | Required |
-| Connection check | Required | Required | Required | Required |
-| Paginated flow list | Required | Required | Required | Required |
-| Plan/start/status | Required | Required | Required | Required |
-| Read bounded documentation resource | Required | Required | Required | Required |
-| Cancel failed/slow run | Required | Required | Required | Required |
-| No secret visible in transcript/log | Required | Required | Required | Required |
+| Scenario                            | Claude Code | Cursor   | Codex    | Kimi     |
+| ----------------------------------- | ----------- | -------- | -------- | -------- |
+| Configure local STDIO               | Required    | Required | Required | Required |
+| Initialize/list tools               | Required    | Required | Required | Required |
+| Connection check                    | Required    | Required | Required | Required |
+| Paginated flow list                 | Required    | Required | Required | Required |
+| Plan/start/status                   | Required    | Required | Required | Required |
+| Read bounded documentation resource | Required    | Required | Required | Required |
+| Cancel failed/slow run              | Required    | Required | Required | Required |
+| No secret visible in transcript/log | Required    | Required | Required | Required |
 
 Do not mark a client supported based only on successful initialization.
 

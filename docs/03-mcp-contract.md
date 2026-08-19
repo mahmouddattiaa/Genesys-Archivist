@@ -42,7 +42,7 @@ Validates one profile, resolves organization identity, checks source adapter ava
 Input:
 
 ```json
-{"profileId":"customer-test"}
+{ "profileId": "customer-test" }
 ```
 
 ### `genesys_flows_list`
@@ -147,18 +147,18 @@ Raw SDK errors, access tokens, secrets, headers, and unredacted response bodies 
 
 ## Error taxonomy
 
-| Category | Example codes | Retry policy |
-| --- | --- | --- |
-| Input | `INVALID_ARGUMENT`, `PLAN_EXPIRED` | No |
-| Authentication | `PROFILE_SECRET_MISSING`, `TOKEN_REJECTED` | Operator action |
-| Authorization | `GENESYS_PERMISSION_MISSING`, `DIVISION_NOT_VISIBLE` | No automatic retry |
-| Rate | `GENESYS_RATE_LIMITED` | Honor delay within budget |
-| Network | `UPSTREAM_TIMEOUT`, `DNS_FAILURE` | Bounded retry |
-| Source | `FLOW_UNSUPPORTED`, `EXPORT_INCOMPLETE` | No; visible degradation |
-| Data | `SCHEMA_MISMATCH`, `NORMALIZATION_FAILED` | No; preserve artifacts |
-| Storage | `OUTPUT_LOCKED`, `ATOMIC_PROMOTION_FAILED` | Conditional/operator action |
-| Security | `SECRET_DETECTED`, `UNTRUSTED_PATH`, `TENANT_MISMATCH` | Stop run |
-| Model | `NARRATIVE_UNGROUNDED`, `MODEL_PROVIDER_DENIED` | Deterministic docs may continue |
+| Category       | Example codes                                          | Retry policy                    |
+| -------------- | ------------------------------------------------------ | ------------------------------- |
+| Input          | `INVALID_ARGUMENT`, `PLAN_EXPIRED`                     | No                              |
+| Authentication | `PROFILE_SECRET_MISSING`, `TOKEN_REJECTED`             | Operator action                 |
+| Authorization  | `GENESYS_PERMISSION_MISSING`, `DIVISION_NOT_VISIBLE`   | No automatic retry              |
+| Rate           | `GENESYS_RATE_LIMITED`                                 | Honor delay within budget       |
+| Network        | `UPSTREAM_TIMEOUT`, `DNS_FAILURE`                      | Bounded retry                   |
+| Source         | `FLOW_UNSUPPORTED`, `EXPORT_INCOMPLETE`                | No; visible degradation         |
+| Data           | `SCHEMA_MISMATCH`, `NORMALIZATION_FAILED`              | No; preserve artifacts          |
+| Storage        | `OUTPUT_LOCKED`, `ATOMIC_PROMOTION_FAILED`             | Conditional/operator action     |
+| Security       | `SECRET_DETECTED`, `UNTRUSTED_PATH`, `TENANT_MISMATCH` | Stop run                        |
+| Model          | `NARRATIVE_UNGROUNDED`, `MODEL_PROVIDER_DENIED`        | Deterministic docs may continue |
 
 ## Tool safety metadata
 

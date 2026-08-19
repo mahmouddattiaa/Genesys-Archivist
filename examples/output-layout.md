@@ -70,16 +70,16 @@ Directory identity is the stable flow ID, not the display name. The document hea
 ```markdown
 # Main Service IVR — Business Documentation
 
-| Field | Value |
-| --- | --- |
-| Organization | IST Sandbox (`org_demo_001`) |
-| Flow ID | `flow_demo_a` |
-| Flow type | Inbound call |
-| Documented version | Published version 12 |
-| Source observed | 2026-08-19 15:42 UTC |
-| Generated | 2026-08-19 15:44 UTC |
-| Completeness | Passed with 1 unresolved dependency |
-| Review state | Human review required |
+| Field              | Value                               |
+| ------------------ | ----------------------------------- |
+| Organization       | IST Sandbox (`org_demo_001`)        |
+| Flow ID            | `flow_demo_a`                       |
+| Flow type          | Inbound call                        |
+| Documented version | Published version 12                |
+| Source observed    | 2026-08-19 15:42 UTC                |
+| Generated          | 2026-08-19 15:44 UTC                |
+| Completeness       | Passed with 1 unresolved dependency |
+| Review state       | Human review required               |
 ```
 
 ## Example change entry

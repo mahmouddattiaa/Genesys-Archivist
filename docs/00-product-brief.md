@@ -19,13 +19,13 @@ Provide a read-only tool that can:
 
 ## Primary users
 
-| User | Need |
-| --- | --- |
-| Contact-center engineer | Inspect exact routing, menus, variables, prompts, integrations, and error paths |
-| Practice/product manager | Obtain a business-readable inventory and change summary |
-| Application developer | Trace dependencies and understand technical implementation |
-| Reviewer/auditor | Verify when documentation was generated, from which version, and with which warnings |
-| Platform administrator | Distribute the tool and control credentials, permissions, and data retention |
+| User                     | Need                                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------------ |
+| Contact-center engineer  | Inspect exact routing, menus, variables, prompts, integrations, and error paths      |
+| Practice/product manager | Obtain a business-readable inventory and change summary                              |
+| Application developer    | Trace dependencies and understand technical implementation                           |
+| Reviewer/auditor         | Verify when documentation was generated, from which version, and with which warnings |
+| Platform administrator   | Distribute the tool and control credentials, permissions, and data retention         |
 
 ## User journeys
 
@@ -91,16 +91,16 @@ Provide a read-only tool that can:
 
 ## Success metrics
 
-| Metric | Target for first release |
-| --- | --- |
-| Metadata inventory completeness | 100% of flows visible to the OAuth client |
-| Supported-node structural coverage | At least 99% in the approved fixture corpus; no silent omissions |
-| Evidence traceability | 100% of technical facts and all material business statements |
-| Unchanged-flow skip rate | 100% when source metadata and canonical hash are unchanged |
-| Secret leakage tests | Zero findings |
-| Failed-run effect | Last known-good documentation remains intact |
-| Cross-client contract | Same build passes selected Claude Code, Cursor, Codex, and Kimi smoke tests |
-| Manual correction rate | Measured during pilot; release target set after baseline |
+| Metric                             | Target for first release                                                    |
+| ---------------------------------- | --------------------------------------------------------------------------- |
+| Metadata inventory completeness    | 100% of flows visible to the OAuth client                                   |
+| Supported-node structural coverage | At least 99% in the approved fixture corpus; no silent omissions            |
+| Evidence traceability              | 100% of technical facts and all material business statements                |
+| Unchanged-flow skip rate           | 100% when source metadata and canonical hash are unchanged                  |
+| Secret leakage tests               | Zero findings                                                               |
+| Failed-run effect                  | Last known-good documentation remains intact                                |
+| Cross-client contract              | Same build passes selected Claude Code, Cursor, Codex, and Kimi smoke tests |
+| Manual correction rate             | Measured during pilot; release target set after baseline                    |
 
 ## Assumptions
 

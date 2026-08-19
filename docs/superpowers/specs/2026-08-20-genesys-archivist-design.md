@@ -1,13 +1,13 @@
 # Genesys Archivist — Design
 
-| Field | Value |
-| --- | --- |
-| Product | **Genesys Archivist** |
-| Status | Approved for implementation planning |
-| Date | 2026-08-20 |
-| Owner | Abdurrahman (IST) |
-| Supersedes | Parts of `docs/00`, `docs/02`, `docs/05`, `docs/12` — see §2 |
-| Unchanged | `AGENTS.md` constraints and `docs/06` / `docs/08` remain binding |
+| Field      | Value                                                            |
+| ---------- | ---------------------------------------------------------------- |
+| Product    | **Genesys Archivist**                                            |
+| Status     | Approved for implementation planning                             |
+| Date       | 2026-08-20                                                       |
+| Owner      | Abdurrahman (IST)                                                |
+| Supersedes | Parts of `docs/00`, `docs/02`, `docs/05`, `docs/12` — see §2     |
+| Unchanged  | `AGENTS.md` constraints and `docs/06` / `docs/08` remain binding |
 
 ## 1. Purpose
 
@@ -17,41 +17,41 @@ The capture must be complete enough that a **separate, independently built MCP s
 
 Two consumers with different requirements:
 
-| Consumer | Needs | Artifact |
-| --- | --- | --- |
-| Humans — engineers, PMs, customers | Readable, accurate, evidence-linked explanation | Documentation set: Markdown + PDF + diagrams |
-| Machines — the future migration server | Complete, schema-stable, lossless configuration and assets | Capture bundle |
+| Consumer                               | Needs                                                      | Artifact                                     |
+| -------------------------------------- | ---------------------------------------------------------- | -------------------------------------------- |
+| Humans — engineers, PMs, customers     | Readable, accurate, evidence-linked explanation            | Documentation set: Markdown + PDF + diagrams |
+| Machines — the future migration server | Complete, schema-stable, lossless configuration and assets | Capture bundle                               |
 
 ## 2. Delta from the repository blueprint
 
 The 16 documents under `docs/` remain the governing reference. This design changes four things and adds three.
 
-| # | Blueprint position | Archivist | Why |
-| --- | --- | --- | --- |
-| D1 | Single-pass pipeline: extract → document → promote (`docs/01`) | **Two stages** separated by an immutable bundle | Genesys is the scarce resource. Every reason to re-render docs is offline. Migration needs a contract, not a cache. |
-| D2 | Architect Scripting SDK is primary; manual YAML the only fallback (`docs/02`) | **Four candidate source paths**, chosen empirically in Phase 0 | Two officially-documented paths are absent from the blueprint. See §5.1. |
-| D3 | Snapshots live in `.genesys-docs/cache/` — "private machine state, disposable, ignored" (`examples/output-layout.md`) | Capture bundle is a **first-class, schema-versioned, retained output** | You cannot build a migration product on a disposable cache. |
-| D4 | Output is `business.md` + `technical.md` (`docs/05`) | Adds `operations.md`, an org-level resource inventory, rendered SVG diagrams, and **PDF** | "Enterprise-grade, serving developers and business" — decided 2026-08-20. |
-| A1 | — | **Org-level resource inventory and usage graph** | Blueprint resolves dependencies per flow only. "Which flows use this queue / what breaks if we retire it" was unanswerable. |
-| A2 | — | **Binary asset capture** — prompt audio, response assets | Required for migration. The blueprint never downloads binaries. |
-| A3 | — | **Narrative work-queue tools** for agent-driven narration at org scale | The blueprint's `genesys_docs_review_submit` assumes one flow at a time, interactively. |
+| #   | Blueprint position                                                                                                    | Archivist                                                                                 | Why                                                                                                                         |
+| --- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Single-pass pipeline: extract → document → promote (`docs/01`)                                                        | **Two stages** separated by an immutable bundle                                           | Genesys is the scarce resource. Every reason to re-render docs is offline. Migration needs a contract, not a cache.         |
+| D2  | Architect Scripting SDK is primary; manual YAML the only fallback (`docs/02`)                                         | **Four candidate source paths**, chosen empirically in Phase 0                            | Two officially-documented paths are absent from the blueprint. See §5.1.                                                    |
+| D3  | Snapshots live in `.genesys-docs/cache/` — "private machine state, disposable, ignored" (`examples/output-layout.md`) | Capture bundle is a **first-class, schema-versioned, retained output**                    | You cannot build a migration product on a disposable cache.                                                                 |
+| D4  | Output is `business.md` + `technical.md` (`docs/05`)                                                                  | Adds `operations.md`, an org-level resource inventory, rendered SVG diagrams, and **PDF** | "Enterprise-grade, serving developers and business" — decided 2026-08-20.                                                   |
+| A1  | —                                                                                                                     | **Org-level resource inventory and usage graph**                                          | Blueprint resolves dependencies per flow only. "Which flows use this queue / what breaks if we retire it" was unanswerable. |
+| A2  | —                                                                                                                     | **Binary asset capture** — prompt audio, response assets                                  | Required for migration. The blueprint never downloads binaries.                                                             |
+| A3  | —                                                                                                                     | **Narrative work-queue tools** for agent-driven narration at org scale                    | The blueprint's `genesys_docs_review_submit` assumes one flow at a time, interactively.                                     |
 
 ## 3. Confirmed decisions
 
 Recorded 2026-08-20. Closes questions 1, 6, 7, 13, 17, 19, 20, 21 from `docs/14`.
 
-| Question | Decision |
-| --- | --- |
-| Target platform | **Genesys Cloud CX (Architect)** — confirmed |
-| Development environment | **Sandbox / test organization available now** — Phase 0 unblocked |
-| Flow types in release 1 | **All Architect flow types** |
-| Capture depth | **Everything**, including binary assets and data-table rows |
-| Output destination | **Local filesystem, not git-tracked** |
-| Output formats | **Markdown + PDF**; SVG diagrams rendered as a prerequisite of PDF |
-| Credentials | **OS credential store** by default; environment variables only under an explicit CI flag |
-| AI processing | **Approved and expected.** Default `interactive-client`; `approved-provider` by configuration |
-| Query / Q&A tools over captured data | **Out of scope.** Capture and hand off only |
-| Organization scale | **Unknown / varies.** Design for hundreds of flows; measure in Phase 0 |
+| Question                             | Decision                                                                                      |
+| ------------------------------------ | --------------------------------------------------------------------------------------------- |
+| Target platform                      | **Genesys Cloud CX (Architect)** — confirmed                                                  |
+| Development environment              | **Sandbox / test organization available now** — Phase 0 unblocked                             |
+| Flow types in release 1              | **All Architect flow types**                                                                  |
+| Capture depth                        | **Everything**, including binary assets and data-table rows                                   |
+| Output destination                   | **Local filesystem, not git-tracked**                                                         |
+| Output formats                       | **Markdown + PDF**; SVG diagrams rendered as a prerequisite of PDF                            |
+| Credentials                          | **OS credential store** by default; environment variables only under an explicit CI flag      |
+| AI processing                        | **Approved and expected.** Default `interactive-client`; `approved-provider` by configuration |
+| Query / Q&A tools over captured data | **Out of scope.** Capture and hand off only                                                   |
+| Organization scale                   | **Unknown / varies.** Design for hundreds of flows; measure in Phase 0                        |
 
 Still open, tracked in §12.
 
@@ -127,12 +127,12 @@ No flow editing, publishing, or import. No caller data, recordings, transcripts,
 
 `GenesysSourceProvider` is one interface with four implementations. Phase 0 spike S1 scores them and picks the default; the others remain as the degraded modes `docs/08` already requires.
 
-| Implementation | Mechanism | Verified during design | Notes |
-| --- | --- | --- | --- |
-| `PlatformApiSourceProvider` | `GET /api/v2/flows/{flowId}/versions/{versionId}/configuration`; `GET /api/v2/flows/{flowId}/latestconfiguration` | Endpoints confirmed present in Genesys developer documentation | Lightest dependency. Response shape unverified — may be inline JSON or a signed download URL. |
-| `ArchySourceProvider` | `archy export --flowName <n> --flowType <t> --exportType yaml`; `archy setup`; `authTokenIsClientCredentials` | CLI, flags, and client-credentials support confirmed | **Genesys documents YAML export as being for "version control and cross-organization migration"** — exactly our migration case. Costs a subprocess dependency; keys on name+type rather than stable ID. |
-| `ArchitectScriptingSourceProvider` | `getFlowInfoAsync`, `loadAsync`, `traverse`, `exportToObjectAsync` | Not verified beyond `docs/15` | The blueprint's assumed path. Heaviest dependency. |
-| `ManualYamlSourceProvider` | Operator-supplied YAML | n/a | Fallback. Sets `sourceMode: manual-yaml`; disables freshness claims. |
+| Implementation                     | Mechanism                                                                                                         | Verified during design                                         | Notes                                                                                                                                                                                                   |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PlatformApiSourceProvider`        | `GET /api/v2/flows/{flowId}/versions/{versionId}/configuration`; `GET /api/v2/flows/{flowId}/latestconfiguration` | Endpoints confirmed present in Genesys developer documentation | Lightest dependency. Response shape unverified — may be inline JSON or a signed download URL.                                                                                                           |
+| `ArchySourceProvider`              | `archy export --flowName <n> --flowType <t> --exportType yaml`; `archy setup`; `authTokenIsClientCredentials`     | CLI, flags, and client-credentials support confirmed           | **Genesys documents YAML export as being for "version control and cross-organization migration"** — exactly our migration case. Costs a subprocess dependency; keys on name+type rather than stable ID. |
+| `ArchitectScriptingSourceProvider` | `getFlowInfoAsync`, `loadAsync`, `traverse`, `exportToObjectAsync`                                                | Not verified beyond `docs/15`                                  | The blueprint's assumed path. Heaviest dependency.                                                                                                                                                      |
+| `ManualYamlSourceProvider`         | Operator-supplied YAML                                                                                            | n/a                                                            | Fallback. Sets `sourceMode: manual-yaml`; disables freshness claims.                                                                                                                                    |
 
 > **Endpoint discipline.** Every path and signature in this document other than the four endpoints and Archy flags named above is **indicative and unverified**. Per `docs/02` and `docs/15`, the implementation must verify them against the installed SDK and current API Explorer and must never hand-code a stale endpoint from a design document.
 
@@ -166,15 +166,15 @@ until worklist empty or request budget exhausted
 
 The walk follows second-order references, so a flow reaches an integration through a data action, and a language variant's audio through a prompt.
 
-| Category | Types |
-| --- | --- |
-| Routing | queues, skills, wrap-up codes, languages, utilization labels |
-| Architect | user prompts, system prompt overrides, schedules, schedule groups, emergency groups, IVR configs / DID mappings, grammars, flow outcomes, flow milestones |
-| Integration | data actions (contract, URL template, header template), integrations (name, type, status — never credentials) |
-| Data | data tables (schema **and rows**), response management responses and assets |
-| Conversational | bot flows, digital bot flows, intents, utterances, slots, knowledge bases |
-| Cross-flow | other Architect flows, common modules, reusable tasks, scripts |
-| Directory | users, groups — identity and display name only, only when referenced |
+| Category       | Types                                                                                                                                                     |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routing        | queues, skills, wrap-up codes, languages, utilization labels                                                                                              |
+| Architect      | user prompts, system prompt overrides, schedules, schedule groups, emergency groups, IVR configs / DID mappings, grammars, flow outcomes, flow milestones |
+| Integration    | data actions (contract, URL template, header template), integrations (name, type, status — never credentials)                                             |
+| Data           | data tables (schema **and rows**), response management responses and assets                                                                               |
+| Conversational | bot flows, digital bot flows, intents, utterances, slots, knowledge bases                                                                                 |
+| Cross-flow     | other Architect flows, common modules, reusable tasks, scripts                                                                                            |
+| Directory      | users, groups — identity and display name only, only when referenced                                                                                      |
 
 Every node carries one of the six resolution states from `docs/04`: `resolved`, `partially_resolved`, `not_found`, `forbidden`, `unsupported`, `redacted`. A `forbidden` node keeps its stable ID and type and lowers completeness; it is never silently dropped.
 
@@ -307,7 +307,7 @@ Directory identity is the stable flow ID with a slug appended for navigation. Re
 
 **`technical.md`** — contact-centre engineers and developers. Sections per `docs/05`: source identity and hashes, structure and entry points, action inventory, control-flow diagrams and branch table, variables with scope and read/write locations, prompt and language inventory, dependencies, external calls with success and failure branches, error and retry handling, graph findings, semantic change report, evidence index and limitations.
 
-**`operations.md`** — *new.* Whoever is on call. This is where org-wide capture pays off:
+**`operations.md`** — _new._ Whoever is on call. This is where org-wide capture pays off:
 
 - Inbound DIDs and call routes that reach this flow
 - Every resource this flow depends on, with resolution status
@@ -379,20 +379,20 @@ STDIO only, official MCP SDK. Protocol messages on stdout through the SDK alone;
 
 Twelve tools. **No tool accepts a credential in any field.** Every tool returns the envelope defined in `docs/03`.
 
-| Tool | Stage | Effect | Purpose |
-| --- | --- | --- | --- |
-| `genesys_profiles_list` | — | read-only | Safe profile metadata. Never client IDs, secrets, or tokens |
-| `genesys_connection_check` | — | read-only | Validate profile, resolve org identity, report missing permission categories |
-| `genesys_flows_list` | 1 | read-only | Paginated flow descriptors with continuation token |
-| `genesys_capture_plan` | 1 | read-only | Immutable, expiring, content-addressed plan with hash |
-| `genesys_capture_start` | 1 | writes locally | Start a capture run from plan ID + exact plan hash |
-| `genesys_bundles_list` | 2 | read-only | Available bundles with coverage and freshness summary |
-| `genesys_docs_plan` | 2 | read-only | Plan a documentation run from a bundle |
-| `genesys_docs_start` | 2 | writes locally | Start a documentation run |
-| `genesys_run_status` | both | read-only | Status, phase, counts, bounded errors, resource URIs |
-| `genesys_run_cancel` | both | idempotent | Cooperative cancel. Never deletes previous good output |
-| `genesys_narrative_next` | 2 | read-only | Next evidence pack from the narration queue |
-| `genesys_narrative_submit` | 2 | writes locally | Submit narrative sections for validation and staging |
+| Tool                       | Stage | Effect         | Purpose                                                                      |
+| -------------------------- | ----- | -------------- | ---------------------------------------------------------------------------- |
+| `genesys_profiles_list`    | —     | read-only      | Safe profile metadata. Never client IDs, secrets, or tokens                  |
+| `genesys_connection_check` | —     | read-only      | Validate profile, resolve org identity, report missing permission categories |
+| `genesys_flows_list`       | 1     | read-only      | Paginated flow descriptors with continuation token                           |
+| `genesys_capture_plan`     | 1     | read-only      | Immutable, expiring, content-addressed plan with hash                        |
+| `genesys_capture_start`    | 1     | writes locally | Start a capture run from plan ID + exact plan hash                           |
+| `genesys_bundles_list`     | 2     | read-only      | Available bundles with coverage and freshness summary                        |
+| `genesys_docs_plan`        | 2     | read-only      | Plan a documentation run from a bundle                                       |
+| `genesys_docs_start`       | 2     | writes locally | Start a documentation run                                                    |
+| `genesys_run_status`       | both  | read-only      | Status, phase, counts, bounded errors, resource URIs                         |
+| `genesys_run_cancel`       | both  | idempotent     | Cooperative cancel. Never deletes previous good output                       |
+| `genesys_narrative_next`   | 2     | read-only      | Next evidence pack from the narration queue                                  |
+| `genesys_narrative_submit` | 2     | writes locally | Submit narrative sections for validation and staging                         |
 
 Tools that write local files say so in their descriptions. Read-only against Genesys is **not** the same as harmless.
 
@@ -436,14 +436,14 @@ archivist support-bundle
 
 Independently versioned per `docs/01`.
 
-| Schema | Version | Status |
-| --- | --- | --- |
-| `flow-snapshot.schema.json` | 1.1 | Existing, extended: widened `flow.type` for all Architect types, asset references, `captureId` backlink |
-| `run-manifest.schema.json` | 1.1 | Existing, extended: `stage` discriminator, new states for both machines |
-| `capture-bundle.schema.json` | 1.0 | **New.** The contract the migration server codes against |
-| `resource-graph.schema.json` | 1.0 | **New.** Nodes are resources and flows; edges are typed references |
-| `evidence-pack.schema.json` | 1.0 | **New.** What the model receives |
-| `narrative-contract.schema.json` | 1.0 | **New.** What the model returns and what the validator enforces |
+| Schema                           | Version | Status                                                                                                  |
+| -------------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
+| `flow-snapshot.schema.json`      | 1.1     | Existing, extended: widened `flow.type` for all Architect types, asset references, `captureId` backlink |
+| `run-manifest.schema.json`       | 1.1     | Existing, extended: `stage` discriminator, new states for both machines                                 |
+| `capture-bundle.schema.json`     | 1.0     | **New.** The contract the migration server codes against                                                |
+| `resource-graph.schema.json`     | 1.0     | **New.** Nodes are resources and flows; edges are typed references                                      |
+| `evidence-pack.schema.json`      | 1.0     | **New.** What the model receives                                                                        |
+| `narrative-contract.schema.json` | 1.0     | **New.** What the model returns and what the validator enforces                                         |
 
 ## 9. Security
 
@@ -475,19 +475,19 @@ Every extracted string is untrusted data. Typed evidence packs, delimiting, stri
 
 Ten spikes. Throwaway code in a sandbox, not production architecture.
 
-| ID | Question | Pass condition |
-| --- | --- | --- |
-| S0 | Which Node LTS and package versions work together? | Install, authenticate, initialize MCP, render a PDF, and package on Windows/macOS/Linux. Versions pinned. |
-| S1 | Which of the four source paths gives best fidelity at least privilege? | Scored comparison against manual UI YAML with tracking IDs across 6–10 flows spanning types. Differences explained. Winner recorded as an ADR. |
-| S2 | Can every flow and version be discovered? | Counts match an administrator-approved sandbox inventory across types, divisions, and pages. Duplicate names stay separate. |
-| S3 | Does the resource walk reach closure read-only? | Every referenced type either resolves or returns an explicit `forbidden`/`unsupported` state. No silent drops. |
-| S4 | Can prompt audio be downloaded read-only? | Assets download and hash. Signed-URL TTL measured. Total bytes for the sandbox org recorded. |
-| S5 | What is the true minimum permission set? | Start from zero roles, add one capability at a time. Reviewed read-only role with no mutation, secret, or caller-data permission. |
-| S6 | What are realistic scale budgets? | Per-flow latency, memory, request counts, and bundle size measured; extrapolated to 100/300/500 flows. |
-| S7 | What happens on republish mid-capture? | Stale version detected and not promoted as current. |
-| S8 | Does one conservative STDIO server work across clients? | Core smoke matrix from `docs/09` passes in pinned Claude Code, Cursor, Codex, and Kimi. |
-| S9 | Can hostile source content escape? | Canary corpus and adversarial fixtures contained; workflow completes or fails safely. |
-| S10 | Can the renderer be packaged? | Playwright Chromium works from the distributed package on all three OSes, or an alternative is chosen. |
+| ID  | Question                                                               | Pass condition                                                                                                                                 |
+| --- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| S0  | Which Node LTS and package versions work together?                     | Install, authenticate, initialize MCP, render a PDF, and package on Windows/macOS/Linux. Versions pinned.                                      |
+| S1  | Which of the four source paths gives best fidelity at least privilege? | Scored comparison against manual UI YAML with tracking IDs across 6–10 flows spanning types. Differences explained. Winner recorded as an ADR. |
+| S2  | Can every flow and version be discovered?                              | Counts match an administrator-approved sandbox inventory across types, divisions, and pages. Duplicate names stay separate.                    |
+| S3  | Does the resource walk reach closure read-only?                        | Every referenced type either resolves or returns an explicit `forbidden`/`unsupported` state. No silent drops.                                 |
+| S4  | Can prompt audio be downloaded read-only?                              | Assets download and hash. Signed-URL TTL measured. Total bytes for the sandbox org recorded.                                                   |
+| S5  | What is the true minimum permission set?                               | Start from zero roles, add one capability at a time. Reviewed read-only role with no mutation, secret, or caller-data permission.              |
+| S6  | What are realistic scale budgets?                                      | Per-flow latency, memory, request counts, and bundle size measured; extrapolated to 100/300/500 flows.                                         |
+| S7  | What happens on republish mid-capture?                                 | Stale version detected and not promoted as current.                                                                                            |
+| S8  | Does one conservative STDIO server work across clients?                | Core smoke matrix from `docs/09` passes in pinned Claude Code, Cursor, Codex, and Kimi.                                                        |
+| S9  | Can hostile source content escape?                                     | Canary corpus and adversarial fixtures contained; workflow completes or fails safely.                                                          |
+| S10 | Can the renderer be packaged?                                          | Playwright Chromium works from the distributed package on all three OSes, or an alternative is chosen.                                         |
 
 **Kill criteria** — the ten in `docs/08`, plus two:
 
@@ -517,20 +517,20 @@ The split that reconciles "all flow types" with a shippable first release:
 
 Release 1 milestones, mapped onto `docs/12`:
 
-| M | Deliverable |
-| --- | --- |
-| M0 | Decisions — largely closed by §3 |
-| M1 | Phase 0 spikes S0–S10, ADRs recorded |
-| M2 | Monorepo, domain contracts, six schemas, fakes |
-| M3 | Secure profiles, `doctor`, redaction, structured logging |
-| M4 | Genesys adapters: discovery, chosen source path, resource walker, asset downloader |
-| M5 | Capture stage: bundle writer, sealer, verifier, change detection against the prior bundle |
-| M6 | Normalization and analysis, semantic diff |
-| M7 | Deterministic documentation, diagrams, rendering, PDF |
-| M8 | Narrative queue and claim validator |
-| M9 | CLI |
-| M10 | MCP adapter and cross-client matrix |
-| M11 | Security and chaos hardening, pilot |
+| M   | Deliverable                                                                               |
+| --- | ----------------------------------------------------------------------------------------- |
+| M0  | Decisions — largely closed by §3                                                          |
+| M1  | Phase 0 spikes S0–S10, ADRs recorded                                                      |
+| M2  | Monorepo, domain contracts, six schemas, fakes                                            |
+| M3  | Secure profiles, `doctor`, redaction, structured logging                                  |
+| M4  | Genesys adapters: discovery, chosen source path, resource walker, asset downloader        |
+| M5  | Capture stage: bundle writer, sealer, verifier, change detection against the prior bundle |
+| M6  | Normalization and analysis, semantic diff                                                 |
+| M7  | Deterministic documentation, diagrams, rendering, PDF                                     |
+| M8  | Narrative queue and claim validator                                                       |
+| M9  | CLI                                                                                       |
+| M10 | MCP adapter and cross-client matrix                                                       |
+| M11 | Security and chaos hardening, pilot                                                       |
 
 Release 2: full documentation depth for remaining flow types, `approved-provider` narration, packaging and signing, retention and deletion runbooks.
 
@@ -538,28 +538,28 @@ Release 2: full documentation depth for remaining flow types, `approved-provider
 
 Carried from `docs/14`, not blocking the first milestones. Each must be answered before the pilot.
 
-| # | Question | Working assumption |
-| --- | --- | --- |
-| Q2 | Which Genesys regions must be supported? | Region is a validated enum; sandbox region added first, others by configuration |
-| Q9 | Which language should documents use? | English |
-| Q10 | Who approves business interpretation? | A named IST Genesys engineer plus a business reviewer; narrative stays `human_review_required` until then |
-| Q11 | Update cadence? | Manual runs during pilot; no scheduler in release 1 |
-| Q12 | Retention for bundles, manifests, logs? | Retain until the engagement defines otherwise; `restricted` classification applies meanwhile |
-| Q15 | May prompt text, data-action endpoints, queue names, and flow IDs appear in generated documents? | Yes for internal IST use; the redactor removes secrets, not business identifiers |
-| Q16 | Which secret manager is available on employee machines? | Windows Credential Manager |
-| Q22 | Which pilot customer or test org is safe? | The confirmed sandbox org for all development |
+| #   | Question                                                                                         | Working assumption                                                                                        |
+| --- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Q2  | Which Genesys regions must be supported?                                                         | Region is a validated enum; sandbox region added first, others by configuration                           |
+| Q9  | Which language should documents use?                                                             | English                                                                                                   |
+| Q10 | Who approves business interpretation?                                                            | A named IST Genesys engineer plus a business reviewer; narrative stays `human_review_required` until then |
+| Q11 | Update cadence?                                                                                  | Manual runs during pilot; no scheduler in release 1                                                       |
+| Q12 | Retention for bundles, manifests, logs?                                                          | Retain until the engagement defines otherwise; `restricted` classification applies meanwhile              |
+| Q15 | May prompt text, data-action endpoints, queue names, and flow IDs appear in generated documents? | Yes for internal IST use; the redactor removes secrets, not business identifiers                          |
+| Q16 | Which secret manager is available on employee machines?                                          | Windows Credential Manager                                                                                |
+| Q22 | Which pilot customer or test org is safe?                                                        | The confirmed sandbox org for all development                                                             |
 
 ## 14. Decision log
 
-| ID | Decision | Rationale |
-| --- | --- | --- |
-| ADR-001 | Two-stage pipeline separated by an immutable bundle | Genesys is the scarce resource; migration needs a contract, not a cache |
-| ADR-002 | Capture bundle is a first-class, schema-versioned, retained artifact | It is a product consumed by a second system |
-| ADR-003 | Four source-path implementations behind one interface; default chosen in Phase 0 | Two officially-documented paths were absent from the blueprint; the choice is empirical |
-| ADR-004 | Prefer a source path that yields Archy-importable YAML | Genesys documents YAML export as the cross-organization migration format |
-| ADR-005 | Assets content-addressed by SHA-256 | Deduplication plus structural elimination of filename-driven path traversal |
-| ADR-006 | Resources stored once at org level with an explicit reference graph | Makes org-wide usage and blast-radius questions a lookup rather than a search |
-| ADR-007 | Narration is a resumable work queue, one flow per turn | The only shape that scales to hundreds of flows in an agent session |
-| ADR-008 | Playwright Chromium for both Mermaid and PDF, behind swappable interfaces | One dependency serves both; degradation path preserved |
-| ADR-009 | Capture all flow types; documentation depth progressive | Migration completeness immediately, documentation depth incrementally |
-| ADR-010 | Product named Genesys Archivist; CLI `archivist`; MCP tools keep the `genesys_` prefix | Tool names are read by models for routing; product names are read by people |
+| ID      | Decision                                                                               | Rationale                                                                               |
+| ------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| ADR-001 | Two-stage pipeline separated by an immutable bundle                                    | Genesys is the scarce resource; migration needs a contract, not a cache                 |
+| ADR-002 | Capture bundle is a first-class, schema-versioned, retained artifact                   | It is a product consumed by a second system                                             |
+| ADR-003 | Four source-path implementations behind one interface; default chosen in Phase 0       | Two officially-documented paths were absent from the blueprint; the choice is empirical |
+| ADR-004 | Prefer a source path that yields Archy-importable YAML                                 | Genesys documents YAML export as the cross-organization migration format                |
+| ADR-005 | Assets content-addressed by SHA-256                                                    | Deduplication plus structural elimination of filename-driven path traversal             |
+| ADR-006 | Resources stored once at org level with an explicit reference graph                    | Makes org-wide usage and blast-radius questions a lookup rather than a search           |
+| ADR-007 | Narration is a resumable work queue, one flow per turn                                 | The only shape that scales to hundreds of flows in an agent session                     |
+| ADR-008 | Playwright Chromium for both Mermaid and PDF, behind swappable interfaces              | One dependency serves both; degradation path preserved                                  |
+| ADR-009 | Capture all flow types; documentation depth progressive                                | Migration completeness immediately, documentation depth incrementally                   |
+| ADR-010 | Product named Genesys Archivist; CLI `archivist`; MCP tools keep the `genesys_` prefix | Tool names are read by models for routing; product names are read by people             |

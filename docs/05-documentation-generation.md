@@ -96,7 +96,7 @@ The model returns structured sections:
       "id": "purpose",
       "markdown": "...",
       "claims": [
-        {"text": "...", "kind": "inference", "confidence": "medium", "evidenceIds": ["ev_..."]}
+        { "text": "...", "kind": "inference", "confidence": "medium", "evidenceIds": ["ev_..."] }
       ]
     }
   ],

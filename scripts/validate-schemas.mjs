@@ -21,7 +21,10 @@ const SCHEMA_DIR = join(ROOT, 'schemas');
 const FIXTURE_DIR = join(ROOT, 'fixtures');
 
 let failures = 0;
-const fail = (msg) => { console.error(`FAIL  ${msg}`); failures += 1; };
+const fail = (msg) => {
+  console.error(`FAIL  ${msg}`);
+  failures += 1;
+};
 const pass = (msg) => console.log(`ok    ${msg}`);
 
 async function loadJson(path) {

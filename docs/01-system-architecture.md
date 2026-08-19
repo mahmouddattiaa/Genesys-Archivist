@@ -32,20 +32,20 @@ MCP makes the workflow available to AI agents, but it does not provide schedulin
 
 ## Logical components
 
-| Component | Responsibility | Must not do |
-| --- | --- | --- |
-| MCP adapter | Validate tool inputs, invoke use cases, expose resources/prompts | Contain Genesys logic or secrets |
-| CLI adapter | Profile setup, diagnostics, planning, sync, export | Duplicate application logic |
-| Application service | Orchestrate plans, runs, state transitions, and policies | Depend on UI/client behavior |
-| Genesys discovery adapter | Authenticate and enumerate flow metadata with pagination | Export secrets or mutate tenant state |
-| Architect source adapter | Load/traverse/export a specific flow version | Publish, save, check in, or unlock flows |
-| Normalizer | Convert source objects into `FlowSnapshot` | Infer business meaning |
-| Analyzer | Graph traversal, dependencies, paths, complexity, warnings | Call an LLM |
-| Redactor | Remove secrets and classify sensitive values | Destroy evidence without recording redaction |
-| Document generator | Render deterministic Markdown and evidence packs | Invent missing source facts |
-| Narrative provider | Optional evidence-bounded prose generation | Receive credentials or unredacted prohibited data |
-| State store | Manifests, caches, locks, snapshots, atomic promotion | Be the credential store |
-| Secret store | Resolve a profile secret at runtime | Return secrets to MCP clients or logs |
+| Component                 | Responsibility                                                   | Must not do                                       |
+| ------------------------- | ---------------------------------------------------------------- | ------------------------------------------------- |
+| MCP adapter               | Validate tool inputs, invoke use cases, expose resources/prompts | Contain Genesys logic or secrets                  |
+| CLI adapter               | Profile setup, diagnostics, planning, sync, export               | Duplicate application logic                       |
+| Application service       | Orchestrate plans, runs, state transitions, and policies         | Depend on UI/client behavior                      |
+| Genesys discovery adapter | Authenticate and enumerate flow metadata with pagination         | Export secrets or mutate tenant state             |
+| Architect source adapter  | Load/traverse/export a specific flow version                     | Publish, save, check in, or unlock flows          |
+| Normalizer                | Convert source objects into `FlowSnapshot`                       | Infer business meaning                            |
+| Analyzer                  | Graph traversal, dependencies, paths, complexity, warnings       | Call an LLM                                       |
+| Redactor                  | Remove secrets and classify sensitive values                     | Destroy evidence without recording redaction      |
+| Document generator        | Render deterministic Markdown and evidence packs                 | Invent missing source facts                       |
+| Narrative provider        | Optional evidence-bounded prose generation                       | Receive credentials or unredacted prohibited data |
+| State store               | Manifests, caches, locks, snapshots, atomic promotion            | Be the credential store                           |
+| Secret store              | Resolve a profile secret at runtime                              | Return secrets to MCP clients or logs             |
 
 ## Recommended repository layout
 

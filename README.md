@@ -4,10 +4,10 @@ Captures Genesys Cloud Architect flows and every resource they depend on, then g
 
 Two consumers, two guarantees:
 
-| Consumer | Gets | Guarantee |
-| --- | --- | --- |
-| Humans — engineers, PMs, customers | Markdown, PDF, and diagrams per flow | Every technical fact traces to source evidence; inference is labelled as inference |
-| Machines — a future, separate migration server | An immutable, schema-versioned capture bundle | Complete enough to rebuild the IVR on another platform, including prompt audio |
+| Consumer                                       | Gets                                          | Guarantee                                                                          |
+| ---------------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Humans — engineers, PMs, customers             | Markdown, PDF, and diagrams per flow          | Every technical fact traces to source evidence; inference is labelled as inference |
+| Machines — a future, separate migration server | An immutable, schema-versioned capture bundle | Complete enough to rebuild the IVR on another platform, including prompt audio     |
 
 Archivist does not build that migration server. It guarantees the data contract that server will consume.
 
@@ -92,21 +92,21 @@ A flow has identifiers such as `flowId` and a version. Queues, prompts, data act
 
 The original handoff. Still governing wherever the design spec does not override it.
 
-| File | Purpose |
-| --- | --- |
-| [00-product-brief.md](docs/00-product-brief.md) | Product goals, users, assumptions, scope |
-| [01-system-architecture.md](docs/01-system-architecture.md) | Components, packages, runtime decisions |
-| [02-genesys-integration.md](docs/02-genesys-integration.md) | Authentication, discovery, extraction, versions |
-| [03-mcp-contract.md](docs/03-mcp-contract.md) | MCP tools, resources, prompts, errors, jobs |
-| [04-domain-model.md](docs/04-domain-model.md) | Normalized flow graph, evidence, hashes |
-| [05-documentation-generation.md](docs/05-documentation-generation.md) | Document generation and grounding |
-| [06-security-and-compliance.md](docs/06-security-and-compliance.md) | Credentials, threats, authorization, data controls |
-| [07-change-detection.md](docs/07-change-detection.md) | Incremental updates, manifests, diffs, review |
-| [08-failure-analysis.md](docs/08-failure-analysis.md) | Bottlenecks, FMEA, degradation, kill criteria |
-| [09-testing-strategy.md](docs/09-testing-strategy.md) | Unit, integration, contract, security, chaos tests |
-| [10-deployment-and-clients.md](docs/10-deployment-and-clients.md) | Distribution and per-client configuration |
-| [11-observability-and-operations.md](docs/11-observability-and-operations.md) | Logs, metrics, audit, recovery, support |
-| [12-implementation-roadmap.md](docs/12-implementation-roadmap.md) | Ordered implementation plan |
-| [13-acceptance-criteria.md](docs/13-acceptance-criteria.md) | Definition of done and release gates |
-| [14-open-questions-and-spikes.md](docs/14-open-questions-and-spikes.md) | Questions for IST and required experiments |
-| [15-sources.md](docs/15-sources.md) | Official sources and research notes |
+| File                                                                          | Purpose                                            |
+| ----------------------------------------------------------------------------- | -------------------------------------------------- |
+| [00-product-brief.md](docs/00-product-brief.md)                               | Product goals, users, assumptions, scope           |
+| [01-system-architecture.md](docs/01-system-architecture.md)                   | Components, packages, runtime decisions            |
+| [02-genesys-integration.md](docs/02-genesys-integration.md)                   | Authentication, discovery, extraction, versions    |
+| [03-mcp-contract.md](docs/03-mcp-contract.md)                                 | MCP tools, resources, prompts, errors, jobs        |
+| [04-domain-model.md](docs/04-domain-model.md)                                 | Normalized flow graph, evidence, hashes            |
+| [05-documentation-generation.md](docs/05-documentation-generation.md)         | Document generation and grounding                  |
+| [06-security-and-compliance.md](docs/06-security-and-compliance.md)           | Credentials, threats, authorization, data controls |
+| [07-change-detection.md](docs/07-change-detection.md)                         | Incremental updates, manifests, diffs, review      |
+| [08-failure-analysis.md](docs/08-failure-analysis.md)                         | Bottlenecks, FMEA, degradation, kill criteria      |
+| [09-testing-strategy.md](docs/09-testing-strategy.md)                         | Unit, integration, contract, security, chaos tests |
+| [10-deployment-and-clients.md](docs/10-deployment-and-clients.md)             | Distribution and per-client configuration          |
+| [11-observability-and-operations.md](docs/11-observability-and-operations.md) | Logs, metrics, audit, recovery, support            |
+| [12-implementation-roadmap.md](docs/12-implementation-roadmap.md)             | Ordered implementation plan                        |
+| [13-acceptance-criteria.md](docs/13-acceptance-criteria.md)                   | Definition of done and release gates               |
+| [14-open-questions-and-spikes.md](docs/14-open-questions-and-spikes.md)       | Questions for IST and required experiments         |
+| [15-sources.md](docs/15-sources.md)                                           | Official sources and research notes                |

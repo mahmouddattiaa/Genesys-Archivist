@@ -92,11 +92,11 @@ Do not put the Genesys client ID or secret in this configuration. The process re
 
 ## Configuration scopes
 
-| Scope | Use | Risk |
-| --- | --- | --- |
-| User/global | Same employee uses tool across projects | All trusted projects can discover the tool; enforce profile/output policy |
-| Project | Customer repository pins server configuration | Repo can influence launch args; require workspace trust and safe fixed command |
-| Managed enterprise | IT distributes approved server and policy | Vendor-specific; still needs local profile/secret provisioning |
+| Scope              | Use                                           | Risk                                                                           |
+| ------------------ | --------------------------------------------- | ------------------------------------------------------------------------------ |
+| User/global        | Same employee uses tool across projects       | All trusted projects can discover the tool; enforce profile/output policy      |
+| Project            | Customer repository pins server configuration | Repo can influence launch args; require workspace trust and safe fixed command |
+| Managed enterprise | IT distributes approved server and policy     | Vendor-specific; still needs local profile/secret provisioning                 |
 
 ## Updating the tool
 

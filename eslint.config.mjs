@@ -29,44 +29,64 @@ export default tseslint.config(
   {
     files: ['packages/domain/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', {
-        patterns: [
-          { group: ['@genesys-archivist/*'], message: 'domain must not import other workspace packages.' },
-          { group: ['node:*', 'fs', 'path', 'http', 'https', 'child_process'], message: 'domain must be pure: no I/O, no filesystem, no network.' },
-        ],
-      }],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@genesys-archivist/*'],
+              message: 'domain must not import other workspace packages.',
+            },
+            {
+              group: ['node:*', 'fs', 'path', 'http', 'https', 'child_process'],
+              message: 'domain must be pure: no I/O, no filesystem, no network.',
+            },
+          ],
+        },
+      ],
     },
   },
 
   {
     files: ['packages/application/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', {
-        patterns: [{
-          group: ['@genesys-archivist/*', '!@genesys-archivist/domain'],
-          message: 'application may import only @genesys-archivist/domain. Depend on interfaces, not adapters.',
-        }],
-      }],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@genesys-archivist/*', '!@genesys-archivist/domain'],
+              message:
+                'application may import only @genesys-archivist/domain. Depend on interfaces, not adapters.',
+            },
+          ],
+        },
+      ],
     },
   },
 
   {
     files: ['apps/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', {
-        patterns: [{
-          group: [
-            '@genesys-archivist/genesys-*',
-            '@genesys-archivist/capture',
-            '@genesys-archivist/normalization',
-            '@genesys-archivist/analysis',
-            '@genesys-archivist/documentation',
-            '@genesys-archivist/rendering',
-            '@genesys-archivist/narrative',
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@genesys-archivist/genesys-*',
+                '@genesys-archivist/capture',
+                '@genesys-archivist/normalization',
+                '@genesys-archivist/analysis',
+                '@genesys-archivist/documentation',
+                '@genesys-archivist/rendering',
+                '@genesys-archivist/narrative',
+              ],
+              message: 'Adapters are thin. Go through @genesys-archivist/application.',
+            },
           ],
-          message: 'Adapters are thin. Go through @genesys-archivist/application.',
-        }],
-      }],
+        },
+      ],
     },
   },
 

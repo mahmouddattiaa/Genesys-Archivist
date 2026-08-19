@@ -4,7 +4,7 @@
   "examples": [
     {
       "tool": "genesys_connection_check",
-      "input": {"profileId": "sandbox-egypt"},
+      "input": { "profileId": "sandbox-egypt" },
       "result": {
         "contractVersion": "1.0",
         "ok": true,
@@ -37,8 +37,18 @@
         "summary": "2 published inbound call flows returned.",
         "data": {
           "items": [
-            {"flowId": "flow_demo_a", "name": "Main Service IVR", "type": "inboundcall", "publishedVersion": 12},
-            {"flowId": "flow_demo_b", "name": "After Hours IVR", "type": "inboundcall", "publishedVersion": 4}
+            {
+              "flowId": "flow_demo_a",
+              "name": "Main Service IVR",
+              "type": "inboundcall",
+              "publishedVersion": 12
+            },
+            {
+              "flowId": "flow_demo_b",
+              "name": "After Hours IVR",
+              "type": "inboundcall",
+              "publishedVersion": 4
+            }
           ],
           "continuationToken": null
         },
@@ -50,7 +60,7 @@
       "tool": "genesys_docs_plan",
       "input": {
         "profileId": "sandbox-egypt",
-        "selection": {"flowIds": ["flow_demo_a", "flow_demo_b"]},
+        "selection": { "flowIds": ["flow_demo_a", "flow_demo_b"] },
         "versionSelection": "published",
         "dataProcessingMode": "deterministic-only",
         "maxFlows": 10
@@ -69,7 +79,7 @@
           "requiresConfirmation": true
         },
         "warnings": [],
-        "resources": [{"uri": "genesys-docs://plans/plan_demo_001", "description": "Full plan"}]
+        "resources": [{ "uri": "genesys-docs://plans/plan_demo_001", "description": "Full plan" }]
       }
     },
     {
@@ -84,14 +94,16 @@
         "ok": true,
         "correlationId": "corr_demo_004",
         "summary": "Documentation run started.",
-        "data": {"runId": "run_demo_001", "state": "queued"},
+        "data": { "runId": "run_demo_001", "state": "queued" },
         "warnings": [],
-        "resources": [{"uri": "genesys-docs://runs/run_demo_001/report", "description": "Run report"}]
+        "resources": [
+          { "uri": "genesys-docs://runs/run_demo_001/report", "description": "Run report" }
+        ]
       }
     },
     {
       "tool": "genesys_docs_run_get",
-      "input": {"runId": "run_demo_001"},
+      "input": { "runId": "run_demo_001" },
       "result": {
         "contractVersion": "1.0",
         "ok": true,
@@ -100,10 +112,17 @@
         "data": {
           "runId": "run_demo_001",
           "state": "completed_with_warnings",
-          "progress": {"total": 2, "completed": 2, "skipped": 0, "failed": 0}
+          "progress": { "total": 2, "completed": 2, "skipped": 0, "failed": 0 }
         },
-        "warnings": [{"code": "DEPENDENCY_FORBIDDEN", "message": "One queue name could not be resolved; its stable ID remains documented."}],
-        "resources": [{"uri": "genesys-docs://runs/run_demo_001/report", "description": "Final report"}]
+        "warnings": [
+          {
+            "code": "DEPENDENCY_FORBIDDEN",
+            "message": "One queue name could not be resolved; its stable ID remains documented."
+          }
+        ],
+        "resources": [
+          { "uri": "genesys-docs://runs/run_demo_001/report", "description": "Final report" }
+        ]
       }
     }
   ]

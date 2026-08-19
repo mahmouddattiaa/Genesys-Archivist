@@ -59,20 +59,20 @@ Without these, remote hosting is a rejected architecture.
 
 ## Threat model
 
-| Threat | Attack/failure | Required control |
-| --- | --- | --- |
-| Secret disclosure in chat | User/model passes client secret to a tool | No secret fields; CLI-only setup; schema rejection; log redaction |
-| Cross-tenant extraction | Wrong profile or region selected | Discover and compare organization ID; plan shows tenant; profile binding |
-| Excessive permissions | Convenience role grants edit/admin | Permission test; documented least-privilege role; adapter mutation denylist |
-| Prompt injection | Flow text tells model to call tools or reveal data | Typed evidence packs; data delimiters; instruction hierarchy; output validation |
-| Path traversal | Flow name becomes output path | Slugify display names; path by stable IDs; canonical-root enforcement |
-| Symlink escape | Output path points outside approved root | Refuse unsafe links; secure open/create; post-resolution root check |
-| Log leakage | SDK dumps headers or bodies | Central logger redaction; disable raw HTTP logging; secret canary tests |
-| Data exfiltration | Unapproved AI provider receives customer config | Deterministic default; provider allowlist; data classification gate |
-| Supply-chain compromise | Malicious package reads credentials | Lockfile, provenance, SBOM, scanning, minimal dependencies, release signing |
-| Stale or tampered output | Old docs presented as current | Signed/hashed manifests, source version banner, freshness check |
-| Destructive local write | Broad path or wrong repository overwritten | Plan preview, output allowlist, staging, atomic promotion, backup |
-| Denial of service | Huge tenant/flow exhausts memory/context | Pagination, streaming, size limits, bounded concurrency, resource output |
+| Threat                    | Attack/failure                                     | Required control                                                                |
+| ------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Secret disclosure in chat | User/model passes client secret to a tool          | No secret fields; CLI-only setup; schema rejection; log redaction               |
+| Cross-tenant extraction   | Wrong profile or region selected                   | Discover and compare organization ID; plan shows tenant; profile binding        |
+| Excessive permissions     | Convenience role grants edit/admin                 | Permission test; documented least-privilege role; adapter mutation denylist     |
+| Prompt injection          | Flow text tells model to call tools or reveal data | Typed evidence packs; data delimiters; instruction hierarchy; output validation |
+| Path traversal            | Flow name becomes output path                      | Slugify display names; path by stable IDs; canonical-root enforcement           |
+| Symlink escape            | Output path points outside approved root           | Refuse unsafe links; secure open/create; post-resolution root check             |
+| Log leakage               | SDK dumps headers or bodies                        | Central logger redaction; disable raw HTTP logging; secret canary tests         |
+| Data exfiltration         | Unapproved AI provider receives customer config    | Deterministic default; provider allowlist; data classification gate             |
+| Supply-chain compromise   | Malicious package reads credentials                | Lockfile, provenance, SBOM, scanning, minimal dependencies, release signing     |
+| Stale or tampered output  | Old docs presented as current                      | Signed/hashed manifests, source version banner, freshness check                 |
+| Destructive local write   | Broad path or wrong repository overwritten         | Plan preview, output allowlist, staging, atomic promotion, backup               |
+| Denial of service         | Huge tenant/flow exhausts memory/context           | Pagination, streaming, size limits, bounded concurrency, resource output        |
 
 ## Input and output validation
 
