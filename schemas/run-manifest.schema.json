@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ist.example/schemas/genesys-docs/run-manifest.schema.json",
+  "title": "Genesys Documentation Run Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "planId",
+    "planHash",
+    "idempotencyKey",
+    "profileId",
+    "organization",
+    "state",
+    "policy",
+    "versions",
+    "selection",
+    "progress",
+    "flowResults",
+    "warnings",
+    "errors",
+    "artifacts"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "runId": {"type": "string", "minLength": 1, "maxLength": 200},
+    "planId": {"type": "string", "minLength": 1, "maxLength": 200},
+    "planHash": {"type": "string", "minLength": 16, "maxLength": 200},
+    "idempotencyKey": {"type": "string", "minLength": 1, "maxLength": 300},
+    "profileId": {"type": "string", "minLength": 1, "maxLength": 200},
+    "organization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "region"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1, "maxLength": 300},
+        "name": {"type": "string", "maxLength": 500},
+        "region": {"type": "string", "minLength": 1, "maxLength": 100}
+      }
+    },
+    "state": {
+      "enum": [
+        "planned",
+        "queued",
+        "extracting",
+        "normalizing",
+        "analyzing",
+        "rendering",
+        "validating",
+        "promoting",
+        "completed",
+        "completed_with_warnings",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "createdAt": {"type": "string", "format": "date-time"},
+    "startedAt": {"type": ["string", "null"], "format": "date-time"},
+    "finishedAt": {"type": ["string", "null"], "format": "date-time"},
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["versionSelection", "dataProcessingMode", "allowPartialPromotion", "maxFlows"],
+      "properties": {
+        "versionSelection": {"enum": ["published", "checked-in", "working-copy", "published-and-latest"]},
+        "dataProcessingMode": {"enum": ["deterministic-only", "interactive-client", "approved-provider"]},
+        "allowPartialPromotion": {"type": "boolean"},
+        "maxFlows": {"type": "integer", "minimum": 1}
+      }
+    },
+    "versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["application", "adapter", "normalizer", "analyzer", "redactor", "generator", "template"],
+      "properties": {
+        "application": {"type": "string"},
+        "adapter": {"type": "string"},
+        "normalizer": {"type": "string"},
+        "analyzer": {"type": "string"},
+        "redactor": {"type": "string"},
+        "generator": {"type": "string"},
+        "template": {"type": "string"},
+        "genesysSdk": {"type": "string"},
+        "mcpSdk": {"type": "string"}
+      }
+    },
+    "selection": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["flowId", "flowType", "selectedVersion", "expectedAction"],
+        "properties": {
+          "flowId": {"type": "string", "minLength": 1, "maxLength": 300},
+          "flowType": {"type": "string", "minLength": 1, "maxLength": 200},
+          "selectedVersion": {"type": ["integer", "string"]},
+          "expectedAction": {"enum": ["create", "update", "skip", "archive", "inspect"]}
+        }
+      }
+    },
+    "progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "queued", "running", "completed", "skipped", "failed"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "queued": {"type": "integer", "minimum": 0},
+        "running": {"type": "integer", "minimum": 0},
+        "completed": {"type": "integer", "minimum": 0},
+        "skipped": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0}
+      }
+    },
+    "flowResults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["flowId", "selectedVersion", "status", "sourceChanged", "generatorChanged", "warnings", "errors", "artifacts"],
+        "properties": {
+          "flowId": {"type": "string", "minLength": 1, "maxLength": 300},
+          "selectedVersion": {"type": ["integer", "string"]},
+          "status": {"enum": ["queued", "running", "completed", "completed_with_warnings", "skipped", "failed", "stale", "cancelled"]},
+          "sourceChanged": {"type": "boolean"},
+          "generatorChanged": {"type": "boolean"},
+          "snapshotHash": {"type": "string", "maxLength": 200},
+          "warnings": {"type": "array", "items": {"$ref": "#/$defs/issue"}},
+          "errors": {"type": "array", "items": {"$ref": "#/$defs/issue"}},
+          "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifact"}}
+        }
+      }
+    },
+    "warnings": {"type": "array", "items": {"$ref": "#/$defs/issue"}},
+    "errors": {"type": "array", "items": {"$ref": "#/$defs/issue"}},
+    "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifact"}}
+  },
+  "$defs": {
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "category", "message", "retryable"],
+      "properties": {
+        "code": {"type": "string", "pattern": "^[A-Z0-9_]{3,100}$"},
+        "category": {"type": "string", "minLength": 1, "maxLength": 100},
+        "message": {"type": "string", "minLength": 1, "maxLength": 5000},
+        "retryable": {"type": "boolean"},
+        "flowId": {"type": ["string", "null"], "maxLength": 300}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "uri", "hash"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1, "maxLength": 100},
+        "uri": {"type": "string", "minLength": 1, "maxLength": 4000},
+        "hash": {"type": "string", "minLength": 16, "maxLength": 200},
+        "classification": {"enum": ["internal", "confidential", "restricted"]}
+      }
+    }
+  }
+}

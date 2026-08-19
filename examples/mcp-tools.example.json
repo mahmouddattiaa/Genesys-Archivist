@@ -1,0 +1,110 @@
+{
+  "contractVersion": "1.0",
+  "notice": "Illustrative, sanitized examples. No field accepts a Genesys client secret or password.",
+  "examples": [
+    {
+      "tool": "genesys_connection_check",
+      "input": {"profileId": "sandbox-egypt"},
+      "result": {
+        "contractVersion": "1.0",
+        "ok": true,
+        "correlationId": "corr_demo_001",
+        "summary": "Connected to the expected Genesys Cloud organization with read-only flow visibility.",
+        "data": {
+          "profileId": "sandbox-egypt",
+          "organizationId": "org_demo_001",
+          "organizationName": "IST Sandbox",
+          "region": "example-region",
+          "sourceProvider": "architect-scripting-sdk",
+          "permissionStatus": "sufficient_for_pilot"
+        },
+        "warnings": [],
+        "resources": []
+      }
+    },
+    {
+      "tool": "genesys_flows_list",
+      "input": {
+        "profileId": "sandbox-egypt",
+        "flowTypes": ["inboundcall"],
+        "publicationState": "published",
+        "pageSize": 50
+      },
+      "result": {
+        "contractVersion": "1.0",
+        "ok": true,
+        "correlationId": "corr_demo_002",
+        "summary": "2 published inbound call flows returned.",
+        "data": {
+          "items": [
+            {"flowId": "flow_demo_a", "name": "Main Service IVR", "type": "inboundcall", "publishedVersion": 12},
+            {"flowId": "flow_demo_b", "name": "After Hours IVR", "type": "inboundcall", "publishedVersion": 4}
+          ],
+          "continuationToken": null
+        },
+        "warnings": [],
+        "resources": []
+      }
+    },
+    {
+      "tool": "genesys_docs_plan",
+      "input": {
+        "profileId": "sandbox-egypt",
+        "selection": {"flowIds": ["flow_demo_a", "flow_demo_b"]},
+        "versionSelection": "published",
+        "dataProcessingMode": "deterministic-only",
+        "maxFlows": 10
+      },
+      "result": {
+        "contractVersion": "1.0",
+        "ok": true,
+        "correlationId": "corr_demo_003",
+        "summary": "2 flows selected; 1 new and 1 changed.",
+        "data": {
+          "planId": "plan_demo_001",
+          "planHash": "sha256:demo-plan-hash-0000000000000000",
+          "expiresAt": "2026-08-19T16:30:00Z",
+          "flowCount": 2,
+          "expectedWrites": 10,
+          "requiresConfirmation": true
+        },
+        "warnings": [],
+        "resources": [{"uri": "genesys-docs://plans/plan_demo_001", "description": "Full plan"}]
+      }
+    },
+    {
+      "tool": "genesys_docs_run_start",
+      "input": {
+        "planId": "plan_demo_001",
+        "planHash": "sha256:demo-plan-hash-0000000000000000",
+        "idempotencyKey": "pilot-2026-08-19-main-ivr"
+      },
+      "result": {
+        "contractVersion": "1.0",
+        "ok": true,
+        "correlationId": "corr_demo_004",
+        "summary": "Documentation run started.",
+        "data": {"runId": "run_demo_001", "state": "queued"},
+        "warnings": [],
+        "resources": [{"uri": "genesys-docs://runs/run_demo_001/report", "description": "Run report"}]
+      }
+    },
+    {
+      "tool": "genesys_docs_run_get",
+      "input": {"runId": "run_demo_001"},
+      "result": {
+        "contractVersion": "1.0",
+        "ok": true,
+        "correlationId": "corr_demo_005",
+        "summary": "Run completed with one unresolved dependency warning.",
+        "data": {
+          "runId": "run_demo_001",
+          "state": "completed_with_warnings",
+          "progress": {"total": 2, "completed": 2, "skipped": 0, "failed": 0}
+        },
+        "warnings": [{"code": "DEPENDENCY_FORBIDDEN", "message": "One queue name could not be resolved; its stable ID remains documented."}],
+        "resources": [{"uri": "genesys-docs://runs/run_demo_001/report", "description": "Final report"}]
+      }
+    }
+  ]
+}
