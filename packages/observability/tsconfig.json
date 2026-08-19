@@ -8,6 +8,9 @@
   "references": [
     {
       "path": "../../packages/domain"
+    },
+    {
+      "path": "../../packages/security"
     }
   ]
 }

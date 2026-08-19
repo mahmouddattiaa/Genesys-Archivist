@@ -17,8 +17,12 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@genesys-archivist/domain": "*",
     "@genesys-archivist/application": "*",
-    "@genesys-archivist/composition": "*"
+    "@genesys-archivist/composition": "*",
+    "@genesys-archivist/domain": "*",
+    "@genesys-archivist/security": "*"
+  },
+  "devDependencies": {
+    "@genesys-archivist/testing": "*"
   }
 }
