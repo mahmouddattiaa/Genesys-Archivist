@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ist.example/schemas/genesys-archivist/capture-bundle.schema.json",
+  "title": "Genesys Archivist Capture Bundle Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "captureId",
+    "sealedAt",
+    "classification",
+    "organization",
+    "policy",
+    "versions",
+    "counts",
+    "contentHash"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "captureId": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}Z_[0-9a-z]{6}$",
+      "maxLength": 40
+    },
+    "sealedAt": { "type": "string", "format": "date-time", "maxLength": 40 },
+    "classification": { "enum": ["restricted"] },
+    "organization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "region"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "name": { "type": "string", "maxLength": 500 },
+        "region": { "type": "string", "minLength": 1, "maxLength": 100 }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["versionSelection", "captureAssets", "captureDataTableRows"],
+      "properties": {
+        "versionSelection": {
+          "enum": ["published", "checked-in", "working-copy", "published-and-latest"]
+        },
+        "captureAssets": { "type": "boolean" },
+        "captureDataTableRows": { "type": "boolean" },
+        "flowTypes": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 100 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["application", "adapter", "sourceProvider"],
+      "properties": {
+        "application": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "adapter": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "sourceProvider": {
+          "enum": ["platform-api", "archy-cli", "architect-scripting-sdk", "manual-yaml", "fixture"]
+        },
+        "genesysSdk": { "type": "string", "maxLength": 100 },
+        "archy": { "type": "string", "maxLength": 100 }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["flows", "resources", "assets", "unresolvedReferences"],
+      "properties": {
+        "flows": { "type": "integer", "minimum": 0 },
+        "resources": { "type": "integer", "minimum": 0 },
+        "assets": { "type": "integer", "minimum": 0 },
+        "assetBytes": { "type": "integer", "minimum": 0 },
+        "unresolvedReferences": { "type": "integer", "minimum": 0 },
+        "dataTableRowsCaptured": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "migrationReadiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["archyImportableYaml", "assetsCaptured"],
+      "properties": {
+        "archyImportableYaml": { "type": "boolean" },
+        "assetsCaptured": { "type": "boolean" },
+        "caveats": { "type": "array", "items": { "type": "string", "maxLength": 2000 } }
+      }
+    },
+    "contentHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$", "maxLength": 71 }
+  }
+}

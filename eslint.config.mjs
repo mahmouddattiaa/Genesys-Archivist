@@ -5,18 +5,27 @@ import tseslint from 'typescript-eslint';
  * Architectural boundaries from the design spec, section 4.2, enforced as lint
  * rules rather than left to reviewer discipline.
  *
- *   domain       imports nothing from this repo, and touches no I/O
+ *   domain       imports nothing from this repo, and performs no I/O
  *   application  imports domain only
- *   apps/*       import application only
+ *   apps/*       import application and composition only
+ *
+ * Type-aware rules resolve through tsconfig.eslint.json rather than the build
+ * tsconfigs, because each package's build config includes only src/ — test files
+ * must be lintable without being emitted into dist/.
  */
 export default tseslint.config(
   { ignores: ['**/dist/**', '**/coverage/**', '**/node_modules/**'] },
 
   js.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
+
   {
+    files: ['**/*.ts'],
+    extends: [...tseslint.configs.strictTypeChecked],
     languageOptions: {
-      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+      parserOptions: {
+        project: ['./tsconfig.eslint.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     rules: {
       'no-console': 'error',
@@ -38,8 +47,33 @@ export default tseslint.config(
               message: 'domain must not import other workspace packages.',
             },
             {
-              group: ['node:*', 'fs', 'path', 'http', 'https', 'child_process'],
-              message: 'domain must be pure: no I/O, no filesystem, no network.',
+              // domain must perform no I/O. node:crypto is deliberately permitted:
+              // canonical hashing and derived node identity are pure computation,
+              // and reimplementing SHA-256 by hand would be strictly worse.
+              group: [
+                'node:fs',
+                'node:fs/*',
+                'node:path',
+                'node:os',
+                'node:http',
+                'node:https',
+                'node:net',
+                'node:dns',
+                'node:child_process',
+                'node:process',
+                'node:worker_threads',
+                'fs',
+                'fs/*',
+                'path',
+                'os',
+                'http',
+                'https',
+                'net',
+                'dns',
+                'child_process',
+              ],
+              message:
+                'domain must be pure: no filesystem, network, process, or OS access. node:crypto is permitted.',
             },
           ],
         },
@@ -91,11 +125,40 @@ export default tseslint.config(
   },
 
   {
-    files: ['**/test/**/*.ts', 'scripts/**/*.mjs'],
+    // Tests deliberately handle untyped JSON, poke at private shapes, and use
+    // non-null assertions on fixtures they just constructed. The type-safety
+    // rules that protect production code get in the way here without catching
+    // anything real.
+    files: ['**/test/**/*.ts'],
     rules: {
       'no-console': 'off',
+      'no-restricted-imports': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          // Permits the destructure-to-omit idiom:
+          //   const { contentHash: _omitted, ...withoutHash } = manifest;
+          ignoreRestSiblings: true,
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+
+  {
+    files: ['**/*.mjs'],
+    languageOptions: {
+      globals: { process: 'readonly', console: 'readonly' },
+    },
+    rules: {
+      'no-console': 'off',
     },
   },
 );

@@ -1,0 +1,29 @@
+{
+  "$archivistSchema": "https://ist.example/schemas/genesys-archivist/resource-graph.schema.json",
+  "schemaVersion": "1.0",
+  "captureId": "2026-08-20T14-02-11Z_a1b2c3",
+  "nodes": [
+    {
+      "key": "flow:f_main",
+      "type": "flow",
+      "id": "f_main",
+      "resolutionStatus": "resolved",
+      "displayName": "Main IVR"
+    },
+    {
+      "key": "queue:q_billing",
+      "type": "queue",
+      "id": "q_billing",
+      "resolutionStatus": "resolved",
+      "displayName": "Billing"
+    }
+  ],
+  "edges": [
+    {
+      "from": "flow:f_main",
+      "to": "queue:q_billing",
+      "viaNodeId": "nd_abc",
+      "viaField": "transferTarget"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ist.example/schemas/genesys-archivist/resource-graph.schema.json",
+  "title": "Genesys Archivist Resource Reference Graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "captureId", "nodes", "edges"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "captureId": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "nodes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "type", "id", "resolutionStatus"],
+        "properties": {
+          "key": { "type": "string", "pattern": "^[a-z-]+:.+$", "maxLength": 400 },
+          "type": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "id": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "displayName": { "type": ["string", "null"], "maxLength": 1000 },
+          "resolutionStatus": {
+            "enum": [
+              "resolved",
+              "partially_resolved",
+              "not_found",
+              "forbidden",
+              "unsupported",
+              "redacted"
+            ]
+          },
+          "divisionId": { "type": ["string", "null"], "maxLength": 300 }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "viaNodeId", "viaField"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1, "maxLength": 400 },
+          "to": { "type": "string", "minLength": 1, "maxLength": 400 },
+          "viaNodeId": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "viaField": { "type": "string", "minLength": 1, "maxLength": 300 }
+        }
+      }
+    },
+    "orphans": {
+      "type": "array",
+      "description": "Node keys captured but referenced by nothing.",
+      "items": { "type": "string", "maxLength": 400 },
+      "uniqueItems": true
+    }
+  }
+}
