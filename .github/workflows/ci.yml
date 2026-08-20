@@ -66,3 +66,23 @@ jobs:
             exit 1
           fi
           echo "OK: no customer artifacts tracked."
+
+  # A source package silently matched by a .gitignore rule is invisible to git
+  # and absent from a fresh clone, while still building locally. That happened
+  # once and went unnoticed across many commits.
+  packages-tracked:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every workspace package must have tracked files
+        run: |
+          fail=0
+          for dir in packages/*/ apps/*/; do
+            count=$(git ls-files "$dir" | wc -l)
+            if [ "$count" -eq 0 ]; then
+              echo "::error::$dir has NO tracked files - check .gitignore for an unanchored rule"
+              fail=1
+            fi
+          done
+          [ "$fail" -eq 0 ] && echo "OK: all workspace packages are tracked."
+          exit $fail

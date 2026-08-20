@@ -13,12 +13,17 @@ coverage/
 # Capture bundles are classified `restricted`: they contain endpoint
 # URLs, DIDs, routing logic, data-table rows, and prompt audio.
 # ---------------------------------------------------------------
-bundles/
-derived/
-documentation/
-.archivist/
+# Anchored with a leading slash so they match ONLY at the repository root.
+# Unanchored, `documentation/` also matched `packages/documentation/` and made
+# that entire source package invisible to git -- it was never committed, and a
+# fresh clone would fail `tsc --build` on a referenced directory that was not
+# there. The CI job below now fails the build if a package has no tracked files.
+/bundles/
+/derived/
+/documentation/
+/.archivist/
 *.capture-bundle/
-spike-evidence/
+/spike-evidence/
 
 # Raw Architect exports. These are customer configuration: flow logic, queue
 # names, prompt text, data-action endpoints. Sanitized derivatives belong in

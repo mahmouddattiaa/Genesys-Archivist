@@ -1,0 +1,26 @@
+{
+  "name": "@genesys-archivist/documentation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic Markdown rendering, evidence pack assembly, and Mermaid source generation.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@genesys-archivist/analysis": "*",
+    "@genesys-archivist/domain": "*"
+  },
+  "devDependencies": {
+    "@genesys-archivist/normalization": "*"
+  }
+}
