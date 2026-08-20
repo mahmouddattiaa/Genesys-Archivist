@@ -4,3 +4,4 @@
 export * from './resource-graph.js';
 export * from './bundle-writer.js';
 export * from './bundle-verifier.js';
+export * from './capture-run.js';

@@ -19,7 +19,7 @@ beforeAll(async () => {
   const config: unknown = JSON.parse(
     await readFile('fixtures/flow-config/inboundcall-47-nodes.json', 'utf8'),
   );
-  set = await runDocument({
+  set = runDocument({
     config,
     flowId: 'f1',
     flowName: 'Fixture Flow',
@@ -37,7 +37,7 @@ describe('the documentation set as a whole', () => {
     for (const name of DOCUMENTS) {
       const cited = set.files[name]?.match(/sha256:[0-9a-f]{64}/g) ?? [];
       expect(cited.length, `${name} cites nothing`).toBeGreaterThan(0);
-      for (const id of cited) expect(ids.has(id), `${name} cites ${String(id)}`).toBe(true);
+      for (const id of cited) expect(ids.has(id), `${name} cites ${id}`).toBe(true);
     }
   });
 
@@ -84,10 +84,9 @@ describe('the documentation set as a whole', () => {
       // declaration being empty.
       for (const dependency of languageDependencies) {
         const identity = dependency.displayName ?? dependency.dependencyId;
-        expect(
-          contents.includes(identity),
-          `${name} never names the language ${String(identity)}`,
-        ).toBe(true);
+        expect(contents.includes(identity), `${name} never names the language ${identity}`).toBe(
+          true,
+        );
       }
     }
   });

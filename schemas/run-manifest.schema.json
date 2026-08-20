@@ -6,6 +6,7 @@
   "additionalProperties": false,
   "required": [
     "schemaVersion",
+    "stage",
     "runId",
     "planId",
     "planHash",
@@ -23,26 +24,64 @@
     "artifacts"
   ],
   "properties": {
-    "schemaVersion": { "const": "1.0" },
-    "runId": { "type": "string", "minLength": 1, "maxLength": 200 },
-    "planId": { "type": "string", "minLength": 1, "maxLength": 200 },
-    "planHash": { "type": "string", "minLength": 16, "maxLength": 200 },
-    "idempotencyKey": { "type": "string", "minLength": 1, "maxLength": 300 },
-    "profileId": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "schemaVersion": {
+      "const": "1.1"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "planId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "planHash": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 200
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "profileId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
     "organization": {
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "region"],
       "properties": {
-        "id": { "type": "string", "minLength": 1, "maxLength": 300 },
-        "name": { "type": "string", "maxLength": 500 },
-        "region": { "type": "string", "minLength": 1, "maxLength": 100 }
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
       }
     },
     "state": {
       "enum": [
         "planned",
         "queued",
+        "discovering",
+        "fetching_definitions",
+        "walking_resources",
+        "downloading_assets",
+        "sealing",
         "extracting",
         "normalizing",
         "analyzing",
@@ -55,13 +94,22 @@
         "cancelled"
       ]
     },
-    "createdAt": { "type": "string", "format": "date-time" },
-    "startedAt": { "type": ["string", "null"], "format": "date-time" },
-    "finishedAt": { "type": ["string", "null"], "format": "date-time" },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "startedAt": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "finishedAt": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
     "policy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["versionSelection", "dataProcessingMode", "allowPartialPromotion", "maxFlows"],
+      "required": ["versionSelection", "allowPartialPromotion"],
       "properties": {
         "versionSelection": {
           "enum": ["published", "checked-in", "working-copy", "published-and-latest"]
@@ -69,32 +117,51 @@
         "dataProcessingMode": {
           "enum": ["deterministic-only", "interactive-client", "approved-provider"]
         },
-        "allowPartialPromotion": { "type": "boolean" },
-        "maxFlows": { "type": "integer", "minimum": 1 }
+        "allowPartialPromotion": {
+          "type": "boolean"
+        },
+        "maxFlows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mode": {
+          "description": "Capture mode, per ADR-018. Absent on a stage-2 document run, which does not capture. 'context' never produces a migration-ready bundle.",
+          "enum": ["context", "migration"]
+        }
       }
     },
     "versions": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "application",
-        "adapter",
-        "normalizer",
-        "analyzer",
-        "redactor",
-        "generator",
-        "template"
-      ],
+      "required": ["application", "adapter"],
       "properties": {
-        "application": { "type": "string" },
-        "adapter": { "type": "string" },
-        "normalizer": { "type": "string" },
-        "analyzer": { "type": "string" },
-        "redactor": { "type": "string" },
-        "generator": { "type": "string" },
-        "template": { "type": "string" },
-        "genesysSdk": { "type": "string" },
-        "mcpSdk": { "type": "string" }
+        "application": {
+          "type": "string"
+        },
+        "adapter": {
+          "type": "string"
+        },
+        "normalizer": {
+          "type": "string"
+        },
+        "analyzer": {
+          "type": "string"
+        },
+        "redactor": {
+          "type": "string"
+        },
+        "generator": {
+          "type": "string"
+        },
+        "template": {
+          "type": "string"
+        },
+        "genesysSdk": {
+          "type": "string"
+        },
+        "mcpSdk": {
+          "type": "string"
+        }
       }
     },
     "selection": {
@@ -104,10 +171,22 @@
         "additionalProperties": false,
         "required": ["flowId", "flowType", "selectedVersion", "expectedAction"],
         "properties": {
-          "flowId": { "type": "string", "minLength": 1, "maxLength": 300 },
-          "flowType": { "type": "string", "minLength": 1, "maxLength": 200 },
-          "selectedVersion": { "type": ["integer", "string"] },
-          "expectedAction": { "enum": ["create", "update", "skip", "archive", "inspect"] }
+          "flowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "flowType": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "selectedVersion": {
+            "type": ["integer", "string"]
+          },
+          "expectedAction": {
+            "enum": ["create", "update", "skip", "archive", "inspect"]
+          }
         }
       }
     },
@@ -116,12 +195,30 @@
       "additionalProperties": false,
       "required": ["total", "queued", "running", "completed", "skipped", "failed"],
       "properties": {
-        "total": { "type": "integer", "minimum": 0 },
-        "queued": { "type": "integer", "minimum": 0 },
-        "running": { "type": "integer", "minimum": 0 },
-        "completed": { "type": "integer", "minimum": 0 },
-        "skipped": { "type": "integer", "minimum": 0 },
-        "failed": { "type": "integer", "minimum": 0 }
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "queued": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "running": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "flowResults": {
@@ -140,8 +237,14 @@
           "artifacts"
         ],
         "properties": {
-          "flowId": { "type": "string", "minLength": 1, "maxLength": 300 },
-          "selectedVersion": { "type": ["integer", "string"] },
+          "flowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "selectedVersion": {
+            "type": ["integer", "string"]
+          },
           "status": {
             "enum": [
               "queued",
@@ -154,18 +257,59 @@
               "cancelled"
             ]
           },
-          "sourceChanged": { "type": "boolean" },
-          "generatorChanged": { "type": "boolean" },
-          "snapshotHash": { "type": "string", "maxLength": 200 },
-          "warnings": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
-          "errors": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
-          "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" } }
+          "sourceChanged": {
+            "type": "boolean"
+          },
+          "generatorChanged": {
+            "type": "boolean"
+          },
+          "snapshotHash": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/issue"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/issue"
+            }
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/artifact"
+            }
+          }
         }
       }
     },
-    "warnings": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
-    "errors": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
-    "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" } }
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/issue"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/issue"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "stage": {
+      "description": "Which machine this run belongs to. Stage 1 (capture) talks to Genesys and seals a bundle; stage 2 (document) opens no sockets and reads one. They have different phases and run different components, so a single flat state enum forced a capture run to misreport its own phase.",
+      "enum": ["capture", "document"]
+    }
   },
   "$defs": {
     "issue": {
@@ -173,11 +317,27 @@
       "additionalProperties": false,
       "required": ["code", "category", "message", "retryable"],
       "properties": {
-        "code": { "type": "string", "pattern": "^[A-Z0-9_]{3,100}$" },
-        "category": { "type": "string", "minLength": 1, "maxLength": 100 },
-        "message": { "type": "string", "minLength": 1, "maxLength": 5000 },
-        "retryable": { "type": "boolean" },
-        "flowId": { "type": ["string", "null"], "maxLength": 300 }
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z0-9_]{3,100}$"
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 5000
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "flowId": {
+          "type": ["string", "null"],
+          "maxLength": 300
+        }
       }
     },
     "artifact": {
@@ -185,10 +345,24 @@
       "additionalProperties": false,
       "required": ["kind", "uri", "hash"],
       "properties": {
-        "kind": { "type": "string", "minLength": 1, "maxLength": 100 },
-        "uri": { "type": "string", "minLength": 1, "maxLength": 4000 },
-        "hash": { "type": "string", "minLength": 16, "maxLength": 200 },
-        "classification": { "enum": ["internal", "confidential", "restricted"] }
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "uri": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "hash": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 200
+        },
+        "classification": {
+          "enum": ["internal", "confidential", "restricted"]
+        }
       }
     }
   }

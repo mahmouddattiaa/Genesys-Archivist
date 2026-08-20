@@ -90,7 +90,7 @@ export interface MigrationReadiness {
 }
 
 export interface BundleManifest {
-  readonly schemaVersion: '1.1';
+  readonly schemaVersion: '1.2';
   readonly captureId: string;
   readonly sealedAt: string;
   readonly classification: 'restricted';
