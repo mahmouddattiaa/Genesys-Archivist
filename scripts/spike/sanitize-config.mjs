@@ -151,7 +151,15 @@ function sanitizeKey(key, parentKey) {
 function sanitize(node, key = '', path = '') {
   if (typeof node === 'string') return sanitizeString(node, key, path);
   if (node === null || typeof node !== 'object') return node;
-  if (Array.isArray(node)) return node.map((x, i) => sanitize(x, key, `${path}[${i}]`));
+
+  // The "[]" suffix matters. `properties` is an object map whose KEYS are
+  // tenant field names, so those keys get pseudonymised. But `outputs` and
+  // `inputs` are ARRAYS of {name, value} records whose keys are structural.
+  // Without this suffix an array element inherits the tenant-keyed parent and
+  // its `name`/`value` keys get renamed, which corrupts the structure the
+  // normalizer depends on.
+  if (Array.isArray(node)) return node.map((x, i) => sanitize(x, `${key}[]`, `${path}[${i}]`));
+
   const out = {};
   for (const [k, v] of Object.entries(node)) {
     out[sanitizeKey(k, key)] = sanitize(v, k, path ? `${path}.${k}` : k);

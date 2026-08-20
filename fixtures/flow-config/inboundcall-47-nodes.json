@@ -72,7 +72,7 @@
                 "title": "Kilo",
                 "description": "Echo kilo mike alpha kilo kilo",
                 "type": "object",
-                "required": ["errorCode", "status", "userMessage"],
+                "required": ["Hotel", "Echo", "Charlie"],
                 "properties": {
                   "F_BE4BD5": {
                     "type": "array",
@@ -388,7 +388,7 @@
           "title": "India",
           "description": "Delta golf foxtrot november mike foxtrot",
           "type": "object",
-          "required": ["errorCode", "status", "userMessage"],
+          "required": ["Hotel", "Hotel", "Alpha"],
           "properties": {
             "F_BE4BD5": {
               "type": "array",
@@ -832,44 +832,44 @@
         "dataTypeId": "Charlie",
         "properties": [
           {
-            "F_A56145": "India",
-            "F_82A353": "Delta",
-            "F_C9046F": "Alpha november bravo foxtrot golf papa",
-            "F_5601E3": "Delta",
-            "F_AD9EEC": false,
-            "F_F708DE": true
+            "id": "India",
+            "name": "Delta",
+            "description": "Alpha november bravo foxtrot golf papa",
+            "dataTypeId": "Delta",
+            "isCollection": false,
+            "readOnly": true
           },
           {
-            "F_A56145": "Oscar",
-            "F_82A353": "Bravo",
-            "F_C9046F": "Foxtrot papa foxtrot lima foxtrot delta",
-            "F_5601E3": "Delta",
-            "F_AD9EEC": false,
-            "F_F708DE": true
+            "id": "Oscar",
+            "name": "Bravo",
+            "description": "Foxtrot papa foxtrot lima foxtrot delta",
+            "dataTypeId": "Delta",
+            "isCollection": false,
+            "readOnly": true
           },
           {
-            "F_A56145": "Oscar",
-            "F_82A353": "Foxtrot",
-            "F_C9046F": "Kilo november hotel bravo alpha india",
-            "F_5601E3": "Hotel",
-            "F_AD9EEC": true,
-            "F_F708DE": true
+            "id": "Oscar",
+            "name": "Foxtrot",
+            "description": "Kilo november hotel bravo alpha india",
+            "dataTypeId": "Hotel",
+            "isCollection": true,
+            "readOnly": true
           },
           {
-            "F_A56145": "Echo",
-            "F_82A353": "Papa",
-            "F_C9046F": "Bravo papa kilo mike india golf",
-            "F_5601E3": "Alpha",
-            "F_AD9EEC": true,
-            "F_F708DE": true
+            "id": "Echo",
+            "name": "Papa",
+            "description": "Bravo papa kilo mike india golf",
+            "dataTypeId": "Alpha",
+            "isCollection": true,
+            "readOnly": true
           },
           {
-            "F_A56145": "Delta",
-            "F_82A353": "November",
-            "F_C9046F": "Hotel oscar juliet india bravo delta",
-            "F_5601E3": "Foxtrot",
-            "F_AD9EEC": true,
-            "F_F708DE": true
+            "id": "Delta",
+            "name": "November",
+            "description": "Hotel oscar juliet india bravo delta",
+            "dataTypeId": "Foxtrot",
+            "isCollection": true,
+            "readOnly": true
           }
         ]
       },
@@ -879,20 +879,20 @@
         "dataTypeId": "Bravo",
         "properties": [
           {
-            "F_A56145": "Echo",
-            "F_82A353": "Mike",
-            "F_C9046F": "Delta echo november papa oscar foxtrot",
-            "F_5601E3": "Mike",
-            "F_AD9EEC": false,
-            "F_F708DE": true
+            "id": "Echo",
+            "name": "Mike",
+            "description": "Delta echo november papa oscar foxtrot",
+            "dataTypeId": "Mike",
+            "isCollection": false,
+            "readOnly": true
           },
           {
-            "F_A56145": "Kilo",
-            "F_82A353": "Bravo",
-            "F_C9046F": "Papa papa charlie bravo november foxtrot",
-            "F_5601E3": "Echo",
-            "F_AD9EEC": false,
-            "F_F708DE": true
+            "id": "Kilo",
+            "name": "Bravo",
+            "description": "Papa papa charlie bravo november foxtrot",
+            "dataTypeId": "Echo",
+            "isCollection": false,
+            "readOnly": true
           }
         ]
       }
@@ -1704,8 +1704,8 @@
           },
           "inputs": [
             {
-              "F_82A353": "Golf",
-              "F_CD4240": {
+              "name": "Golf",
+              "value": {
                 "config": {
                   "lit": {
                     "pos": 1,
@@ -1723,8 +1723,8 @@
               }
             },
             {
-              "F_82A353": "Kilo",
-              "F_CD4240": {
+              "name": "Kilo",
+              "value": {
                 "config": {
                   "sysref": {
                     "pos": 1,
@@ -1754,8 +1754,8 @@
           ],
           "outputs": [
             {
-              "F_82A353": "Golf",
-              "F_CD4240": {
+              "name": "Golf",
+              "value": {
                 "config": {
                   "ref": {
                     "pos": 1,
@@ -1783,8 +1783,8 @@
               }
             },
             {
-              "F_82A353": "November",
-              "F_CD4240": {
+              "name": "November",
+              "value": {
                 "config": {
                   "emp": {
                     "pos": 1,
@@ -1802,8 +1802,8 @@
               }
             },
             {
-              "F_82A353": "Bravo",
-              "F_CD4240": {
+              "name": "Bravo",
+              "value": {
                 "config": {
                   "emp": {
                     "pos": 1,
@@ -1821,8 +1821,8 @@
               }
             },
             {
-              "F_82A353": "Juliet",
-              "F_CD4240": {
+              "name": "Juliet",
+              "value": {
                 "config": {
                   "emp": {
                     "pos": 1,
@@ -1840,8 +1840,8 @@
               }
             },
             {
-              "F_82A353": "Charlie",
-              "F_CD4240": {
+              "name": "Charlie",
+              "value": {
                 "config": {
                   "ref": {
                     "pos": 1,
@@ -1869,8 +1869,8 @@
               }
             },
             {
-              "F_82A353": "Juliet",
-              "F_CD4240": {
+              "name": "Juliet",
+              "value": {
                 "config": {
                   "ref": {
                     "pos": 1,
@@ -1898,8 +1898,8 @@
               }
             },
             {
-              "F_82A353": "Bravo",
-              "F_CD4240": {
+              "name": "Bravo",
+              "value": {
                 "config": {
                   "emp": {
                     "pos": 1,
@@ -1917,8 +1917,8 @@
               }
             },
             {
-              "F_82A353": "Golf",
-              "F_CD4240": {
+              "name": "Golf",
+              "value": {
                 "config": {
                   "emp": {
                     "pos": 1,
@@ -1936,8 +1936,8 @@
               }
             },
             {
-              "F_82A353": "Alpha",
-              "F_CD4240": {
+              "name": "Alpha",
+              "value": {
                 "config": {
                   "emp": {
                     "pos": 1,
@@ -1955,8 +1955,8 @@
               }
             },
             {
-              "F_82A353": "November",
-              "F_CD4240": {
+              "name": "November",
+              "value": {
                 "config": {
                   "emp": {
                     "pos": 1,
@@ -1974,8 +1974,8 @@
               }
             },
             {
-              "F_82A353": "November",
-              "F_CD4240": {
+              "name": "November",
+              "value": {
                 "config": {
                   "emp": {
                     "pos": 1,
