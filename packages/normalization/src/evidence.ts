@@ -42,7 +42,9 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
  * capture look like it changed even when nothing did.
  */
 function evidenceId(sourcePointer: string, field: string): string {
-  const digest = createHash('sha256').update(`${sourcePointer}\u0000${field}`, 'utf8').digest('hex');
+  const digest = createHash('sha256')
+    .update(`${sourcePointer}\u0000${field}`, 'utf8')
+    .digest('hex');
   return `sha256:${digest}`;
 }
 

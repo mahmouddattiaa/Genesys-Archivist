@@ -101,8 +101,6 @@ describe('findings identify their subject unambiguously', () => {
       expect(ids.has(f.subject?.id ?? '')).toBe(true);
     }
   });
-
-
 });
 
 describe('two variables that share a name in different scopes', () => {
