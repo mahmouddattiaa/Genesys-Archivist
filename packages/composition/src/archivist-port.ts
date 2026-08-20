@@ -20,7 +20,7 @@
 // this same wave, and this file must compile and be testable today
 // regardless of that function's shape when it lands. Wire the real function
 // in at the call site that constructs `ArchivistPortDeps` once it exists.
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { parse as parseYaml } from 'yaml';
 import {
   asFlowVersionId,
@@ -972,12 +972,28 @@ export function createArchivistPort(deps: ArchivistPortDeps): ArchivistPort {
       const outputRoot = await outputRootForOrganization(locator.organizationId);
       if (outputRoot === null) return null;
 
-      const base = [
-        'documents',
-        'flows',
-        safeSegment(locator.flowId),
-        safeSegment(locator.version),
-      ];
+      // The documents tree is keyed by a slug of the flow's display name plus
+      // a short slice of its id -- readable for a human browsing it, which a
+      // bare GUID is not. A locator carries only the id, so the directory has
+      // to be found rather than reconstructed.
+      //
+      // Matching on the short id is what makes this unambiguous: the slug half
+      // can repeat across flows that share a display name, the id half cannot.
+      const shortId = safeSegment(locator.flowId).slice(0, 8);
+      let ivrDir: string | null = null;
+      try {
+        const entries = await readdir(resolveWithinRoot(outputRoot, ['documents', 'ivrs']), {
+          withFileTypes: true,
+        });
+        ivrDir =
+          entries.find((entry) => entry.isDirectory() && entry.name.includes(shortId))?.name ??
+          null;
+      } catch {
+        ivrDir = null;
+      }
+      if (ivrDir === null) return null;
+
+      const base = ['documents', 'ivrs', safeSegment(ivrDir), safeSegment(locator.version)];
       const fileFor = {
         'flow-snapshot': 'flow-snapshot.json',
         'flow-business': 'business.md',

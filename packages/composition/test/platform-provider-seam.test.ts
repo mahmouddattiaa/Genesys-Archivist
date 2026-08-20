@@ -247,11 +247,18 @@ describe('platform-provider-seam: context mode', () => {
       'flow-inboundcall',
     ]);
 
-    const inboundTechnical = documents.files['flows/flow-inboundcall/4.0/technical.md'];
+    // Derived: the documents directory is a slug of each flow's own display
+    // name plus a short id, and these are real sanitized fixtures whose names
+    // this test has no business hardcoding.
+    const technicalFor = (flowId: string): string | undefined =>
+      Object.entries(documents.files).find(
+        ([path]) => path.includes(flowId.slice(0, 8)) && path.endsWith('/technical.md'),
+      )?.[1];
+    const inboundTechnical = technicalFor('flow-inboundcall');
     expect(inboundTechnical).toBeDefined();
     expect(inboundTechnical).toContain('47');
 
-    const botTechnical = documents.files['flows/flow-bot/1.0/technical.md'];
+    const botTechnical = technicalFor('flow-bot');
     expect(botTechnical).toBeDefined();
     expect(botTechnical!.length).toBeGreaterThan(0);
 

@@ -426,7 +426,14 @@ describe('archivist-port: cancellation never disturbs prior good output', () => 
     const firstFinal = await pollUntilTerminal(harness.port, firstStatus.runId);
     expect(['completed', 'completed_with_warnings']).toContain(firstFinal.state);
 
-    const technicalPath = join(outputRoot, 'documents', 'flows', 'flow-a', '1', 'technical.md');
+    const technicalPath = join(
+      outputRoot,
+      'documents',
+      'ivrs',
+      'test-flow-flow-a',
+      '1',
+      'technical.md',
+    );
     const originalContent = await readFile(technicalPath, 'utf8');
     expect(originalContent.length).toBeGreaterThan(0);
 

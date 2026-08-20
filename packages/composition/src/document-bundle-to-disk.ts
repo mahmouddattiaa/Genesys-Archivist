@@ -12,8 +12,9 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { contentHash, type CanonicalOptions } from '@genesys-archivist/domain';
-import { safeSegment } from '@genesys-archivist/security';
+
 import { createStaging, promote } from '@genesys-archivist/storage';
+import { createRenderer, type RendererBundle } from '@genesys-archivist/rendering';
 import { documentBundle, type UndocumentedFlow } from './document-bundle.js';
 
 /** Canonicalization for the written document set's content hash. Reuses
@@ -35,12 +36,23 @@ export interface DocumentBundleToDiskOptions {
    * output) and `<outputRoot>/.archivist` (run manifests, locks, staging). */
   readonly outputRoot: string;
   readonly generatedAt: string;
+  /**
+   * Injected so this stays testable with no browser, and so a caller that
+   * already knows one is unavailable can pass the degraded pair rather than
+   * paying for a probe. Omitted, a real renderer is created and falls back to
+   * the null pair if Playwright's browser is missing.
+   */
+  readonly renderer?: RendererBundle;
   readonly organizationId?: string;
   readonly region?: string;
 }
 
 export interface DocumentBundleToDiskResult {
   readonly documentsWritten: number;
+  /** How many Mermaid sources became a real .svg. */
+  readonly diagramsRendered: number;
+  /** True if any diagram could not be rendered -- typically no browser. */
+  readonly rendererDegraded: boolean;
   /** Flows the bundle held that produced no documentation. Reported, never
    * omitted -- see `documentBundle`'s own `skipped` field for why. */
   readonly skipped: readonly UndocumentedFlow[];
@@ -95,7 +107,7 @@ async function collectExistingDocuments(documentsDir: string): Promise<Map<strin
  * directory name, which the OS itself already refuses to let be `..` or
  * contain a `/` or a null byte, and which `document-bundle.ts` additionally
  * routes through `safeSegment` before it ever becomes part of a `files` key
- * (see its own `dir = \`flows/${safeSegment(flow.flowId)}/...\`` line).
+ * (see its own `dir = \`ivrs/${ivrDirectoryName(...)}/...\`` line).
  * `safeSegment` is applied again here, independently, when deriving which
  * existing paths this run's flows "own" for the merge step above -- defense
  * in depth, not reliance on a single upstream check holding.
@@ -119,9 +131,18 @@ export async function documentBundleToDisk(
   const documentsDir = join(options.outputRoot, 'documents');
   const existing = await collectExistingDocuments(documentsDir);
 
-  const touchedPrefixes = result.documented.map(
-    (d) => `flows/${safeSegment(d.flowId)}/${safeSegment(d.versionId)}/`,
-  );
+  // Derived from the paths this run actually produced rather than rebuilt
+  // from ids. The scoping lives in document-bundle.ts and is now
+  // `ivrs/<name-slug>-<shortId>/<version>/`; reconstructing it here from
+  // flowId would have silently stopped matching the moment that changed, and
+  // a merge that owns no prefixes leaves every stale document in place.
+  const touchedPrefixes = [
+    ...new Set(
+      result.documented.flatMap((d) =>
+        Object.keys(d.files).map((relPath) => relPath.split('/').slice(0, 3).join('/') + '/'),
+      ),
+    ),
+  ];
   const merged = new Map<string, string>();
   for (const [relPath, contents] of existing) {
     if (touchedPrefixes.some((prefix) => relPath.startsWith(prefix))) continue;
@@ -129,6 +150,43 @@ export async function documentBundleToDisk(
   }
   for (const [relPath, contents] of Object.entries(result.files)) {
     merged.set(relPath, contents);
+  }
+
+  // Render each Mermaid source to a sibling .svg.
+  //
+  // `packages/rendering` existed, was tested, and was called from nowhere --
+  // the documentation set shipped .mmd source files that a reader had to paste
+  // into a Mermaid viewer to see anything. A diagram nobody can look at is not
+  // a diagram.
+  //
+  // The .mmd is deliberately kept alongside the .svg: it is the reviewable,
+  // diffable form, and it is what still works when no browser is available.
+  const diagrams = [...merged.keys()].filter((relPath) => relPath.endsWith('.mmd'));
+  let diagramsRendered = 0;
+  let rendererDegraded = false;
+
+  if (diagrams.length > 0) {
+    const renderer = options.renderer ?? (await createRenderer());
+    rendererDegraded = renderer.degraded;
+    for (const relPath of diagrams) {
+      const source = merged.get(relPath);
+      if (source === undefined) continue;
+      try {
+        const svg = await renderer.diagram.renderSvg(source);
+        // NullRenderer returns a placeholder rather than throwing, so an empty
+        // or non-SVG result means "not really rendered" and must not be
+        // written as though it were a picture.
+        if (svg.trimStart().startsWith('<svg')) {
+          merged.set(relPath.replace(/\.mmd$/, '.svg'), svg);
+          diagramsRendered += 1;
+        }
+      } catch {
+        // One unrenderable diagram must not lose the other ten, and must not
+        // lose the documents either. The .mmd survives regardless, and the
+        // count below reports the shortfall rather than hiding it.
+        rendererDegraded = true;
+      }
+    }
   }
 
   // The staging id is generated here, not taken from any bundle or
@@ -151,6 +209,8 @@ export async function documentBundleToDisk(
 
   return {
     documentsWritten: result.documented.length,
+    diagramsRendered,
+    rendererDegraded,
     skipped: result.skipped,
     outputDir: documentsDir,
     contentHash: contentHash(result.files, DOCUMENT_SET_CANONICAL),

@@ -66,15 +66,21 @@ describe('documentBundle', () => {
     expect(result.documented).toHaveLength(1);
 
     const paths = Object.keys(result.files);
-    expect(paths).toContain('flows/f1/4.0/business.md');
-    expect(paths).toContain('flows/f1/4.0/technical.md');
-    expect(paths).toContain('flows/f1/4.0/operations.md');
+    // Derived, not spelled out: the directory is a slug of the flow's own name
+    // plus a short id, so a literal path here would break on a fixture rename
+    // while testing nothing the endsWith checks do not.
+    const dir = paths.find((path) => path.endsWith('/business.md'))?.replace(/\/[^/]+$/, '');
+    expect(dir, JSON.stringify(paths)).toBeDefined();
+    expect(dir).toMatch(/^ivrs\/[a-z0-9-]+\/4\.0$/);
+    expect(paths).toContain(`${dir ?? ''}/technical.md`);
+    expect(paths).toContain(`${dir ?? ''}/operations.md`);
+    expect(paths).toContain(`${dir ?? ''}/index.md`);
     expect(paths.some((p) => p.endsWith('.mmd'))).toBe(true);
 
     // The documents describe the real flow, not an empty shell: the reference
     // configuration has 47 nodes and two variables read but never written.
-    expect(result.files['flows/f1/4.0/technical.md']).toContain('47');
-    expect(result.files['flows/f1/4.0/business.md']).toMatch(/read but never written/i);
+    expect(result.files[`${dir ?? ''}/technical.md`]).toContain('47');
+    expect(result.files[`${dir ?? ''}/business.md`]).toMatch(/read but never written/i);
   });
 
   it('keeps each flow in its own directory', async () => {
@@ -93,8 +99,15 @@ describe('documentBundle', () => {
 
     const result = await documentBundle({ bundleDir, generatedAt: '2026-08-20T00:00:00Z' });
     expect(result.documented).toHaveLength(2);
-    expect(Object.keys(result.files)).toContain('flows/f1/4.0/business.md');
-    expect(Object.keys(result.files)).toContain('flows/f2/1.0/business.md');
+    // Two flows sharing one fixture share a display name, so this also proves
+    // the short-id suffix keeps them apart rather than one overwriting the other.
+    const dirs = new Set(
+      Object.keys(result.files)
+        .filter((path) => path.endsWith('/business.md'))
+        .map((path) => path.replace(/\/[^/]+$/, '')),
+    );
+    expect(dirs.size, [...dirs].join(', ')).toBe(2);
+    expect([...dirs].every((d) => d.startsWith('ivrs/'))).toBe(true);
   });
 
   it('reports a flow it could not document instead of omitting it', async () => {
@@ -146,7 +159,10 @@ describe('documentBundle', () => {
     await writer.seal();
 
     const result = await documentBundle({ bundleDir, generatedAt: '2026-08-20T00:00:00Z' });
-    expect(result.files['flows/f1/4.0/technical.md']).toContain('org_1');
+    const technical = Object.entries(result.files).find(([path]) =>
+      path.endsWith('/technical.md'),
+    )?.[1];
+    expect(technical).toContain('org_1');
   });
 
   it('is deterministic', async () => {

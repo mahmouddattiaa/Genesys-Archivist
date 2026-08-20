@@ -6,6 +6,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { BundleWriter } from '@genesys-archivist/capture';
 import { safeSegment } from '@genesys-archivist/security';
 import { documentBundleToDisk } from '../src/document-bundle-to-disk.js';
+import { createRenderer } from '@genesys-archivist/rendering';
+
+// The null pair: renderSvg returns a placeholder rather than an <svg>, so no
+// .svg is written and rendererDegraded is reported. That is the behaviour this
+// suite should see -- it tests staging and promotion, not drawing.
+const DEGRADED_RENDERER = await createRenderer({ forceDegraded: true });
 
 const created: string[] = [];
 
@@ -59,6 +65,10 @@ describe('documentBundleToDisk: writes and promotes', () => {
       bundleDir,
       outputRoot,
       generatedAt: '2026-08-20T15:00:00Z',
+      // documentBundleToDisk creates a real Playwright renderer by default.
+      // Whether Chromium can draw is packages/rendering's test, not this
+      // one's, and probing for it added ~5s to every case here.
+      renderer: DEGRADED_RENDERER,
     });
 
     expect(result.documentsWritten).toBe(1);
@@ -67,7 +77,7 @@ describe('documentBundleToDisk: writes and promotes', () => {
     expect(result.contentHash.startsWith('sha256:')).toBe(true);
 
     const technical = await readFile(
-      join(outputRoot, 'documents', 'flows', 'flow-a', '1', 'technical.md'),
+      join(outputRoot, 'documents', 'ivrs', 'test-flow-flow-a', '1', 'technical.md'),
       'utf8',
     );
     expect(technical.length).toBeGreaterThan(0);
@@ -88,6 +98,10 @@ describe('documentBundleToDisk: writes and promotes', () => {
       bundleDir,
       outputRoot,
       generatedAt: '2026-08-20T15:00:00Z',
+      // documentBundleToDisk creates a real Playwright renderer by default.
+      // Whether Chromium can draw is packages/rendering's test, not this
+      // one's, and probing for it added ~5s to every case here.
+      renderer: DEGRADED_RENDERER,
     });
     expect(result.documentsWritten).toBe(0);
     expect(result.skipped).toHaveLength(1);
@@ -103,6 +117,10 @@ describe('documentBundleToDisk: writes and promotes', () => {
       bundleDir: bundleA,
       outputRoot,
       generatedAt: '2026-08-20T15:00:00Z',
+      // documentBundleToDisk creates a real Playwright renderer by default.
+      // Whether Chromium can draw is packages/rendering's test, not this
+      // one's, and probing for it added ~5s to every case here.
+      renderer: DEGRADED_RENDERER,
     });
 
     const bundleB = await freshDir();
@@ -116,11 +134,11 @@ describe('documentBundleToDisk: writes and promotes', () => {
     // Both flows' documents survive: the second call never saw flow-a's
     // bundle, yet flow-a's documentation is still on disk afterward.
     const aTechnical = await readFile(
-      join(outputRoot, 'documents', 'flows', 'flow-a', '1', 'technical.md'),
+      join(outputRoot, 'documents', 'ivrs', 'test-flow-flow-a', '1', 'technical.md'),
       'utf8',
     );
     const bTechnical = await readFile(
-      join(outputRoot, 'documents', 'flows', 'flow-b', '1', 'technical.md'),
+      join(outputRoot, 'documents', 'ivrs', 'test-flow-flow-b', '1', 'technical.md'),
       'utf8',
     );
     expect(aTechnical.length).toBeGreaterThan(0);
@@ -136,9 +154,13 @@ describe('documentBundleToDisk: writes and promotes', () => {
       bundleDir: bundle1,
       outputRoot,
       generatedAt: '2026-08-20T15:00:00Z',
+      // documentBundleToDisk creates a real Playwright renderer by default.
+      // Whether Chromium can draw is packages/rendering's test, not this
+      // one's, and probing for it added ~5s to every case here.
+      renderer: DEGRADED_RENDERER,
     });
     const firstContent = await readFile(
-      join(outputRoot, 'documents', 'flows', 'flow-a', '1', 'flow-snapshot.json'),
+      join(outputRoot, 'documents', 'ivrs', 'test-flow-flow-a', '1', 'flow-snapshot.json'),
       'utf8',
     );
 
@@ -151,9 +173,13 @@ describe('documentBundleToDisk: writes and promotes', () => {
       bundleDir: bundle2,
       outputRoot,
       generatedAt: '2026-08-20T15:00:00Z',
+      // documentBundleToDisk creates a real Playwright renderer by default.
+      // Whether Chromium can draw is packages/rendering's test, not this
+      // one's, and probing for it added ~5s to every case here.
+      renderer: DEGRADED_RENDERER,
     });
     const secondContent = await readFile(
-      join(outputRoot, 'documents', 'flows', 'flow-a', '1', 'flow-snapshot.json'),
+      join(outputRoot, 'documents', 'ivrs', 'test-flow-flow-a', '1', 'flow-snapshot.json'),
       'utf8',
     );
 
@@ -169,9 +195,13 @@ describe('documentBundleToDisk: writes and promotes', () => {
       bundleDir: bundleA,
       outputRoot,
       generatedAt: '2026-08-20T15:00:00Z',
+      // documentBundleToDisk creates a real Playwright renderer by default.
+      // Whether Chromium can draw is packages/rendering's test, not this
+      // one's, and probing for it added ~5s to every case here.
+      renderer: DEGRADED_RENDERER,
     });
     const before = await readFile(
-      join(outputRoot, 'documents', 'flows', 'flow-a', '1', 'technical.md'),
+      join(outputRoot, 'documents', 'ivrs', 'test-flow-flow-a', '1', 'technical.md'),
       'utf8',
     );
 
@@ -187,7 +217,7 @@ describe('documentBundleToDisk: writes and promotes', () => {
     expect(result.documentsWritten).toBe(0);
 
     const after = await readFile(
-      join(outputRoot, 'documents', 'flows', 'flow-a', '1', 'technical.md'),
+      join(outputRoot, 'documents', 'ivrs', 'test-flow-flow-a', '1', 'technical.md'),
       'utf8',
     );
     expect(after).toBe(before);
@@ -225,6 +255,10 @@ describe('documentBundleToDisk: path safety', () => {
       bundleDir,
       outputRoot,
       generatedAt: '2026-08-20T15:00:00Z',
+      // documentBundleToDisk creates a real Playwright renderer by default.
+      // Whether Chromium can draw is packages/rendering's test, not this
+      // one's, and probing for it added ~5s to every case here.
+      renderer: DEGRADED_RENDERER,
     });
 
     // Everything documentBundleToDisk wrote must land under exactly
@@ -237,8 +271,15 @@ describe('documentBundleToDisk: path safety', () => {
     expect(sanitizedName).not.toBe(hostileFlowId);
     expect(sanitizedName.startsWith('.')).toBe(false);
 
+    // The directory is now the flow's slugged display name plus a short slice
+    // of the sanitized id. The hostile string must not survive in either half.
+    // Mirrors ivrDirectoryName: compose, collapse dot runs, re-sanitize.
+    const ivrDir = safeSegment(`test-flow-${sanitizedName.slice(0, 8)}`.replace(/\.{2,}/g, '.'));
+    expect(ivrDir).not.toContain('..');
+    expect(ivrDir.startsWith('.')).toBe(false);
+
     const promoted = await readFile(
-      join(outputRoot, 'documents', 'flows', sanitizedName, '1', 'technical.md'),
+      join(outputRoot, 'documents', 'ivrs', ivrDir, '1', 'technical.md'),
       'utf8',
     );
     expect(promoted.length).toBeGreaterThan(0);
@@ -246,7 +287,7 @@ describe('documentBundleToDisk: path safety', () => {
     // Nothing was written directly under the literal hostile name, and
     // nothing escaped to outputRoot's parent.
     await expect(
-      readFile(join(outputRoot, 'documents', 'flows', hostileFlowId, '1', 'technical.md'), 'utf8'),
+      readFile(join(outputRoot, 'documents', 'ivrs', hostileFlowId, '1', 'technical.md'), 'utf8'),
     ).rejects.toThrow();
     await expect(readFile(join(outputRoot, '..', 'technical.md'), 'utf8')).rejects.toThrow();
   });

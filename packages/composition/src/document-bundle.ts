@@ -3,6 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { safeSegment } from '@genesys-archivist/security';
+import { escapeMarkdown } from '@genesys-archivist/documentation';
 import { runDocument, type DocumentResult } from './document-flow.js';
 
 /**
@@ -61,6 +62,51 @@ interface BundleFlow {
   readonly format: 'yaml' | 'json';
   readonly type: string;
   readonly definition: string;
+}
+
+/**
+ * A readable directory name for one flow: its own name, slugged, plus a short
+ * slice of its id.
+ *
+ * The id suffix is not decoration. Flow names are tenant-authored: two flows in
+ * different divisions can legitimately share one, they change over time, and
+ * they are untrusted input. A directory keyed on the name alone would collide
+ * silently, which for a documentation set means one IVR's documents quietly
+ * overwriting another's.
+ *
+ * The bundle's own `flows/<flowId>/` tree keeps pure ids and is untouched by
+ * this -- that tree is the published contract a migration server consumes, and
+ * a contract keyed on a mutable display name would be a defect. This is the
+ * human-facing view, where a GUID is useless.
+ */
+function ivrDirectoryName(flowName: string | null, flowId: string): string {
+  const shortId = safeSegment(flowId).slice(0, 8);
+  const slug = safeSegment(flowName ?? '')
+    .toLowerCase()
+    .replace(/^-+|-+$/g, '');
+  const composed = slug.length === 0 ? shortId : `${slug}-${shortId}`;
+
+  // Re-sanitize the composed name, and collapse dot runs.
+  //
+  // Both halves are individually safe and the composition was not: safeSegment
+  // strips leading and trailing dots but keeps interior ones, so a flow id like
+  // `..hidden..flow` sanitizes to `hidden..flow`, and slicing that to eight
+  // characters yields `hidden..` -- a directory name ending in `..`. The
+  // path-safety test caught it.
+  //
+  // resolveWithinRootReal at the staging boundary would still have refused an
+  // actual escape, but a segment containing `..` has no business being
+  // constructed in the first place, and relying on one downstream check to
+  // catch what this function should never emit is exactly the pattern this
+  // codebase avoids elsewhere.
+  return safeSegment(composed.replace(/\.{2,}/g, '.'));
+}
+
+/** The flow's own display name, as the captured definition records it. */
+function flowNameFrom(config: unknown): string | null {
+  if (!isRecord(config)) return null;
+  const name = config['name'];
+  return typeof name === 'string' && name.trim().length > 0 ? name : null;
 }
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -172,7 +218,9 @@ export async function documentBundle(
       result = runDocument({
         config,
         flowId: flow.flowId,
-        flowName: flow.flowId,
+        // Was `flow.flowId` -- every generated document was titled with a
+        // GUID. The name lives in the captured definition; nothing had read it.
+        flowName: flowNameFrom(config) ?? flow.flowId,
         flowType: flow.type,
         version: flow.versionId,
         organizationId,
@@ -188,14 +236,49 @@ export async function documentBundle(
       continue;
     }
 
-    // Flow ids come from the bundle, which came from Genesys, so they are
-    // untrusted even here.
-    const dir = `flows/${safeSegment(flow.flowId)}/${safeSegment(flow.versionId)}`;
+    // Flow ids and names come from the bundle, which came from Genesys, so
+    // both are untrusted even here and both go through safeSegment.
+    const flowName = flowNameFrom(config);
+    const dir = `ivrs/${ivrDirectoryName(flowName, flow.flowId)}/${safeSegment(flow.versionId)}`;
     const scoped: Record<string, string> = {};
     for (const [path, contents] of Object.entries(result.files)) {
       scoped[`${dir}/${path}`] = contents;
       files[`${dir}/${path}`] = contents;
     }
+
+    // A front page, so the folder explains itself and points back at the
+    // canonical definition rather than duplicating it.
+    const index = [
+      `# ${escapeMarkdown(flowName ?? flow.flowId)}`,
+      '',
+      '| | |',
+      '| --- | --- |',
+      `| Flow id | \`${escapeMarkdown(flow.flowId)}\` |`,
+      `| Version | \`${escapeMarkdown(flow.versionId)}\` |`,
+      `| Type | \`${escapeMarkdown(flow.type)}\` |`,
+      '',
+      '## Documents',
+      '',
+      '- [Business overview](business.md) — what this IVR does, for a non-engineer',
+      '- [Technical reference](technical.md) — nodes, edges, variables, evidence',
+      '- [Operations](operations.md) — dependencies and failure behaviour',
+      '- Diagrams: `diagrams/` — `.svg` to look at, `.mmd` to diff',
+      '',
+      '## Source',
+      '',
+      'Generated from the captured definition at:',
+      '',
+      `\`\`\`text`,
+      `flows/${flow.flowId}/versions/${flow.versionId}/${flow.format === 'json' ? 'definition.json' : 'definition.yaml'}`,
+      `\`\`\``,
+      '',
+      'That path is relative to the bundle root. The bundle keys flows by id',
+      'rather than by name because names are tenant-authored: they change, and',
+      'two flows in different divisions can share one.',
+      '',
+    ].join('\n');
+    scoped[`${dir}/index.md`] = index;
+    files[`${dir}/index.md`] = index;
     documented.push({ flowId: flow.flowId, versionId: flow.versionId, files: scoped });
   }
 
