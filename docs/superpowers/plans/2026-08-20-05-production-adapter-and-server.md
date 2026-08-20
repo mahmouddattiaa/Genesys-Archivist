@@ -122,8 +122,44 @@ first get tested against something real:
 - [ ] The nine-step detection algorithm as a pure decision function; its I/O is
       wave 2's job.
 
+## Found by measurement, not yet fixed
+
+**Migration mode holds every asset in memory at once.** In
+`packages/capture/src/capture-run.ts`, the migration branch resolves the whole
+graph first (`buildResourceGraph` fills `cache`), then walks
+`result.graph.nodes` writing resources and assets. Each cached
+`DependencyResolution` can carry `safeMetadata.asset.bytes`, so peak memory is
+**every asset in the organization simultaneously** — measured at ~110 MB of
+audio across 2,730 resources for the sandbox alone (S5), plus resource bodies,
+plus configurations that S6 measured at up to 626 KB each for bot flows.
+
+It is survivable on this sandbox and it is unbounded in the org size, which is
+the part that matters. Nothing caps it.
+
+Three candidate fixes, in preference order:
+
+1. **Write assets inside the resolver, during the walk**, and strip
+   `asset.bytes` before caching the resolution. Bounded memory, no extra
+   requests. Costs some entanglement between the walker and the writer, and
+   needs care about assets resolved on a walk that later truncates.
+2. **Re-resolve each node at download time** and never cache bytes. Also fixes
+   S5 Finding 3 — a signed URL expires after ~3,580 s, so an org-wide migration
+   run outlives its own URLs and must re-resolve anyway. Costs one extra request
+   per asset: ~2,730 requests, roughly 11 minutes on measured latency.
+3. Evict from the cache after each write. Cheapest, and does not help: the cache
+   is already fully populated before the download loop begins, so it bounds
+   nothing at the peak.
+
+Deliberately not fixed during this plan's parallel wave: it is a design change
+to an 800-line file that the in-flight adapter work builds against, and the
+measured impact does not justify destabilising that. It is the first thing to do
+in wave 2, and **migration mode must not be run against a large real
+organization until it is done.**
+
 ## Wave 2 — wiring (after A–F land)
 
+- [ ] Fix the migration-mode asset memory peak documented above, before anything
+      else. It is the only item here that can fail on a real organization.
 - [ ] Replace `apps/mcp-server`'s `TODO(wave-2)` with the real port built from
       `@genesys-archivist/composition`.
 - [ ] Wire the real provider into `archivist capture`. `apps/cli/src/bin.ts` today
