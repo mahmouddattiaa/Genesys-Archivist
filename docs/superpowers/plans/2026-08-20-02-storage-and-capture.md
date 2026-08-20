@@ -58,7 +58,7 @@ Every task inherits these. They come from `AGENTS.md` and the design spec; none 
 - Create: `packages/security/src/secret-store-os.ts`
 - Modify: `packages/security/src/index.ts`
 - Modify: `packages/security/package.json` (one new dependency)
-- Create: `docs/adr/ADR-013-credential-store.md`
+- Create: `docs/adr/ADR-017-credential-store.md` (NOT ADR-013 — 001-016 are already claimed by decisions transcribed from the design spec; check `docs/adr/README.md` for the next free number before writing any ADR)
 - Test: `packages/security/test/secret-store-os.test.ts`
 
 **Interfaces:**
@@ -87,7 +87,7 @@ npm install --workspace @genesys-archivist/security @napi-rs/keyring
 node --input-type=module -e "import{Entry}from'@napi-rs/keyring';const e=new Entry('archivist-probe','probe');e.setPassword('ok');console.log('roundtrip:',e.getPassword()==='ok');e.deletePassword();"
 ```
 
-Write `docs/adr/ADR-013-credential-store.md` using the template in `docs/adr/README.md`, recording what you chose, what you rejected, and why. If option 1 fails to install or round-trip, uninstall it and implement option 2 instead — the `KeyringBackend` interface is identical either way.
+Write `docs/adr/ADR-017-credential-store.md` using the template in `docs/adr/README.md`, recording what you chose, what you rejected, and why. If option 1 fails to install or round-trip, uninstall it and implement option 2 instead — the `KeyringBackend` interface is identical either way.
 
 - [ ] **Step 2: Write the failing test**
 
@@ -1975,7 +1975,7 @@ S2 is the cheapest probe and validates authentication, region, and tenant bindin
 
 - [ ] **Step 4: Write the S1 source comparison probe**
 
-For each of 6–10 nominated flows, fetch the definition through each available source path (Platform API `/configuration`, Archy CLI, Architect Scripting SDK), and diff each against the manually exported Architect YAML baseline. Record per-path: success, byte size, node count, presence of tracking IDs, and a structural diff summary. Write to `spike-evidence/s1-comparison.json`. Record the decision in `docs/spikes/S1-source-path.md` and, once decided, as `docs/adr/ADR-014-source-path.md`.
+For each of 6–10 nominated flows, fetch the definition through each available source path (Platform API `/configuration`, Archy CLI, Architect Scripting SDK), and diff each against the manually exported Architect YAML baseline. Record per-path: success, byte size, node count, presence of tracking IDs, and a structural diff summary. Write to `spike-evidence/s1-comparison.json`. Record the decision in `docs/spikes/S1-source-path.md`. **Already done:** S1 ran, and the decision is ADR-015 (drop the Architect Scripting SDK) plus ADR-016 — not `ADR-014-source-path.md`, whose number was already claimed. This step is historical; do not re-run it.
 
 - [ ] **Step 5: Write the S4 asset probe**
 
