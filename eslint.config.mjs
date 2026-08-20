@@ -184,6 +184,7 @@ export default tseslint.config(
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         AbortController: 'readonly',
+        performance: 'readonly',
       },
     },
     rules: {

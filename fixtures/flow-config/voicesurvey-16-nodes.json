@@ -1,0 +1,3632 @@
+{
+  "nextTrackingNumber": 26,
+  "defaultLanguage": "en-US",
+  "description": "",
+  "initialSequence": "55744314-3a20-4c0f-ad44-bfe422e32fdd",
+  "name": "Bravo charlie bravo",
+  "uiMetaData": {
+    "task": [
+      {
+        "id": "640c5c76-49ff-4d90-a9bb-f5d7750a5e34",
+        "name": "Charlie kilo"
+      },
+      {
+        "id": "35c31f57-dfdf-40e3-a7de-060bbb522580",
+        "name": "November"
+      },
+      {
+        "id": "2bb13284-73fa-460a-a489-848e8d33b866",
+        "name": "Papa oscar"
+      }
+    ],
+    "bridgeServerActions": [],
+    "screenPops": []
+  },
+  "supportedLanguages": ["en-US"],
+  "manifest": {
+    "ttsEngine": [
+      {
+        "name": "Juliet mike hotel",
+        "id": "Golf",
+        "context": [
+          {
+            "id": "Golf"
+          }
+        ]
+      }
+    ],
+    "ttsVoice": [
+      {
+        "name": "Papa",
+        "id": "Mike",
+        "context": [
+          {
+            "id": "Bravo"
+          }
+        ]
+      }
+    ],
+    "sttEngine": [
+      {
+        "name": "Lima delta charlie",
+        "id": "Foxtrot",
+        "context": [
+          {
+            "id": "Mike"
+          }
+        ]
+      }
+    ],
+    "nluDomain": [
+      {
+        "id": "39de0bab-776e-489a-afef-6a7bdd4bfce6",
+        "version": "41d6c079-58d8-4411-aaab-0975661390ff",
+        "context": [
+          {
+            "id": "Charlie"
+          }
+        ]
+      }
+    ],
+    "surveyForm": [
+      {
+        "name": "Juliet foxtrot",
+        "id": "0e6f9c33-53a6-4f32-a0d5-a138ddf9ce5a",
+        "context": [
+          {
+            "id": "Mike"
+          }
+        ]
+      }
+    ],
+    "language": [
+      {
+        "id": "en-US"
+      }
+    ],
+    "userPrompt": [
+      {
+        "context": [
+          {
+            "actionName": "Hotel charlie echo",
+            "id": "0e4202dc-56a3-40d9-a742-89769f699a79",
+            "name": "India alpha"
+          },
+          {
+            "actionName": "Hotel india hotel",
+            "id": "12edd472-17be-43fb-a794-8f229fde8a60",
+            "name": "Papa foxtrot"
+          }
+        ],
+        "id": "ad52215f-566b-4734-a49f-6a16166ae82d",
+        "name": "Hotel"
+      },
+      {
+        "context": [
+          {
+            "actionName": "November kilo golf",
+            "id": "12edd472-17be-43fb-a794-8f229fde8a60",
+            "name": "November foxtrot"
+          }
+        ],
+        "id": "4f4c1848-7d3f-45c3-a414-b34b88cfd8ad",
+        "name": "Echo"
+      },
+      {
+        "context": [
+          {
+            "actionName": "November foxtrot alpha",
+            "id": "dd3db86a-5077-4613-a29d-298284701497",
+            "name": "Kilo india"
+          }
+        ],
+        "id": "e49b76cd-8720-4cf8-a137-71592d8c72fd",
+        "name": "Charlie"
+      },
+      {
+        "context": [
+          {
+            "actionName": "Lima bravo golf",
+            "id": "0e4202dc-56a3-40d9-a742-89769f699a79",
+            "name": "Lima india"
+          }
+        ],
+        "id": "5a94da4f-de06-4ad2-aa92-543f63d3756a",
+        "name": "Juliet"
+      }
+    ],
+    "systemPrompt": []
+  },
+  "speechRecCompanyDirectory": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "false",
+        "type": "bln"
+      }
+    },
+    "text": "false",
+    "type": "bln",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {},
+    "version": 2,
+    "outOfService": true
+  },
+  "disableAsr": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "false",
+        "type": "bln"
+      }
+    },
+    "text": "false",
+    "type": "bln",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {},
+    "version": 2,
+    "outOfService": true
+  },
+  "disableAsrCompanyDirectory": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "false",
+        "type": "bln"
+      }
+    },
+    "text": "false",
+    "type": "bln",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {},
+    "version": 2,
+    "outOfService": true
+  },
+  "speechRecEngine": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "",
+        "type": "str"
+      }
+    },
+    "text": "",
+    "type": "str",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {},
+    "version": 2
+  },
+  "type": "voicesurvey",
+  "suppressRecording": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "false",
+        "type": "bln"
+      }
+    },
+    "text": "false",
+    "type": "bln",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {},
+    "version": 2
+  },
+  "botFlowSettings": {
+    "nluDomainId": "39de0bab-776e-489a-afef-6a7bdd4bfce6",
+    "nluDomainVersionId": "f21c3082-2e7e-4ebc-ab7d-0899e574eece",
+    "engineVersion": "Delta",
+    "nluVersionCreateFailed": false,
+    "nluVersionTrainingFailed": false,
+    "virtualAgentEnabled": false,
+    "agenticVirtualAgentEnabled": false,
+    "surveyFormInfo": {
+      "archSurveyForm": {
+        "header": "Kilo juliet juliet november bravo",
+        "footer": "Hotel juliet lima bravo",
+        "name": "Papa hotel",
+        "id": "0e6f9c33-53a6-4f32-a0d5-a138ddf9ce5a",
+        "contextId": "691371f1-5550-483a-a25d-7577f6108ff4",
+        "language": "en-US",
+        "modifiedDate": "Echo",
+        "questionGroups": [
+          {
+            "variableId": "Juliet",
+            "variableName": "Lima",
+            "id": "7923908c-8ed7-4669-a9a6-2e1461f7c46e",
+            "name": "Mike charlie",
+            "questions": [
+              {
+                "variableId": "India",
+                "variableName": "Kilo",
+                "id": "6c4c8dc2-c777-4658-a0a5-0277cac56e08",
+                "questionType": "Juliet",
+                "questionText": "November juliet oscar alpha alpha charlie",
+                "naEnabled": false,
+                "answerOptions": [
+                  {
+                    "id": "0c14652a-6f62-44b4-a49f-eb701cd645a6",
+                    "text": "Echo",
+                    "dtmf": "Charlie"
+                  },
+                  {
+                    "id": "85eba4d9-01b2-4263-a62e-c75013d13082",
+                    "text": "Delta",
+                    "dtmf": "Foxtrot"
+                  },
+                  {
+                    "id": "adca650f-501a-407c-a345-de6be2f5b18d",
+                    "text": "Juliet",
+                    "dtmf": "Foxtrot"
+                  },
+                  {
+                    "id": "c8047313-9d39-4675-acc8-b8d3427f2235",
+                    "text": "Charlie",
+                    "dtmf": "Foxtrot"
+                  },
+                  {
+                    "id": "01dfa9e6-9548-4674-a9ea-b84fc18acd1a",
+                    "text": "Delta",
+                    "dtmf": "Lima"
+                  }
+                ],
+                "questionIndex": 1,
+                "groupIndex": 1
+              }
+            ],
+            "groupIndex": 1
+          },
+          {
+            "variableId": "Papa",
+            "variableName": "Bravo",
+            "id": "375b1f46-0f70-49cb-ae7b-7e9c137416bf",
+            "name": "Echo",
+            "questions": [
+              {
+                "variableId": "November",
+                "variableName": "November",
+                "id": "ddd1e228-0f12-4fa7-a85b-eec6532e2c65",
+                "questionType": "Alpha",
+                "questionText": "Hotel",
+                "naEnabled": false,
+                "answerOptions": [
+                  {
+                    "id": "d8fd38fb-6f38-4472-a027-1f2c451849c4",
+                    "text": "Mike",
+                    "dtmf": "Bravo"
+                  },
+                  {
+                    "id": "b35c05f2-c459-45a5-aa7e-f7548e38c50f",
+                    "text": "November",
+                    "dtmf": "Kilo"
+                  },
+                  {
+                    "id": "b1008014-819c-49cf-acf8-a22edab76fac",
+                    "text": "Echo",
+                    "dtmf": "India"
+                  },
+                  {
+                    "id": "6516f16f-0585-49c2-a289-c102d8117a75",
+                    "text": "Juliet",
+                    "dtmf": "Papa"
+                  },
+                  {
+                    "id": "41ac0ee0-9985-4a46-ae2d-17a37f5aff79",
+                    "text": "Foxtrot",
+                    "dtmf": "India"
+                  }
+                ],
+                "questionIndex": 1,
+                "groupIndex": 2
+              }
+            ],
+            "groupIndex": 2
+          },
+          {
+            "variableId": "Oscar",
+            "variableName": "Foxtrot",
+            "id": "ca5daad6-5711-4128-af1a-fff66cade79a",
+            "name": "Papa golf",
+            "questions": [
+              {
+                "variableId": "Bravo",
+                "variableName": "Mike",
+                "id": "8299ed00-c147-4865-af89-eb64a4ed7458",
+                "questionType": "Kilo",
+                "questionText": "Hotel papa bravo",
+                "naEnabled": false,
+                "answerOptions": [],
+                "maxResponseCharacters": 250,
+                "questionIndex": 1,
+                "groupIndex": 3
+              }
+            ],
+            "groupIndex": 3
+          }
+        ]
+      },
+      "formMappingInfo": {
+        "surveyFormId": "0e6f9c33-53a6-4f32-a0d5-a138ddf9ce5a",
+        "formVariableId": "Kilo"
+      },
+      "questionGroupMappingInfo": [
+        {
+          "surveyQuestionGroupId": "7923908c-8ed7-4669-a9a6-2e1461f7c46e",
+          "parentSurveyFormId": "0e6f9c33-53a6-4f32-a0d5-a138ddf9ce5a",
+          "questionGroupVariableId": "Alpha",
+          "surveyQuestionGroupIndex": 1
+        },
+        {
+          "surveyQuestionGroupId": "375b1f46-0f70-49cb-ae7b-7e9c137416bf",
+          "parentSurveyFormId": "0e6f9c33-53a6-4f32-a0d5-a138ddf9ce5a",
+          "questionGroupVariableId": "November",
+          "surveyQuestionGroupIndex": 2
+        },
+        {
+          "surveyQuestionGroupId": "ca5daad6-5711-4128-af1a-fff66cade79a",
+          "parentSurveyFormId": "0e6f9c33-53a6-4f32-a0d5-a138ddf9ce5a",
+          "questionGroupVariableId": "Hotel",
+          "surveyQuestionGroupIndex": 3
+        }
+      ],
+      "questionMappingInfo": [
+        {
+          "surveyQuestionId": "6c4c8dc2-c777-4658-a0a5-0277cac56e08",
+          "parentSurveyQuestionGroupId": "7923908c-8ed7-4669-a9a6-2e1461f7c46e",
+          "surveyQuestionIndex": 1,
+          "questionVariableId": "Lima"
+        },
+        {
+          "surveyQuestionId": "ddd1e228-0f12-4fa7-a85b-eec6532e2c65",
+          "parentSurveyQuestionGroupId": "375b1f46-0f70-49cb-ae7b-7e9c137416bf",
+          "surveyQuestionIndex": 1,
+          "questionVariableId": "Papa"
+        },
+        {
+          "surveyQuestionId": "8299ed00-c147-4865-af89-eb64a4ed7458",
+          "parentSurveyQuestionGroupId": "ca5daad6-5711-4128-af1a-fff66cade79a",
+          "surveyQuestionIndex": 1,
+          "questionVariableId": "Golf"
+        }
+      ],
+      "formToSlotVariableMappings": {
+        "__SURVEY_QUESTION_1_1__": [
+          {
+            "variableId": "036b5c16-e2b6-4f9f-aa3e-c82393cee835",
+            "slotName": "Alpha",
+            "slotType": "Golf"
+          }
+        ],
+        "__SURVEY_QUESTION_2_1__": [
+          {
+            "variableId": "3a27ee6d-74d2-4f58-ae77-c6c16dc20021",
+            "slotName": "Echo",
+            "slotType": "Papa"
+          }
+        ],
+        "__SURVEY_QUESTION_3_1__": [
+          {
+            "variableId": "2bdf6e42-4645-49fe-a476-6a5cb19fa4f5",
+            "slotName": "Kilo",
+            "slotType": "Alpha"
+          }
+        ]
+      }
+    }
+  },
+  "userInputSettings": {
+    "uiMetaData": {
+      "currentUiVersion": 2
+    },
+    "enableBargeIn": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "true",
+          "type": "bln"
+        }
+      },
+      "text": "true",
+      "type": "bln",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "enableAutomaticQuickReplies": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "true",
+          "type": "bln"
+        }
+      },
+      "text": "true",
+      "type": "bln",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "noMatchesMax": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "India",
+          "type": "int"
+        }
+      },
+      "text": "Mike",
+      "type": "int",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "noInputsMax": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "India",
+          "type": "int"
+        }
+      },
+      "text": "Alpha",
+      "type": "int",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "endOfSessionMessage": {
+      "config": {
+        "emp": {
+          "pos": 1,
+          "text": "",
+          "type": "com"
+        }
+      },
+      "text": "",
+      "type": "com",
+      "uiMetaData": {
+        "mode": 3
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "noInputsTimeout": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "Golf",
+          "type": "dur"
+        }
+      },
+      "text": "India",
+      "type": "dur",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "speechToTextSpeechDetectionSensitivity": {
+      "config": {
+        "emp": {
+          "pos": 1,
+          "text": "",
+          "type": "dec"
+        }
+      },
+      "text": "",
+      "type": "dec",
+      "uiMetaData": {
+        "mode": 3
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "speechToTextMaxSpeechTimeout": {
+      "config": {
+        "emp": {
+          "pos": 1,
+          "text": "",
+          "type": "dur"
+        }
+      },
+      "text": "",
+      "type": "dur",
+      "uiMetaData": {
+        "mode": 3
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "enableIntentClassificationHinting": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "false",
+          "type": "bln"
+        }
+      },
+      "text": "false",
+      "type": "bln",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "interDigitTimeout": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "Bravo",
+          "type": "dur"
+        }
+      },
+      "text": "India",
+      "type": "dur",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "dtmfTerminatingCharacter": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "Oscar",
+          "type": "str"
+        }
+      },
+      "text": "Juliet",
+      "type": "str",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "confirmationRejectionsMax": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "Lima",
+          "type": "int"
+        }
+      },
+      "text": "Juliet",
+      "type": "int",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "collectionLowConfidenceThreshold": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "Oscar",
+          "type": "int"
+        }
+      },
+      "text": "India",
+      "type": "int",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "collectionHighConfidenceThreshold": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "Echo",
+          "type": "int"
+        }
+      },
+      "text": "Golf",
+      "type": "int",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "confirmationLowConfidenceThreshold": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "November",
+          "type": "int"
+        }
+      },
+      "text": "Lima",
+      "type": "int",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "noMatchApologies": [
+      {
+        "config": {
+          "MakeCommunication": {
+            "pos": 1,
+            "text": "Delta",
+            "operands": [
+              {
+                "lit": {
+                  "pos": 22,
+                  "text": "India",
+                  "type": "str"
+                }
+              }
+            ],
+            "type": "com"
+          }
+        },
+        "text": "November delta",
+        "type": "com",
+        "uiMetaData": {
+          "mode": 4,
+          "builder": {
+            "builderDefId": "Echo",
+            "version": 1,
+            "id": "906bedf0-e2bd-42dd-a9b4-3992e162f601",
+            "builderParts": [
+              {
+                "version": 1,
+                "id": "5565b122-7d7a-4b5b-a64d-87ebccf11ec5",
+                "builderPartExpressions": [
+                  {
+                    "config": {
+                      "lit": {
+                        "pos": 1,
+                        "text": "Charlie",
+                        "type": "str"
+                      }
+                    },
+                    "text": "Mike",
+                    "type": "str",
+                    "uiMetaData": {
+                      "mode": 1
+                    },
+                    "metaData": {},
+                    "version": 2
+                  }
+                ],
+                "builderPartDefId": "Charlie",
+                "outOfService": false
+              }
+            ]
+          }
+        },
+        "metaData": {},
+        "version": 2
+      }
+    ],
+    "noInputsApologies": [
+      {
+        "config": {
+          "MakeCommunication": {
+            "pos": 1,
+            "text": "Delta delta papa golf papa",
+            "operands": [
+              {
+                "lit": {
+                  "pos": 22,
+                  "text": "Hotel papa lima echo charlie",
+                  "type": "str"
+                }
+              }
+            ],
+            "type": "com"
+          }
+        },
+        "text": "Alpha oscar kilo mike papa papa",
+        "type": "com",
+        "uiMetaData": {
+          "mode": 4,
+          "builder": {
+            "builderDefId": "Hotel",
+            "version": 1,
+            "id": "b50fc7a8-694c-454f-a4b7-60b13334aa26",
+            "builderParts": [
+              {
+                "version": 1,
+                "id": "19e5000f-67fb-40c3-abfe-d89e362f2eb0",
+                "builderPartExpressions": [
+                  {
+                    "config": {
+                      "lit": {
+                        "pos": 1,
+                        "text": "November mike bravo foxtrot charlie",
+                        "type": "str"
+                      }
+                    },
+                    "text": "Juliet mike oscar golf hotel",
+                    "type": "str",
+                    "uiMetaData": {
+                      "mode": 1
+                    },
+                    "metaData": {},
+                    "version": 2
+                  }
+                ],
+                "builderPartDefId": "Kilo",
+                "outOfService": false
+              }
+            ]
+          }
+        },
+        "metaData": {},
+        "version": 2
+      }
+    ],
+    "noToConfirmationApologies": [
+      {
+        "config": {
+          "MakeCommunication": {
+            "pos": 1,
+            "text": "India oscar",
+            "operands": [
+              {
+                "lit": {
+                  "pos": 22,
+                  "text": "November juliet",
+                  "type": "str"
+                }
+              }
+            ],
+            "type": "com"
+          }
+        },
+        "text": "Mike bravo kilo",
+        "type": "com",
+        "uiMetaData": {
+          "mode": 4,
+          "builder": {
+            "builderDefId": "Juliet",
+            "version": 1,
+            "id": "8ede7224-5994-46a1-a6b3-d0f13b9a1ac1",
+            "builderParts": [
+              {
+                "version": 1,
+                "id": "d1512edb-6d1c-4ff1-a01d-51b042ac9503",
+                "builderPartExpressions": [
+                  {
+                    "config": {
+                      "lit": {
+                        "pos": 1,
+                        "text": "Foxtrot echo",
+                        "type": "str"
+                      }
+                    },
+                    "text": "Mike hotel",
+                    "type": "str",
+                    "uiMetaData": {
+                      "mode": 1
+                    },
+                    "metaData": {},
+                    "version": 2
+                  }
+                ],
+                "builderPartDefId": "Golf",
+                "outOfService": false
+              }
+            ]
+          }
+        },
+        "metaData": {},
+        "version": 2
+      }
+    ],
+    "confirmationNoMatchApologies": [
+      {
+        "config": {
+          "MakeCommunication": {
+            "pos": 1,
+            "text": "Papa charlie india oscar delta oscar",
+            "operands": [
+              {
+                "lit": {
+                  "pos": 22,
+                  "text": "Golf charlie kilo hotel india delta",
+                  "type": "str"
+                }
+              }
+            ],
+            "type": "com"
+          }
+        },
+        "text": "Oscar delta juliet mike lima lima",
+        "type": "com",
+        "uiMetaData": {
+          "mode": 4,
+          "builder": {
+            "builderDefId": "Lima",
+            "version": 1,
+            "id": "3cf2977d-989c-4491-a70b-65bed1420f5c",
+            "builderParts": [
+              {
+                "version": 1,
+                "id": "bfed2ac0-558d-4a35-aef2-91edc1d996ad",
+                "builderPartExpressions": [
+                  {
+                    "config": {
+                      "lit": {
+                        "pos": 1,
+                        "text": "Echo delta lima hotel hotel india",
+                        "type": "str"
+                      }
+                    },
+                    "text": "Hotel kilo lima echo kilo charlie",
+                    "type": "str",
+                    "uiMetaData": {
+                      "mode": 1
+                    },
+                    "metaData": {},
+                    "version": 2
+                  }
+                ],
+                "builderPartDefId": "Kilo",
+                "outOfService": false
+              }
+            ]
+          }
+        },
+        "metaData": {},
+        "version": 2
+      }
+    ],
+    "confirmationNoInputApologies": [
+      {
+        "config": {
+          "MakeCommunication": {
+            "pos": 1,
+            "text": "Delta mike foxtrot alpha juliet echo",
+            "operands": [
+              {
+                "lit": {
+                  "pos": 22,
+                  "text": "Echo delta november alpha echo golf",
+                  "type": "str"
+                }
+              }
+            ],
+            "type": "com"
+          }
+        },
+        "text": "Golf india mike foxtrot papa bravo",
+        "type": "com",
+        "uiMetaData": {
+          "mode": 4,
+          "builder": {
+            "builderDefId": "Oscar",
+            "version": 1,
+            "id": "530539f3-8fc3-4ec6-ac45-1bda240ea28e",
+            "builderParts": [
+              {
+                "version": 1,
+                "id": "19121298-7ade-4a2e-adfa-c1a1d98bb7e6",
+                "builderPartExpressions": [
+                  {
+                    "config": {
+                      "lit": {
+                        "pos": 1,
+                        "text": "Alpha november bravo november papa alpha",
+                        "type": "str"
+                      }
+                    },
+                    "text": "Charlie mike mike india juliet echo",
+                    "type": "str",
+                    "uiMetaData": {
+                      "mode": 1
+                    },
+                    "metaData": {},
+                    "version": 2
+                  }
+                ],
+                "builderPartDefId": "Mike",
+                "outOfService": false
+              }
+            ]
+          }
+        },
+        "metaData": {},
+        "version": 2
+      }
+    ]
+  },
+  "errorHandling": {
+    "recognitionHandlingType": "Foxtrot",
+    "agentEscalationConfirmation": {
+      "config": {
+        "MakeCommunication": {
+          "pos": 1,
+          "text": "Delta alpha kilo golf echo juliet",
+          "operands": [
+            {
+              "lit": {
+                "pos": 22,
+                "text": "Golf mike hotel delta papa foxtrot",
+                "type": "str"
+              }
+            }
+          ],
+          "type": "com"
+        }
+      },
+      "text": "India charlie oscar november golf kilo",
+      "type": "com",
+      "uiMetaData": {
+        "mode": 4,
+        "builder": {
+          "builderDefId": "November",
+          "version": 1,
+          "id": "2102c850-d595-4a93-add7-e95559974b99",
+          "builderParts": [
+            {
+              "version": 1,
+              "id": "ea59bea8-9c00-4d1b-a6e9-353d48db1c04",
+              "builderPartExpressions": [
+                {
+                  "config": {
+                    "lit": {
+                      "pos": 1,
+                      "text": "Bravo juliet foxtrot oscar lima oscar",
+                      "type": "str"
+                    }
+                  },
+                  "text": "Foxtrot hotel papa india kilo delta",
+                  "type": "str",
+                  "uiMetaData": {
+                    "mode": 1
+                  },
+                  "metaData": {},
+                  "version": 2
+                }
+              ],
+              "builderPartDefId": "Alpha",
+              "outOfService": false
+            }
+          ]
+        }
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "agentEscalationHandover": {
+      "config": {
+        "MakeCommunication": {
+          "pos": 1,
+          "text": "Juliet papa golf echo golf papa",
+          "operands": [
+            {
+              "lit": {
+                "pos": 22,
+                "text": "Alpha kilo juliet juliet alpha echo",
+                "type": "str"
+              }
+            }
+          ],
+          "type": "com"
+        }
+      },
+      "text": "Charlie charlie india alpha juliet foxtrot",
+      "type": "com",
+      "uiMetaData": {
+        "mode": 4,
+        "builder": {
+          "builderDefId": "Papa",
+          "version": 1,
+          "id": "9bc8a5ce-6402-407d-a9f4-40470b7ce548",
+          "builderParts": [
+            {
+              "version": 1,
+              "id": "78eb9b94-0736-4e2a-a01e-97c477c5d30a",
+              "builderPartExpressions": [
+                {
+                  "config": {
+                    "lit": {
+                      "pos": 1,
+                      "text": "Foxtrot oscar india kilo delta mike",
+                      "type": "str"
+                    }
+                  },
+                  "text": "Delta delta india india oscar oscar",
+                  "type": "str",
+                  "uiMetaData": {
+                    "mode": 1
+                  },
+                  "metaData": {},
+                  "version": 2
+                }
+              ],
+              "builderPartDefId": "Foxtrot",
+              "outOfService": false
+            }
+          ]
+        }
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "enableAgentEscalation": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "true",
+          "type": "bln"
+        }
+      },
+      "text": "true",
+      "type": "bln",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "errorEventHandover": {
+      "config": {
+        "MakeCommunication": {
+          "pos": 1,
+          "text": "Echo golf alpha foxtrot golf",
+          "operands": [
+            {
+              "lit": {
+                "pos": 22,
+                "text": "Alpha oscar hotel delta charlie",
+                "type": "str"
+              }
+            }
+          ],
+          "type": "com"
+        }
+      },
+      "text": "Golf juliet foxtrot alpha echo foxtrot",
+      "type": "com",
+      "uiMetaData": {
+        "mode": 4,
+        "builder": {
+          "builderDefId": "Alpha",
+          "version": 1,
+          "id": "39c06b5d-f8ff-4548-aead-b08a161375c6",
+          "builderParts": [
+            {
+              "version": 1,
+              "id": "e18813f3-39f2-4225-a4a4-59386d2bf552",
+              "builderPartExpressions": [
+                {
+                  "config": {
+                    "lit": {
+                      "pos": 1,
+                      "text": "Golf juliet echo mike hotel",
+                      "type": "str"
+                    }
+                  },
+                  "text": "Hotel golf hotel charlie india",
+                  "type": "str",
+                  "uiMetaData": {
+                    "mode": 1
+                  },
+                  "metaData": {},
+                  "version": 2
+                }
+              ],
+              "builderPartDefId": "Echo",
+              "outOfService": false
+            }
+          ]
+        }
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "recognitionEventHandover": {
+      "config": {
+        "MakeCommunication": {
+          "pos": 1,
+          "text": "Echo kilo india charlie mike juliet",
+          "operands": [
+            {
+              "lit": {
+                "pos": 22,
+                "text": "India foxtrot delta juliet hotel kilo",
+                "type": "str"
+              }
+            }
+          ],
+          "type": "com"
+        }
+      },
+      "text": "Bravo papa lima bravo hotel kilo",
+      "type": "com",
+      "uiMetaData": {
+        "mode": 4,
+        "builder": {
+          "builderDefId": "Papa",
+          "version": 1,
+          "id": "4ece7cb5-a372-4055-a090-f51a9ce84caa",
+          "builderParts": [
+            {
+              "version": 1,
+              "id": "12d234cb-6d9f-4a5b-aef5-ac31d6ac4dff",
+              "builderPartExpressions": [
+                {
+                  "config": {
+                    "lit": {
+                      "pos": 1,
+                      "text": "Alpha foxtrot delta mike echo mike",
+                      "type": "str"
+                    }
+                  },
+                  "text": "Alpha delta delta echo juliet delta",
+                  "type": "str",
+                  "uiMetaData": {
+                    "mode": 1
+                  },
+                  "metaData": {},
+                  "version": 2
+                }
+              ],
+              "builderPartDefId": "Kilo",
+              "outOfService": false
+            }
+          ]
+        }
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "subsequentRecognitionFailuresHandlingType": "Bravo",
+    "handlingType": "Delta"
+  },
+  "nluMetaData": {
+    "rawNluCompressionFormat": "none",
+    "rawNlu": "Kilo bravo echo lima juliet india",
+    "intentHealthInfo": {},
+    "intents": {},
+    "slots": {
+      "F_E98755": {
+        "supportsInitializeDesignTime": true,
+        "name": "Mike"
+      },
+      "F_1086A9": {
+        "supportsInitializeDesignTime": true,
+        "name": "Charlie"
+      },
+      "F_32F8E2": {
+        "supportsInitializeDesignTime": true,
+        "name": "Alpha"
+      }
+    },
+    "archNlu": {
+      "id": "39de0bab-776e-489a-afef-6a7bdd4bfce6",
+      "intents": [],
+      "entities": [
+        {
+          "name": "Delta",
+          "type": "Group1_Question1_Type"
+        },
+        {
+          "name": "Lima",
+          "type": "Group2_Question1_Type"
+        },
+        {
+          "name": "India",
+          "type": "builtin:any"
+        }
+      ],
+      "entityTypes": [
+        {
+          "name": "Alpha",
+          "mechanism": {
+            "type": "list"
+          }
+        },
+        {
+          "name": "Oscar",
+          "mechanism": {
+            "type": "list"
+          }
+        }
+      ],
+      "isFromWorkbench": true
+    },
+    "nluGeneratedInputInfo": {
+      "intents": {},
+      "utterances": {}
+    },
+    "mappings": {
+      "intentsToReusableTasks": {},
+      "listPickerMappings": {},
+      "slotsToGrammars": {},
+      "slotToSlotVariables": {
+        "Group1_Question1": "036b5c16-e2b6-4f9f-aa3e-c82393cee835",
+        "Group2_Question1": "3a27ee6d-74d2-4f58-ae77-c6c16dc20021",
+        "Group3_Question1": "2bdf6e42-4645-49fe-a476-6a5cb19fa4f5"
+      },
+      "slotToReferencingIntents": {
+        "Group1_Question1": [],
+        "Group2_Question1": [],
+        "Group3_Question1": []
+      },
+      "slotToEntityTypes": {
+        "Group1_Question1": "Kilo",
+        "Group2_Question1": "Papa",
+        "Group3_Question1": "Golf"
+      },
+      "dynamicSlotTypes": {},
+      "dynamicTimeslots": {}
+    }
+  },
+  "virtualAgentSettings": {
+    "summarization": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "false",
+          "type": "bln"
+        }
+      },
+      "text": "false",
+      "type": "bln",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "assignWrapupCodes": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "false",
+          "type": "bln"
+        }
+      },
+      "text": "false",
+      "type": "bln",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "enabledWrapupCodes": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "",
+          "type": "wrc_coll",
+          "items": []
+        }
+      },
+      "text": "",
+      "type": "wrc_coll",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    }
+  },
+  "debugSettings": {},
+  "customDefinitions": {
+    "dataTypeDefinitions": []
+  },
+  "defaultSettings": {
+    "AskForBooleanAction": {
+      "voiceEndOfInputTimeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "India",
+            "type": "dur"
+          }
+        },
+        "text": "Oscar",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "AskForSlotAction": {
+      "voiceEndOfInputTimeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Mike",
+            "type": "dur"
+          }
+        },
+        "text": "Delta",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "AskSurveyQuestionAction": {
+      "voiceEndOfInputTimeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Papa",
+            "type": "dur"
+          }
+        },
+        "text": "Delta",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "AskForNLUNextIntentAction": {
+      "voiceEndOfInputTimeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Oscar",
+            "type": "dur"
+          }
+        },
+        "text": "Charlie",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "SpeechRec": {
+      "speechRecMinConfidence": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "November",
+            "type": "int"
+          }
+        },
+        "text": "Oscar",
+        "type": "int",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      },
+      "speechRecTimeoutComplete": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "November",
+            "type": "dur"
+          }
+        },
+        "text": "Juliet",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      },
+      "speechRecTimeoutIncomplete": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Oscar",
+            "type": "dur"
+          }
+        },
+        "text": "Alpha",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      },
+      "speechRecTimeoutTotal": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Delta",
+            "type": "dur"
+          }
+        },
+        "text": "Lima",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    }
+  },
+  "flowMetaData": {
+    "flowDocumentVersion": "India",
+    "minimumServerVersion": "Foxtrot",
+    "ttsDataVersion": "Juliet"
+  },
+  "flowSequenceItemList": [
+    {
+      "startAction": "12edd472-17be-43fb-a794-8f229fde8a60",
+      "trackingId": 12,
+      "id": "640c5c76-49ff-4d90-a9bb-f5d7750a5e34",
+      "name": "Foxtrot charlie",
+      "uiMetaData": {
+        "collapsed": false
+      },
+      "__type": "Task",
+      "paths": [
+        {
+          "label": "India",
+          "outputId": "__DEFAULT__"
+        }
+      ],
+      "actionList": [
+        {
+          "nextAction": "98575f6f-7d53-4329-a3be-3db821ec62ec",
+          "trackingId": 13,
+          "id": "12edd472-17be-43fb-a794-8f229fde8a60",
+          "name": "Echo mike",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "questionCondition": {
+            "config": {
+              "nul": {
+                "pos": 1,
+                "text": "",
+                "type": "bln"
+              }
+            },
+            "text": "Charlie",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 0
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "surveyQuestionResult": {
+            "config": {
+              "sysref": {
+                "pos": 1,
+                "text": "Hotel",
+                "type": "squ",
+                "val": "Charlie"
+              }
+            },
+            "text": "India",
+            "type": "squ",
+            "uiMetaData": {
+              "mode": 0
+            },
+            "metaData": {
+              "references": [
+                {
+                  "id": "November",
+                  "type": "squ",
+                  "isSysRef": true,
+                  "name": "Charlie"
+                }
+              ]
+            },
+            "version": 2
+          },
+          "surveyQuestion": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "Delta papa charlie echo hotel delta",
+                "type": "squ",
+                "val": "6c4c8dc2-c777-4658-a0a5-0277cac56e08"
+              }
+            },
+            "text": "Juliet echo foxtrot bravo lima bravo",
+            "type": "squ",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "followUpQuestion": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "com"
+              }
+            },
+            "text": "",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 3,
+              "builder": {
+                "builderDefId": "Kilo",
+                "version": 1,
+                "id": "84dff66b-86e5-45dc-a589-295b1b5509c7"
+              }
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "answer": {
+            "config": {
+              "MakeCommunication": {
+                "pos": 1,
+                "text": "Foxtrot",
+                "operands": [
+                  {
+                    "ref": {
+                      "pos": 22,
+                      "text": "Delta",
+                      "type": "pmt",
+                      "val": "ad52215f-566b-4734-a49f-6a16166ae82d"
+                    }
+                  }
+                ],
+                "type": "com"
+              }
+            },
+            "text": "Bravo kilo",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 4,
+              "builder": {
+                "builderDefId": "India",
+                "version": 1,
+                "id": "62baa032-1299-4c9f-a52a-4478d0058589",
+                "builderParts": [
+                  {
+                    "version": 1,
+                    "id": "6c251305-d7e6-40f4-a01e-2eae8e153df3",
+                    "builderPartExpressions": [
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Echo",
+                            "type": "pmt",
+                            "val": "ad52215f-566b-4734-a49f-6a16166ae82d"
+                          }
+                        },
+                        "text": "Kilo",
+                        "type": "pmt",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      },
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Hotel",
+                            "type": "str"
+                          }
+                        },
+                        "text": "Kilo",
+                        "type": "str",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      }
+                    ],
+                    "builderPartDefId": "Hotel",
+                    "outOfService": false
+                  }
+                ]
+              }
+            },
+            "metaData": {
+              "references": [
+                {
+                  "id": "ad52215f-566b-4734-a49f-6a16166ae82d",
+                  "type": "pmt",
+                  "isSysRef": false,
+                  "name": "Juliet"
+                }
+              ]
+            },
+            "version": 2,
+            "properties": {}
+          },
+          "notApplicable": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "str"
+              }
+            },
+            "text": "",
+            "type": "str",
+            "uiMetaData": {
+              "mode": 3
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "__type": "AskSurveyQuestionAction",
+          "customizeNoInput": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "false",
+                "type": "bln"
+              }
+            },
+            "text": "false",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "customizeNoMatch": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "false",
+                "type": "bln"
+              }
+            },
+            "text": "false",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "noInputs": [
+            {
+              "config": {
+                "MakeCommunication": {
+                  "pos": 1,
+                  "text": "Delta juliet echo papa",
+                  "operands": [
+                    {
+                      "lit": {
+                        "pos": 22,
+                        "text": "Charlie november alpha papa",
+                        "type": "str"
+                      }
+                    }
+                  ],
+                  "type": "com"
+                }
+              },
+              "text": "Juliet juliet delta hotel bravo",
+              "type": "com",
+              "uiMetaData": {
+                "mode": 4,
+                "builder": {
+                  "builderDefId": "Bravo",
+                  "version": 1,
+                  "id": "e4e82f35-e969-4d42-a540-97e4bd8aacbe",
+                  "builderParts": [
+                    {
+                      "version": 1,
+                      "id": "5c3f6b64-c484-4c3a-a917-40f6dd16f4cf",
+                      "builderPartExpressions": [
+                        {
+                          "config": {
+                            "lit": {
+                              "pos": 1,
+                              "text": "Papa charlie hotel oscar",
+                              "type": "str"
+                            }
+                          },
+                          "text": "November oscar india kilo",
+                          "type": "str",
+                          "uiMetaData": {
+                            "mode": 1
+                          },
+                          "metaData": {},
+                          "version": 2
+                        }
+                      ],
+                      "builderPartDefId": "Juliet",
+                      "outOfService": false
+                    }
+                  ]
+                }
+              },
+              "metaData": {},
+              "version": 2
+            }
+          ],
+          "noInputReprompts": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "",
+                "type": "com_coll",
+                "items": []
+              }
+            },
+            "text": "",
+            "type": "com_coll",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "noMatches": [
+            {
+              "config": {
+                "MakeCommunication": {
+                  "pos": 1,
+                  "text": "Kilo oscar foxtrot echo",
+                  "operands": [
+                    {
+                      "lit": {
+                        "pos": 22,
+                        "text": "November november lima hotel",
+                        "type": "str"
+                      }
+                    }
+                  ],
+                  "type": "com"
+                }
+              },
+              "text": "Juliet juliet kilo juliet bravo",
+              "type": "com",
+              "uiMetaData": {
+                "mode": 4,
+                "builder": {
+                  "builderDefId": "Alpha",
+                  "version": 1,
+                  "id": "5108471e-c845-4d8d-a5c5-96085799ef36",
+                  "builderParts": [
+                    {
+                      "version": 1,
+                      "id": "2accce6a-5c29-4e5e-a617-7e5b20121b10",
+                      "builderPartExpressions": [
+                        {
+                          "config": {
+                            "lit": {
+                              "pos": 1,
+                              "text": "Charlie kilo hotel papa",
+                              "type": "str"
+                            }
+                          },
+                          "text": "Kilo india juliet kilo",
+                          "type": "str",
+                          "uiMetaData": {
+                            "mode": 1
+                          },
+                          "metaData": {},
+                          "version": 2
+                        }
+                      ],
+                      "builderPartDefId": "Alpha",
+                      "outOfService": false
+                    }
+                  ]
+                }
+              },
+              "metaData": {},
+              "version": 2
+            }
+          ],
+          "noMatchReprompts": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "",
+                "type": "com_coll",
+                "items": []
+              }
+            },
+            "text": "",
+            "type": "com_coll",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "voiceEndOfInputTimeout": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "dur"
+              }
+            },
+            "text": "",
+            "type": "dur",
+            "uiMetaData": {
+              "mode": 3
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "paths": [
+            {
+              "label": "India",
+              "outputId": "__DEFAULT__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            },
+            {
+              "label": "Bravo kilo hotel",
+              "outputId": "__CONDITIONS_NOT_MET__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            }
+          ],
+          "question": {
+            "config": {
+              "MakeCommunication": {
+                "pos": 1,
+                "text": "Mike",
+                "operands": [
+                  {
+                    "ref": {
+                      "pos": 22,
+                      "text": "Mike",
+                      "type": "pmt",
+                      "val": "4f4c1848-7d3f-45c3-a414-b34b88cfd8ad"
+                    }
+                  }
+                ],
+                "type": "com"
+              }
+            },
+            "text": "Hotel kilo",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 4,
+              "builder": {
+                "builderDefId": "November",
+                "version": 1,
+                "id": "cb52229e-dbd8-4de5-a9e0-264a8343684f",
+                "builderParts": [
+                  {
+                    "version": 1,
+                    "id": "b03fb48d-fba1-4035-a26b-65fbead32381",
+                    "builderPartExpressions": [
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Mike",
+                            "type": "pmt",
+                            "val": "4f4c1848-7d3f-45c3-a414-b34b88cfd8ad"
+                          }
+                        },
+                        "text": "Alpha",
+                        "type": "pmt",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      },
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Bravo",
+                            "type": "str"
+                          }
+                        },
+                        "text": "Bravo",
+                        "type": "str",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      }
+                    ],
+                    "builderPartDefId": "Alpha",
+                    "outOfService": false
+                  }
+                ]
+              }
+            },
+            "metaData": {
+              "references": [
+                {
+                  "id": "4f4c1848-7d3f-45c3-a414-b34b88cfd8ad",
+                  "type": "pmt",
+                  "isSysRef": false,
+                  "name": "Hotel"
+                }
+              ]
+            },
+            "version": 2,
+            "properties": {}
+          }
+        },
+        {
+          "pathReference": "Golf",
+          "pathName": "Echo",
+          "trackingId": 14,
+          "id": "98575f6f-7d53-4329-a3be-3db821ec62ec",
+          "name": "Charlie papa juliet kilo",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "EndTaskAction"
+        }
+      ],
+      "variables": []
+    },
+    {
+      "startAction": "0e4202dc-56a3-40d9-a742-89769f699a79",
+      "trackingId": 16,
+      "id": "35c31f57-dfdf-40e3-a7de-060bbb522580",
+      "name": "Juliet",
+      "uiMetaData": {
+        "collapsed": false
+      },
+      "__type": "Task",
+      "paths": [
+        {
+          "label": "Echo",
+          "outputId": "__DEFAULT__"
+        }
+      ],
+      "actionList": [
+        {
+          "nextAction": "70291072-4125-4664-a909-218d47a62253",
+          "trackingId": 17,
+          "id": "0e4202dc-56a3-40d9-a742-89769f699a79",
+          "name": "Hotel papa",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "questionCondition": {
+            "config": {
+              "nul": {
+                "pos": 1,
+                "text": "",
+                "type": "bln"
+              }
+            },
+            "text": "Bravo",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 0
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "surveyQuestionResult": {
+            "config": {
+              "sysref": {
+                "pos": 1,
+                "text": "Hotel",
+                "type": "squ",
+                "val": "Papa"
+              }
+            },
+            "text": "Hotel",
+            "type": "squ",
+            "uiMetaData": {
+              "mode": 0
+            },
+            "metaData": {
+              "references": [
+                {
+                  "id": "Alpha",
+                  "type": "squ",
+                  "isSysRef": true,
+                  "name": "Papa"
+                }
+              ]
+            },
+            "version": 2
+          },
+          "surveyQuestion": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "Bravo",
+                "type": "squ",
+                "val": "ddd1e228-0f12-4fa7-a85b-eec6532e2c65"
+              }
+            },
+            "text": "Hotel",
+            "type": "squ",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "followUpQuestion": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "com"
+              }
+            },
+            "text": "",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 3,
+              "builder": {
+                "builderDefId": "Bravo",
+                "version": 1,
+                "id": "5f0b63ec-911c-4863-a7b0-42fde5c167c1"
+              }
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "answer": {
+            "config": {
+              "MakeCommunication": {
+                "pos": 1,
+                "text": "Golf",
+                "operands": [
+                  {
+                    "ref": {
+                      "pos": 22,
+                      "text": "Echo",
+                      "type": "pmt",
+                      "val": "ad52215f-566b-4734-a49f-6a16166ae82d"
+                    }
+                  }
+                ],
+                "type": "com"
+              }
+            },
+            "text": "Kilo papa",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 4,
+              "builder": {
+                "builderDefId": "Foxtrot",
+                "version": 1,
+                "id": "5c4f21db-cdb3-466a-a116-054bd38a96c4",
+                "builderParts": [
+                  {
+                    "version": 1,
+                    "id": "0683c159-f8a0-4351-a92a-9e16a2106a10",
+                    "builderPartExpressions": [
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Mike",
+                            "type": "pmt",
+                            "val": "ad52215f-566b-4734-a49f-6a16166ae82d"
+                          }
+                        },
+                        "text": "Foxtrot",
+                        "type": "pmt",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      },
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "November",
+                            "type": "str"
+                          }
+                        },
+                        "text": "Echo",
+                        "type": "str",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      }
+                    ],
+                    "builderPartDefId": "Foxtrot",
+                    "outOfService": false
+                  }
+                ]
+              }
+            },
+            "metaData": {
+              "references": [
+                {
+                  "id": "ad52215f-566b-4734-a49f-6a16166ae82d",
+                  "type": "pmt",
+                  "isSysRef": false,
+                  "name": "Foxtrot"
+                }
+              ]
+            },
+            "version": 2,
+            "properties": {}
+          },
+          "notApplicable": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "str"
+              }
+            },
+            "text": "",
+            "type": "str",
+            "uiMetaData": {
+              "mode": 3
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "__type": "AskSurveyQuestionAction",
+          "customizeNoInput": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "false",
+                "type": "bln"
+              }
+            },
+            "text": "false",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "customizeNoMatch": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "false",
+                "type": "bln"
+              }
+            },
+            "text": "false",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "noInputs": [
+            {
+              "config": {
+                "MakeCommunication": {
+                  "pos": 1,
+                  "text": "Kilo delta juliet charlie",
+                  "operands": [
+                    {
+                      "lit": {
+                        "pos": 22,
+                        "text": "Foxtrot hotel hotel november",
+                        "type": "str"
+                      }
+                    }
+                  ],
+                  "type": "com"
+                }
+              },
+              "text": "India charlie november papa papa",
+              "type": "com",
+              "uiMetaData": {
+                "mode": 4,
+                "builder": {
+                  "builderDefId": "Charlie",
+                  "version": 1,
+                  "id": "11e3dbb9-99e5-42b3-acbe-17abda4a4201",
+                  "builderParts": [
+                    {
+                      "version": 1,
+                      "id": "1cbbaf8d-2bb9-4e98-ad5e-cda6ce4bbc48",
+                      "builderPartExpressions": [
+                        {
+                          "config": {
+                            "lit": {
+                              "pos": 1,
+                              "text": "Mike delta lima bravo",
+                              "type": "str"
+                            }
+                          },
+                          "text": "Bravo charlie bravo delta",
+                          "type": "str",
+                          "uiMetaData": {
+                            "mode": 1
+                          },
+                          "metaData": {},
+                          "version": 2
+                        }
+                      ],
+                      "builderPartDefId": "Juliet",
+                      "outOfService": false
+                    }
+                  ]
+                }
+              },
+              "metaData": {},
+              "version": 2
+            }
+          ],
+          "noInputReprompts": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "",
+                "type": "com_coll",
+                "items": []
+              }
+            },
+            "text": "",
+            "type": "com_coll",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "noMatches": [
+            {
+              "config": {
+                "MakeCommunication": {
+                  "pos": 1,
+                  "text": "Echo alpha juliet charlie",
+                  "operands": [
+                    {
+                      "lit": {
+                        "pos": 22,
+                        "text": "India hotel hotel kilo",
+                        "type": "str"
+                      }
+                    }
+                  ],
+                  "type": "com"
+                }
+              },
+              "text": "Foxtrot delta foxtrot november kilo",
+              "type": "com",
+              "uiMetaData": {
+                "mode": 4,
+                "builder": {
+                  "builderDefId": "November",
+                  "version": 1,
+                  "id": "6c44006b-fc08-463a-a92c-b5db3c5c56c8",
+                  "builderParts": [
+                    {
+                      "version": 1,
+                      "id": "837b5bee-3631-4947-a10d-cba3d5637e91",
+                      "builderPartExpressions": [
+                        {
+                          "config": {
+                            "lit": {
+                              "pos": 1,
+                              "text": "Echo india delta kilo",
+                              "type": "str"
+                            }
+                          },
+                          "text": "India india echo delta",
+                          "type": "str",
+                          "uiMetaData": {
+                            "mode": 1
+                          },
+                          "metaData": {},
+                          "version": 2
+                        }
+                      ],
+                      "builderPartDefId": "November",
+                      "outOfService": false
+                    }
+                  ]
+                }
+              },
+              "metaData": {},
+              "version": 2
+            }
+          ],
+          "noMatchReprompts": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "",
+                "type": "com_coll",
+                "items": []
+              }
+            },
+            "text": "",
+            "type": "com_coll",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "voiceEndOfInputTimeout": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "dur"
+              }
+            },
+            "text": "",
+            "type": "dur",
+            "uiMetaData": {
+              "mode": 3
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "paths": [
+            {
+              "label": "Kilo",
+              "outputId": "__DEFAULT__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            },
+            {
+              "label": "Hotel hotel hotel",
+              "outputId": "__CONDITIONS_NOT_MET__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            }
+          ],
+          "question": {
+            "config": {
+              "MakeCommunication": {
+                "pos": 1,
+                "text": "November",
+                "operands": [
+                  {
+                    "ref": {
+                      "pos": 22,
+                      "text": "Echo",
+                      "type": "pmt",
+                      "val": "5a94da4f-de06-4ad2-aa92-543f63d3756a"
+                    }
+                  }
+                ],
+                "type": "com"
+              }
+            },
+            "text": "Charlie foxtrot",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 4,
+              "builder": {
+                "builderDefId": "Hotel",
+                "version": 1,
+                "id": "86c34bea-9c54-49ae-a36f-d7baf6e9cb61",
+                "builderParts": [
+                  {
+                    "version": 1,
+                    "id": "8f5b3db3-fd94-45aa-a70a-4d86bc941476",
+                    "builderPartExpressions": [
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Bravo",
+                            "type": "pmt",
+                            "val": "5a94da4f-de06-4ad2-aa92-543f63d3756a"
+                          }
+                        },
+                        "text": "November",
+                        "type": "pmt",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      },
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Charlie",
+                            "type": "str"
+                          }
+                        },
+                        "text": "Echo",
+                        "type": "str",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      }
+                    ],
+                    "builderPartDefId": "Bravo",
+                    "outOfService": false
+                  }
+                ]
+              }
+            },
+            "metaData": {
+              "references": [
+                {
+                  "id": "5a94da4f-de06-4ad2-aa92-543f63d3756a",
+                  "type": "pmt",
+                  "isSysRef": false,
+                  "name": "Kilo"
+                }
+              ]
+            },
+            "version": 2,
+            "properties": {}
+          }
+        },
+        {
+          "pathReference": "Echo",
+          "pathName": "Bravo",
+          "trackingId": 18,
+          "id": "70291072-4125-4664-a909-218d47a62253",
+          "name": "Papa foxtrot kilo",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "EndTaskAction"
+        }
+      ],
+      "variables": []
+    },
+    {
+      "startAction": "dd3db86a-5077-4613-a29d-298284701497",
+      "trackingId": 20,
+      "id": "2bb13284-73fa-460a-a489-848e8d33b866",
+      "name": "Juliet papa",
+      "uiMetaData": {
+        "collapsed": false
+      },
+      "__type": "Task",
+      "paths": [
+        {
+          "label": "Juliet",
+          "outputId": "__DEFAULT__"
+        }
+      ],
+      "actionList": [
+        {
+          "nextAction": "6906c44d-33b1-47b1-a81c-f2b59cf121e2",
+          "trackingId": 21,
+          "id": "dd3db86a-5077-4613-a29d-298284701497",
+          "name": "Delta foxtrot",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "questionCondition": {
+            "config": {
+              "nul": {
+                "pos": 1,
+                "text": "",
+                "type": "bln"
+              }
+            },
+            "text": "Hotel",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 0
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "surveyQuestionResult": {
+            "config": {
+              "sysref": {
+                "pos": 1,
+                "text": "Oscar",
+                "type": "squ",
+                "val": "Foxtrot"
+              }
+            },
+            "text": "Bravo",
+            "type": "squ",
+            "uiMetaData": {
+              "mode": 0
+            },
+            "metaData": {
+              "references": [
+                {
+                  "id": "Golf",
+                  "type": "squ",
+                  "isSysRef": true,
+                  "name": "Papa"
+                }
+              ]
+            },
+            "version": 2
+          },
+          "surveyQuestion": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "Papa charlie echo",
+                "type": "squ",
+                "val": "8299ed00-c147-4865-af89-eb64a4ed7458"
+              }
+            },
+            "text": "November charlie oscar",
+            "type": "squ",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "followUpQuestion": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "com"
+              }
+            },
+            "text": "",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 3,
+              "builder": {
+                "builderDefId": "Foxtrot",
+                "version": 1,
+                "id": "619d5b93-23a2-4cd2-ab03-167c74472a9f"
+              }
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "answer": {
+            "config": {
+              "MakeCommunication": {
+                "pos": 1,
+                "text": "Foxtrot",
+                "operands": [
+                  {
+                    "ToCommunication": {
+                      "pos": 22,
+                      "operands": [
+                        {
+                          "nul": {
+                            "pos": 38,
+                            "text": "",
+                            "type": "com"
+                          }
+                        }
+                      ],
+                      "type": "com"
+                    }
+                  }
+                ],
+                "type": "com"
+              }
+            },
+            "text": "Foxtrot mike",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 4,
+              "builder": {
+                "builderDefId": "Golf",
+                "version": 1,
+                "id": "d252eb83-14ca-4734-acf4-5aa86266b4af"
+              }
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "notApplicable": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "str"
+              }
+            },
+            "text": "",
+            "type": "str",
+            "uiMetaData": {
+              "mode": 3
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "__type": "AskSurveyQuestionAction",
+          "customizeNoInput": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "false",
+                "type": "bln"
+              }
+            },
+            "text": "false",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "customizeNoMatch": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "false",
+                "type": "bln"
+              }
+            },
+            "text": "false",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "noInputs": [
+            {
+              "config": {
+                "MakeCommunication": {
+                  "pos": 1,
+                  "text": "Golf delta papa delta",
+                  "operands": [
+                    {
+                      "lit": {
+                        "pos": 22,
+                        "text": "Juliet oscar golf charlie",
+                        "type": "str"
+                      }
+                    }
+                  ],
+                  "type": "com"
+                }
+              },
+              "text": "Alpha hotel echo india juliet",
+              "type": "com",
+              "uiMetaData": {
+                "mode": 4,
+                "builder": {
+                  "builderDefId": "November",
+                  "version": 1,
+                  "id": "89739bb6-a874-46c5-a294-7d97dda1f577",
+                  "builderParts": [
+                    {
+                      "version": 1,
+                      "id": "f2407f64-c5bc-4075-aaf9-c8492b55de2b",
+                      "builderPartExpressions": [
+                        {
+                          "config": {
+                            "lit": {
+                              "pos": 1,
+                              "text": "Lima papa foxtrot juliet",
+                              "type": "str"
+                            }
+                          },
+                          "text": "Charlie papa lima november",
+                          "type": "str",
+                          "uiMetaData": {
+                            "mode": 1
+                          },
+                          "metaData": {},
+                          "version": 2
+                        }
+                      ],
+                      "builderPartDefId": "Echo",
+                      "outOfService": false
+                    }
+                  ]
+                }
+              },
+              "metaData": {},
+              "version": 2
+            }
+          ],
+          "noInputReprompts": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "",
+                "type": "com_coll",
+                "items": []
+              }
+            },
+            "text": "",
+            "type": "com_coll",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "noMatches": [
+            {
+              "config": {
+                "MakeCommunication": {
+                  "pos": 1,
+                  "text": "Delta echo kilo hotel",
+                  "operands": [
+                    {
+                      "lit": {
+                        "pos": 22,
+                        "text": "Echo golf november mike",
+                        "type": "str"
+                      }
+                    }
+                  ],
+                  "type": "com"
+                }
+              },
+              "text": "November november mike foxtrot india",
+              "type": "com",
+              "uiMetaData": {
+                "mode": 4,
+                "builder": {
+                  "builderDefId": "Kilo",
+                  "version": 1,
+                  "id": "0e0b39dc-9c5e-4a4c-a410-4bd97982b628",
+                  "builderParts": [
+                    {
+                      "version": 1,
+                      "id": "40b74546-07df-4854-a00f-e86853c7bdb0",
+                      "builderPartExpressions": [
+                        {
+                          "config": {
+                            "lit": {
+                              "pos": 1,
+                              "text": "Lima juliet kilo alpha",
+                              "type": "str"
+                            }
+                          },
+                          "text": "Charlie kilo bravo november",
+                          "type": "str",
+                          "uiMetaData": {
+                            "mode": 1
+                          },
+                          "metaData": {},
+                          "version": 2
+                        }
+                      ],
+                      "builderPartDefId": "India",
+                      "outOfService": false
+                    }
+                  ]
+                }
+              },
+              "metaData": {},
+              "version": 2
+            }
+          ],
+          "noMatchReprompts": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "",
+                "type": "com_coll",
+                "items": []
+              }
+            },
+            "text": "",
+            "type": "com_coll",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "voiceEndOfInputTimeout": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "Hotel",
+                "type": "dur"
+              }
+            },
+            "text": "November",
+            "type": "dur",
+            "uiMetaData": {
+              "mode": 1,
+              "isOverride": true
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "paths": [
+            {
+              "label": "Charlie",
+              "outputId": "__DEFAULT__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            },
+            {
+              "label": "Bravo echo papa",
+              "outputId": "__CONDITIONS_NOT_MET__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            }
+          ],
+          "question": {
+            "config": {
+              "MakeCommunication": {
+                "pos": 1,
+                "text": "Kilo",
+                "operands": [
+                  {
+                    "ref": {
+                      "pos": 22,
+                      "text": "Oscar",
+                      "type": "pmt",
+                      "val": "e49b76cd-8720-4cf8-a137-71592d8c72fd"
+                    }
+                  }
+                ],
+                "type": "com"
+              }
+            },
+            "text": "Oscar charlie",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 4,
+              "builder": {
+                "builderDefId": "Mike",
+                "version": 1,
+                "id": "826af87f-1c07-4681-a713-1236ae111e3a",
+                "builderParts": [
+                  {
+                    "version": 1,
+                    "id": "63965a76-25bd-4777-a4ae-438fdce5fd1d",
+                    "builderPartExpressions": [
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Papa",
+                            "type": "pmt",
+                            "val": "e49b76cd-8720-4cf8-a137-71592d8c72fd"
+                          }
+                        },
+                        "text": "Mike",
+                        "type": "pmt",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      },
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Echo",
+                            "type": "str"
+                          }
+                        },
+                        "text": "Charlie",
+                        "type": "str",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      }
+                    ],
+                    "builderPartDefId": "Oscar",
+                    "outOfService": false
+                  }
+                ]
+              }
+            },
+            "metaData": {
+              "references": [
+                {
+                  "id": "e49b76cd-8720-4cf8-a137-71592d8c72fd",
+                  "type": "pmt",
+                  "isSysRef": false,
+                  "name": "Echo"
+                }
+              ]
+            },
+            "version": 2,
+            "properties": {}
+          }
+        },
+        {
+          "pathReference": "Kilo",
+          "pathName": "Golf",
+          "trackingId": 22,
+          "id": "6906c44d-33b1-47b1-a81c-f2b59cf121e2",
+          "name": "Alpha alpha delta oscar",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "EndTaskAction"
+        }
+      ],
+      "variables": []
+    },
+    {
+      "startAction": "a96e30f0-f081-4787-ae75-f9afae3ff383",
+      "trackingId": 10,
+      "id": "55744314-3a20-4c0f-ad44-bfe422e32fdd",
+      "name": "Oscar papa",
+      "uiMetaData": {
+        "collapsed": false
+      },
+      "__type": "BotState",
+      "actionList": [
+        {
+          "nextAction": "f2239b7e-65a6-4d7f-a2fb-dc6bd1cfaa46",
+          "trackingId": 11,
+          "id": "a96e30f0-f081-4787-ae75-f9afae3ff383",
+          "name": "Echo charlie",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "CommunicateAction",
+          "communication": {
+            "config": {
+              "MakeCommunication": {
+                "pos": 1,
+                "text": "Foxtrot lima papa kilo charlie",
+                "operands": [
+                  {
+                    "lit": {
+                      "pos": 22,
+                      "text": "Delta alpha hotel india bravo",
+                      "type": "str"
+                    }
+                  }
+                ],
+                "type": "com"
+              }
+            },
+            "text": "Echo hotel lima bravo india golf",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 4,
+              "builder": {
+                "builderDefId": "Papa",
+                "version": 1,
+                "id": "eb2c1abf-51b3-4a0a-abbe-e9bf318f914e",
+                "builderParts": [
+                  {
+                    "version": 1,
+                    "id": "e6dd802a-8eb0-4f8c-a619-c1f472fee6f6",
+                    "builderPartExpressions": [
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Lima oscar mike delta india",
+                            "type": "str"
+                          }
+                        },
+                        "text": "Hotel echo golf november echo",
+                        "type": "str",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      }
+                    ],
+                    "builderPartDefId": "Bravo",
+                    "outOfService": false
+                  }
+                ]
+              }
+            },
+            "metaData": {},
+            "version": 2
+          }
+        },
+        {
+          "taskReference": "640c5c76-49ff-4d90-a9bb-f5d7750a5e34",
+          "taskName": "Papa lima",
+          "nextAction": "edb59ee1-cf32-46bf-a603-64051deded09",
+          "trackingId": 15,
+          "id": "f2239b7e-65a6-4d7f-a2fb-dc6bd1cfaa46",
+          "name": "Charlie mike juliet foxtrot",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "CallTaskAction",
+          "inputs": [],
+          "outputs": [],
+          "paths": [
+            {
+              "disabled": false,
+              "unreachable": false,
+              "label": "Foxtrot",
+              "outputId": "__DEFAULT__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            }
+          ]
+        },
+        {
+          "taskReference": "35c31f57-dfdf-40e3-a7de-060bbb522580",
+          "taskName": "Echo",
+          "nextAction": "9bcd1fda-ba66-4753-ab75-989220bd7e60",
+          "trackingId": 19,
+          "id": "edb59ee1-cf32-46bf-a603-64051deded09",
+          "name": "Juliet foxtrot lima india",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "CallTaskAction",
+          "inputs": [],
+          "outputs": [],
+          "paths": [
+            {
+              "disabled": false,
+              "unreachable": false,
+              "label": "Mike",
+              "outputId": "__DEFAULT__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            }
+          ]
+        },
+        {
+          "taskReference": "2bb13284-73fa-460a-a489-848e8d33b866",
+          "taskName": "Echo juliet",
+          "nextAction": "aa58f62f-1c8c-47d6-a8b4-89a701f799f0",
+          "trackingId": 23,
+          "id": "9bcd1fda-ba66-4753-ab75-989220bd7e60",
+          "name": "Papa alpha november echo",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "CallTaskAction",
+          "inputs": [],
+          "outputs": [],
+          "paths": [
+            {
+              "disabled": false,
+              "unreachable": false,
+              "label": "Papa",
+              "outputId": "__DEFAULT__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            }
+          ]
+        },
+        {
+          "nextAction": "62899c74-4932-4c79-ad98-774448f1a277",
+          "trackingId": 24,
+          "id": "aa58f62f-1c8c-47d6-a8b4-89a701f799f0",
+          "name": "Juliet foxtrot",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "CommunicateAction",
+          "communication": {
+            "config": {
+              "MakeCommunication": {
+                "pos": 1,
+                "text": "Oscar alpha echo echo",
+                "operands": [
+                  {
+                    "lit": {
+                      "pos": 22,
+                      "text": "Charlie mike india kilo",
+                      "type": "str"
+                    }
+                  }
+                ],
+                "type": "com"
+              }
+            },
+            "text": "Hotel oscar golf india bravo",
+            "type": "com",
+            "uiMetaData": {
+              "mode": 4,
+              "builder": {
+                "builderDefId": "Alpha",
+                "version": 1,
+                "id": "b8dafb7e-d623-4f88-a0d3-840078503173",
+                "builderParts": [
+                  {
+                    "version": 1,
+                    "id": "7c41e122-736f-48fe-a92e-bde52b715112",
+                    "builderPartExpressions": [
+                      {
+                        "config": {
+                          "lit": {
+                            "pos": 1,
+                            "text": "Lima echo papa bravo",
+                            "type": "str"
+                          }
+                        },
+                        "text": "Bravo golf mike india",
+                        "type": "str",
+                        "uiMetaData": {
+                          "mode": 1
+                        },
+                        "metaData": {},
+                        "version": 2
+                      }
+                    ],
+                    "builderPartDefId": "Mike",
+                    "outOfService": false
+                  }
+                ]
+              }
+            },
+            "metaData": {},
+            "version": 2
+          }
+        },
+        {
+          "trackingId": 25,
+          "id": "62899c74-4932-4c79-ad98-774448f1a277",
+          "name": "Kilo",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "DisconnectAction"
+        }
+      ],
+      "variables": []
+    }
+  ],
+  "supportedLanguageOptions": [
+    {
+      "language": "en-US",
+      "textToSpeech": {
+        "engine": {
+          "selection": "Lima",
+          "name": "Golf lima oscar",
+          "id": "Delta"
+        },
+        "voice": {
+          "selection": "Papa",
+          "name": "Mike",
+          "id": "Golf"
+        }
+      },
+      "speechToText": {
+        "engine": {
+          "grammarBased": false,
+          "isDefault": true,
+          "selection": "Golf",
+          "name": "Foxtrot bravo india",
+          "id": "Golf"
+        }
+      }
+    }
+  ],
+  "variables": [
+    {
+      "id": "Mike",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "SurveyQuestionVariable",
+      "name": "India",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "squ"
+          }
+        },
+        "text": "",
+        "type": "squ",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    },
+    {
+      "id": "Papa",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "SurveyQuestionGroupVariable",
+      "name": "Alpha",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "sqg"
+          }
+        },
+        "text": "",
+        "type": "sqg",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    },
+    {
+      "id": "India",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "SurveyQuestionVariable",
+      "name": "Alpha",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "squ"
+          }
+        },
+        "text": "",
+        "type": "squ",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    },
+    {
+      "id": "Golf",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "SurveyQuestionGroupVariable",
+      "name": "Bravo",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "sqg"
+          }
+        },
+        "text": "",
+        "type": "sqg",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    },
+    {
+      "id": "November",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "SurveyQuestionVariable",
+      "name": "Hotel",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "squ"
+          }
+        },
+        "text": "",
+        "type": "squ",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    },
+    {
+      "id": "Charlie",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "SurveyQuestionGroupVariable",
+      "name": "Juliet",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "sqg"
+          }
+        },
+        "text": "",
+        "type": "sqg",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    },
+    {
+      "description": "Oscar delta delta charlie charlie bravo",
+      "id": "Bravo",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "SurveyFormVariable",
+      "name": "Papa",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "sfo"
+          }
+        },
+        "text": "",
+        "type": "sfo",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    },
+    {
+      "description": "Papa november alpha alpha foxtrot",
+      "id": "036b5c16-e2b6-4f9f-aa3e-c82393cee835",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Golf",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    },
+    {
+      "description": "Hotel papa juliet mike papa",
+      "id": "3a27ee6d-74d2-4f58-ae77-c6c16dc20021",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Echo",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    },
+    {
+      "description": "Mike india echo golf alpha",
+      "id": "2bdf6e42-4645-49fe-a476-6a5cb19fa4f5",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Mike",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      }
+    }
+  ],
+  "systemInitialValues": {
+    "__CALL_INVOCATION_DATA__": {
+      "config": {
+        "emp": {
+          "pos": 1,
+          "text": "",
+          "type": "jsn"
+        }
+      },
+      "text": "",
+      "type": "jsn",
+      "uiMetaData": {
+        "mode": 3
+      },
+      "metaData": {},
+      "version": 2
+    }
+  },
+  "versionMetaData": {
+    "inputSchema": {
+      "$schema": "Juliet",
+      "title": "Oscar india golf",
+      "description": "Foxtrot juliet november india echo alpha",
+      "definitions": {
+        "archJSON": {
+          "archDataTypeId": "Mike",
+          "oneOf": [
+            {
+              "type": "null",
+              "description": "Foxtrot hotel delta charlie"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "F_3A6EB0": {
+                  "description": "Foxtrot delta oscar"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "type": "object",
+      "properties": {
+        "Session.F_AE35E2": {
+          "$ref": "Kilo"
+        }
+      },
+      "additionalProperties": false
+    },
+    "outputSchema": {
+      "$schema": "Golf",
+      "title": "Bravo oscar oscar",
+      "description": "November echo kilo charlie mike echo",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  "$archivistFixture": {
+    "note": "Sanitized from a real Architect flow configuration. Structure preserved exactly; every tenant-authored string replaced deterministically.",
+    "sourceFlowIdHash": "b8d8483b9b29",
+    "sourceType": "voicesurvey",
+    "sourceVersion": "1.0",
+    "generatedBy": "scripts/spike/make-fixtures.mjs"
+  }
+}

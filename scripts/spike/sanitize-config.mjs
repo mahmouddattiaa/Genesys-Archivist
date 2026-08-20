@@ -48,7 +48,7 @@ const KEEP_PATTERNS = [
   /^(true|false|none|noValue)$/,
 ];
 
-const det = (s, n = 8) => createHash('sha256').update(String(s)).digest('hex').slice(0, n);
+export const det = (s, n = 8) => createHash('sha256').update(String(s)).digest('hex').slice(0, n);
 
 const fakeGuid = (s) => {
   const h = createHash('sha256').update(String(s)).digest('hex');
@@ -103,11 +103,23 @@ function sanitizeExpression(expr) {
     );
 }
 
-const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PREFIXED_ID_RE = /^([a-z_]+_-_)([0-9a-f-]{20,})$/i;
 
 function sanitizeString(value, key, path) {
-  if (STRUCTURAL_KEYS.has(key)) return value;
+  // A structural key keeps its value -- unless that value is a GUID.
+  //
+  // Measured, not assumed: on inbound-call flows `outputId` holds `__YES__` /
+  // `__NO__` / `__DEFAULT__`, which is why it was listed as structural. On
+  // bot, digitalbot and inboundemail flows it holds a GUID instead, and
+  // `version` holds a GUID rather than "4.0" on bot, digitalbot and
+  // voicesurvey. Preserving those verbatim leaked 9-13 real resource
+  // identifiers per fixture, which the GUID guard at the end of main() caught.
+  //
+  // Substituting the deterministic fake keeps the reference graph intact --
+  // the same source GUID always maps to the same fake one -- so a fixture
+  // still resolves internally while naming nothing real.
+  if (STRUCTURAL_KEYS.has(key)) return GUID_RE.test(value) ? fakeGuid(value) : value;
   if (KEEP_PATTERNS.some((re) => re.test(value))) return value;
   if (GUID_RE.test(value)) return fakeGuid(value);
 
@@ -136,18 +148,47 @@ const TENANT_KEYED_MAPS = new Set([
   'errorOutputs',
   'inputs',
   'outputs',
+  // Added after a measured leak. A digital-bot flow keys `nluMetaData.intents`
+  // and `nluMetaData.mappings.intentsToReusableTasks` by the customer's own
+  // intent taxonomy -- "cancel service", "inquire about prices", "change
+  // plan". Sixteen of those survived into a candidate fixture because this set
+  // listed only the five parents an inbound-call flow happens to use.
+  'intents',
+  'intentsToReusableTasks',
+  'slots',
+  'slotsToReusableTasks',
+  'entities',
+  'knowledgeBases',
 ]);
 
+/**
+ * A key is structural only if it *looks* structural.
+ *
+ * Enumerating tenant-keyed parents was the wrong default and the digital-bot
+ * leak proved it: the list can only ever describe the flow types someone has
+ * already looked at, and the corpus was one inbound-call flow. This rule is
+ * safe in the other direction -- an unrecognised key is treated as tenant data
+ * rather than as structure.
+ *
+ * Every structural key in this API is an ASCII camelCase identifier. Customer
+ * text is not: it carries spaces, punctuation, or non-Latin script. A key that
+ * is not identifier-shaped is pseudonymised no matter where it appears.
+ */
+const IDENTIFIER_KEY = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
 function sanitizeKey(key, parentKey) {
-  if (!TENANT_KEYED_MAPS.has(parentKey)) return key;
   if (STRUCTURAL_KEYS.has(key)) return key;
+
+  const tenantKeyed = TENANT_KEYED_MAPS.has(parentKey);
+  if (!tenantKeyed && IDENTIFIER_KEY.test(key)) return key;
+
   // Preserve any dotted namespace prefix so the shape stays recognisable.
   const m = /^([A-Za-z]+\.)?(.+)$/.exec(key);
   const prefix = m?.[1] ?? '';
   return `${prefix}F_${det(key, 6).toUpperCase()}`;
 }
 
-function sanitize(node, key = '', path = '') {
+export function sanitize(node, key = '', path = '') {
   if (typeof node === 'string') return sanitizeString(node, key, path);
   if (node === null || typeof node !== 'object') return node;
 
@@ -215,7 +256,11 @@ async function main() {
   process.stdout.write(JSON.stringify(clean, null, 2));
 }
 
-main().catch((err) => {
-  console.error(`FAILED  ${err.message}`);
-  process.exit(1);
-});
+// Guarded so make-fixtures.mjs can import `sanitize` without this script
+// authenticating and writing a fixture to stdout as an import side effect.
+if (process.argv[1] && process.argv[1].endsWith('sanitize-config.mjs')) {
+  main().catch((err) => {
+    console.error(`FAILED  ${err.message}`);
+    process.exit(1);
+  });
+}

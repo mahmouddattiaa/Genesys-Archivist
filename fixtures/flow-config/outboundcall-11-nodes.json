@@ -1,0 +1,4143 @@
+{
+  "defaultLanguage": "en-US",
+  "description": "India charlie bravo",
+  "initialSequence": "15522b51-afdc-48f0-a842-608f9fd2a463",
+  "name": "Echo",
+  "nextTrackingNumber": 23,
+  "uiMetaData": {
+    "contactList": [
+      {
+        "columnNames": ["Papa", "Alpha", "Echo", "Golf", "Echo", "Delta", "Bravo", "Kilo"],
+        "name": "India",
+        "id": "89455cec-1384-4235-a25e-6335656f39ca",
+        "result": "Delta"
+      }
+    ],
+    "bridgeServerActions": [],
+    "screenPops": [],
+    "actionServiceActions": [
+      {
+        "id": "custom_-_7a2165a1-b2f7-4a8a-a21b-c64e4d250be3",
+        "name": "India",
+        "category": "Bravo bravo alpha hotel",
+        "contract": {
+          "input": {
+            "inputSchemaFlattened": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "F_A585D7": {
+                    "type": "string",
+                    "name": "India",
+                    "required": false
+                  },
+                  "F_19E2BA": {
+                    "type": "string",
+                    "name": "November",
+                    "required": false
+                  }
+                }
+              }
+            }
+          },
+          "output": {
+            "errorSchemaFlattened": {
+              "schema": {
+                "$schema": "November",
+                "title": "Kilo",
+                "description": "Echo kilo mike alpha kilo kilo",
+                "type": "object",
+                "required": ["Hotel", "Echo", "Charlie"],
+                "properties": {
+                  "F_BE4BD5": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "name": "Charlie",
+                    "required": false
+                  },
+                  "F_4A9BEC": {
+                    "description": "November bravo golf alpha delta hotel",
+                    "type": "string",
+                    "name": "Hotel",
+                    "required": false
+                  },
+                  "F_073C16": {
+                    "description": "Kilo india hotel golf papa papa",
+                    "type": "integer",
+                    "name": "Echo",
+                    "required": false
+                  },
+                  "F_C54DBA": {
+                    "description": "Echo juliet bravo charlie oscar lima",
+                    "type": "string",
+                    "name": "Hotel",
+                    "required": false
+                  },
+                  "F_556EB4": {
+                    "description": "Echo bravo alpha foxtrot delta juliet",
+                    "type": "string",
+                    "name": "Charlie",
+                    "required": false
+                  },
+                  "F_82ECB7": {
+                    "description": "Oscar charlie echo mike hotel juliet",
+                    "type": "string",
+                    "name": "Charlie",
+                    "required": false
+                  },
+                  "F_BA218A": {
+                    "description": "Lima lima mike hotel delta echo",
+                    "type": "string",
+                    "name": "Hotel",
+                    "required": false
+                  },
+                  "F_13888B": {
+                    "description": "India papa november lima kilo mike",
+                    "type": "string",
+                    "name": "Kilo",
+                    "required": false
+                  },
+                  "userParams.F_2E68BE": {
+                    "description": "Mike november charlie charlie mike golf",
+                    "type": "array",
+                    "items": {
+                      "description": "Golf charlie papa papa november",
+                      "type": "string"
+                    },
+                    "name": "Papa",
+                    "required": false
+                  },
+                  "userParams.F_C26F54": {
+                    "description": "Alpha juliet india bravo mike foxtrot",
+                    "type": "array",
+                    "items": {
+                      "description": "Foxtrot echo mike golf",
+                      "type": "string"
+                    },
+                    "name": "November",
+                    "required": false
+                  },
+                  "details.F_8E82DA": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "name": "November",
+                    "required": false
+                  },
+                  "details.F_B9E50A": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "name": "November",
+                    "required": false
+                  },
+                  "details.F_5C2CE1": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "name": "Kilo",
+                    "required": false
+                  },
+                  "details.F_D6D83A": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "name": "Echo",
+                    "required": false
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "successSchemaFlattened": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "F_66EBD5": {
+                    "type": "string",
+                    "name": "India",
+                    "required": false
+                  },
+                  "F_C66659": {
+                    "type": "string",
+                    "name": "Kilo",
+                    "required": false
+                  },
+                  "F_C08035": {
+                    "type": "string",
+                    "name": "Delta",
+                    "required": false
+                  },
+                  "F_FC33F7": {
+                    "type": "string",
+                    "name": "Juliet",
+                    "required": false
+                  },
+                  "F_A3B50C": {
+                    "type": "string",
+                    "name": "Oscar",
+                    "required": false
+                  },
+                  "F_A601F8": {
+                    "type": "string",
+                    "name": "India",
+                    "required": false
+                  },
+                  "F_289EE4": {
+                    "type": "string",
+                    "name": "Charlie",
+                    "required": false
+                  },
+                  "F_8E76A9": {
+                    "type": "string",
+                    "name": "India",
+                    "required": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "result": "Echo",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "F_A585D7": {
+              "type": "string",
+              "name": "Juliet",
+              "required": false
+            },
+            "F_19E2BA": {
+              "type": "string",
+              "name": "Lima",
+              "required": false
+            }
+          }
+        },
+        "successSchema": {
+          "type": "object",
+          "properties": {
+            "F_66EBD5": {
+              "type": "string",
+              "name": "Hotel",
+              "required": false
+            },
+            "F_C66659": {
+              "type": "string",
+              "name": "Alpha",
+              "required": false
+            },
+            "F_C08035": {
+              "type": "string",
+              "name": "Delta",
+              "required": false
+            },
+            "F_FC33F7": {
+              "type": "string",
+              "name": "Lima",
+              "required": false
+            },
+            "F_A3B50C": {
+              "type": "string",
+              "name": "Bravo",
+              "required": false
+            },
+            "F_A601F8": {
+              "type": "string",
+              "name": "Mike",
+              "required": false
+            },
+            "F_289EE4": {
+              "type": "string",
+              "name": "Golf",
+              "required": false
+            },
+            "F_8E76A9": {
+              "type": "string",
+              "name": "Juliet",
+              "required": false
+            }
+          }
+        },
+        "errorSchema": {
+          "$schema": "Lima",
+          "title": "India",
+          "description": "Delta golf foxtrot november mike foxtrot",
+          "type": "object",
+          "required": ["Hotel", "Hotel", "Alpha"],
+          "properties": {
+            "F_BE4BD5": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "name": "Juliet",
+              "required": false
+            },
+            "F_4A9BEC": {
+              "description": "November alpha bravo delta papa november",
+              "type": "string",
+              "name": "India",
+              "required": false
+            },
+            "F_073C16": {
+              "description": "Hotel delta kilo golf november foxtrot",
+              "type": "integer",
+              "name": "November",
+              "required": false
+            },
+            "F_C54DBA": {
+              "description": "Charlie bravo mike juliet india hotel",
+              "type": "string",
+              "name": "Kilo",
+              "required": false
+            },
+            "F_556EB4": {
+              "description": "India papa november foxtrot echo mike",
+              "type": "string",
+              "name": "Papa",
+              "required": false
+            },
+            "F_82ECB7": {
+              "description": "Golf foxtrot charlie november delta bravo",
+              "type": "string",
+              "name": "Mike",
+              "required": false
+            },
+            "F_BA218A": {
+              "description": "Delta oscar kilo november charlie papa",
+              "type": "string",
+              "name": "Papa",
+              "required": false
+            },
+            "F_13888B": {
+              "description": "Papa mike lima alpha lima lima",
+              "type": "string",
+              "name": "Papa",
+              "required": false
+            },
+            "userParams.F_2E68BE": {
+              "description": "Papa delta delta charlie november delta",
+              "type": "array",
+              "items": {
+                "description": "India juliet alpha papa alpha",
+                "type": "string"
+              },
+              "name": "Papa",
+              "required": false
+            },
+            "userParams.F_C26F54": {
+              "description": "Alpha echo delta charlie india papa",
+              "type": "array",
+              "items": {
+                "description": "Papa alpha juliet echo",
+                "type": "string"
+              },
+              "name": "Alpha",
+              "required": false
+            },
+            "details.F_8E82DA": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "name": "Delta",
+              "required": false
+            },
+            "details.F_B9E50A": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "name": "Mike",
+              "required": false
+            },
+            "details.F_5C2CE1": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "name": "Charlie",
+              "required": false
+            },
+            "details.F_D6D83A": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "name": "Bravo",
+              "required": false
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    ],
+    "botFlows": [
+      {
+        "nluInfo": {
+          "domain": {
+            "id": "b70beca3-722e-48c1-ae72-2f25dc4ac0ba",
+            "selfUri": "Foxtrot"
+          },
+          "version": {
+            "id": "dc81ec72-1cfc-4fee-a91d-64e7ff10e4af",
+            "trainingStatus": "Echo",
+            "selfUri": "Juliet"
+          },
+          "intents": [
+            {
+              "name": "Juliet juliet"
+            },
+            {
+              "name": "Lima"
+            }
+          ],
+          "engineVersion": "Lima"
+        },
+        "type": "bot",
+        "inputSchema": {
+          "$schema": "Echo",
+          "title": "Echo foxtrot india",
+          "description": "Alpha golf charlie hotel kilo charlie",
+          "type": "object",
+          "properties": {
+            "Slot.F_FC12FF": {
+              "description": "Lima charlie india golf juliet",
+              "$ref": "Kilo",
+              "name": "Foxtrot",
+              "required": false
+            },
+            "Slot.F_643608": {
+              "description": "Kilo foxtrot india oscar delta",
+              "$ref": "Alpha",
+              "name": "Bravo",
+              "required": false
+            },
+            "Slot.F_F7D14D": {
+              "description": "Foxtrot mike mike kilo november",
+              "$ref": "Kilo",
+              "name": "Delta",
+              "required": false
+            },
+            "Flow.F_0A79AC": {
+              "$ref": "Papa",
+              "name": "Echo",
+              "required": false
+            },
+            "Slot.F_581AF3": {
+              "description": "Oscar bravo india juliet alpha",
+              "$ref": "Delta",
+              "name": "Bravo",
+              "required": false
+            },
+            "Slot.F_C381C2": {
+              "description": "Bravo papa kilo lima bravo",
+              "$ref": "India",
+              "name": "Bravo",
+              "required": false
+            },
+            "Slot.F_26BBB6": {
+              "description": "Alpha alpha foxtrot papa mike",
+              "$ref": "India",
+              "name": "Delta",
+              "required": false
+            },
+            "Flow.F_30141F": {
+              "$ref": "November",
+              "name": "Foxtrot",
+              "required": false
+            },
+            "Flow.F_636DFE": {
+              "$ref": "Juliet",
+              "name": "Mike",
+              "required": false
+            },
+            "Flow.F_933198": {
+              "$ref": "Alpha",
+              "name": "Hotel",
+              "required": false
+            },
+            "Flow.F_A2F9E3": {
+              "$ref": "India",
+              "name": "Delta",
+              "required": false
+            },
+            "Slot.F_7021C1": {
+              "description": "Foxtrot lima golf papa alpha",
+              "$ref": "November",
+              "name": "Hotel",
+              "required": false
+            },
+            "Slot.F_7BAA68": {
+              "description": "Golf india bravo oscar papa",
+              "$ref": "November",
+              "name": "Hotel",
+              "required": false
+            },
+            "Flow.F_D8CEBB": {
+              "$ref": "Delta",
+              "name": "Oscar",
+              "required": false
+            },
+            "Slot.F_2D9F2E": {
+              "description": "Delta kilo juliet november delta",
+              "$ref": "Lima",
+              "name": "Lima",
+              "required": false
+            },
+            "Slot.F_4B62F2": {
+              "description": "Mike foxtrot november lima juliet",
+              "$ref": "Oscar",
+              "name": "Bravo",
+              "required": false
+            },
+            "Slot.F_30AF38": {
+              "description": "Bravo charlie delta alpha echo",
+              "$ref": "Foxtrot",
+              "name": "Echo",
+              "required": false
+            },
+            "Slot.F_6F3B4B": {
+              "description": "Kilo bravo delta charlie mike",
+              "$ref": "Kilo",
+              "name": "Alpha",
+              "required": false
+            },
+            "Slot.F_323A99": {
+              "description": "Foxtrot juliet bravo kilo papa",
+              "$ref": "Golf",
+              "name": "Oscar",
+              "required": false
+            },
+            "Flow.F_AF9DDB": {
+              "type": "array",
+              "maxItems": 2000,
+              "items": {
+                "$ref": "Alpha"
+              },
+              "name": "Alpha",
+              "required": false
+            },
+            "Flow.F_845C1C": {
+              "$ref": "Papa",
+              "name": "Hotel",
+              "required": false
+            },
+            "Slot.F_D7EBB5": {
+              "description": "Golf delta charlie papa golf",
+              "$ref": "Foxtrot",
+              "name": "Papa",
+              "required": false
+            },
+            "Slot.F_5658A3": {
+              "description": "India hotel golf charlie golf",
+              "$ref": "India",
+              "name": "Papa",
+              "required": false
+            },
+            "Slot.F_E99980": {
+              "description": "Charlie bravo india alpha oscar",
+              "$ref": "Charlie",
+              "name": "Juliet",
+              "required": false
+            },
+            "Slot.F_30DAFF": {
+              "description": "Oscar lima bravo charlie november",
+              "$ref": "Mike",
+              "name": "Delta",
+              "required": false
+            },
+            "Slot.F_77E53C": {
+              "description": "Echo alpha bravo oscar mike",
+              "$ref": "Kilo",
+              "name": "Papa",
+              "required": false
+            }
+          },
+          "additionalProperties": false,
+          "definitions": {
+            "archString": {
+              "archDataTypeId": "November",
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "Alpha oscar oscar echo"
+                },
+                {
+                  "type": "string",
+                  "maxLength": 32000,
+                  "description": "Lima lima foxtrot bravo november juliet"
+                }
+              ]
+            }
+          }
+        },
+        "outputSchema": {
+          "$schema": "November",
+          "title": "Golf lima november",
+          "description": "Hotel november golf golf lima charlie",
+          "type": "object",
+          "properties": {
+            "Slot.F_FC12FF": {
+              "description": "Juliet kilo foxtrot oscar hotel",
+              "$ref": "Alpha",
+              "name": "Delta",
+              "required": false
+            },
+            "Slot.F_643608": {
+              "description": "Foxtrot kilo charlie delta delta",
+              "$ref": "Kilo",
+              "name": "Delta",
+              "required": false
+            },
+            "Slot.F_F7D14D": {
+              "description": "Oscar foxtrot mike november alpha",
+              "$ref": "Oscar",
+              "name": "November",
+              "required": false
+            },
+            "Flow.F_0A79AC": {
+              "$ref": "Charlie",
+              "name": "Juliet",
+              "required": false
+            },
+            "Slot.F_581AF3": {
+              "description": "Oscar alpha charlie juliet mike",
+              "$ref": "November",
+              "name": "Juliet",
+              "required": false
+            },
+            "Slot.F_C381C2": {
+              "description": "Mike echo kilo mike delta",
+              "$ref": "Mike",
+              "name": "Delta",
+              "required": false
+            },
+            "Slot.F_26BBB6": {
+              "description": "Charlie oscar mike papa mike",
+              "$ref": "Golf",
+              "name": "Mike",
+              "required": false
+            },
+            "Flow.F_30141F": {
+              "$ref": "Juliet",
+              "name": "Mike",
+              "required": false
+            },
+            "Flow.F_636DFE": {
+              "$ref": "Charlie",
+              "name": "Papa",
+              "required": false
+            },
+            "Flow.F_933198": {
+              "$ref": "Golf",
+              "name": "Bravo",
+              "required": false
+            },
+            "Flow.F_A2F9E3": {
+              "$ref": "Kilo",
+              "name": "Bravo",
+              "required": false
+            },
+            "Slot.F_7021C1": {
+              "description": "November oscar delta golf oscar",
+              "$ref": "Hotel",
+              "name": "Hotel",
+              "required": false
+            },
+            "Slot.F_7BAA68": {
+              "description": "Kilo lima charlie mike alpha",
+              "$ref": "Kilo",
+              "name": "Lima",
+              "required": false
+            },
+            "Flow.F_D8CEBB": {
+              "$ref": "Delta",
+              "name": "Papa",
+              "required": false
+            },
+            "Slot.F_2D9F2E": {
+              "description": "Alpha papa lima alpha kilo",
+              "$ref": "Golf",
+              "name": "Papa",
+              "required": false
+            },
+            "Slot.F_4B62F2": {
+              "description": "Oscar charlie oscar foxtrot foxtrot",
+              "$ref": "Echo",
+              "name": "Oscar",
+              "required": false
+            },
+            "Slot.F_30AF38": {
+              "description": "Oscar golf november juliet mike",
+              "$ref": "Echo",
+              "name": "Mike",
+              "required": false
+            },
+            "Slot.F_6F3B4B": {
+              "description": "Foxtrot foxtrot november hotel mike",
+              "$ref": "Hotel",
+              "name": "Golf",
+              "required": false
+            },
+            "Slot.F_323A99": {
+              "description": "Foxtrot india kilo lima charlie",
+              "$ref": "Golf",
+              "name": "Echo",
+              "required": false
+            },
+            "Flow.F_AF9DDB": {
+              "type": "array",
+              "maxItems": 2000,
+              "items": {
+                "$ref": "Juliet"
+              },
+              "name": "Delta",
+              "required": false
+            },
+            "Flow.F_845C1C": {
+              "$ref": "Delta",
+              "name": "Juliet",
+              "required": false
+            },
+            "Slot.F_D7EBB5": {
+              "description": "Bravo oscar delta papa echo",
+              "$ref": "Oscar",
+              "name": "Golf",
+              "required": false
+            },
+            "Slot.F_5658A3": {
+              "description": "Bravo bravo hotel oscar golf",
+              "$ref": "Kilo",
+              "name": "Delta",
+              "required": false
+            },
+            "Slot.F_E99980": {
+              "description": "India alpha papa alpha hotel",
+              "$ref": "India",
+              "name": "Foxtrot",
+              "required": false
+            },
+            "Slot.F_30DAFF": {
+              "description": "Kilo oscar charlie lima charlie",
+              "$ref": "India",
+              "name": "Alpha",
+              "required": false
+            },
+            "Slot.F_77E53C": {
+              "description": "November bravo alpha echo foxtrot",
+              "$ref": "Foxtrot",
+              "name": "India",
+              "required": false
+            }
+          },
+          "additionalProperties": false,
+          "definitions": {
+            "archString": {
+              "archDataTypeId": "Oscar",
+              "oneOf": [
+                {
+                  "type": "null",
+                  "description": "Mike charlie echo oscar"
+                },
+                {
+                  "type": "string",
+                  "maxLength": 32000,
+                  "description": "Charlie juliet oscar oscar delta november"
+                }
+              ]
+            }
+          }
+        },
+        "name": "Kilo",
+        "id": "60cba542-fad8-480e-a744-1df0dab2b68a",
+        "result": "Golf",
+        "alternateFlowInfos": [
+          {
+            "nluInfo": {
+              "domain": {
+                "id": "b70beca3-722e-48c1-ae72-2f25dc4ac0ba",
+                "selfUri": "Delta"
+              },
+              "version": {
+                "id": "dc81ec72-1cfc-4fee-a91d-64e7ff10e4af",
+                "trainingStatus": "Echo",
+                "selfUri": "Delta"
+              },
+              "intents": [
+                {
+                  "name": "Echo mike"
+                },
+                {
+                  "name": "Alpha"
+                }
+              ],
+              "engineVersion": "Golf"
+            },
+            "type": "bot",
+            "inputSchema": {
+              "$schema": "Alpha",
+              "title": "Golf oscar mike",
+              "description": "India juliet alpha hotel hotel alpha",
+              "type": "object",
+              "properties": {
+                "Slot.F_FC12FF": {
+                  "description": "Delta papa papa golf juliet",
+                  "$ref": "Bravo",
+                  "name": "Hotel",
+                  "required": false
+                },
+                "Slot.F_643608": {
+                  "description": "Kilo echo charlie alpha charlie",
+                  "$ref": "Papa",
+                  "name": "Bravo",
+                  "required": false
+                },
+                "Slot.F_F7D14D": {
+                  "description": "Delta mike mike hotel foxtrot",
+                  "$ref": "Foxtrot",
+                  "name": "Charlie",
+                  "required": false
+                },
+                "Flow.F_0A79AC": {
+                  "$ref": "Echo",
+                  "name": "Juliet",
+                  "required": false
+                },
+                "Slot.F_581AF3": {
+                  "description": "Mike papa hotel foxtrot golf",
+                  "$ref": "Echo",
+                  "name": "Kilo",
+                  "required": false
+                },
+                "Slot.F_C381C2": {
+                  "description": "Alpha golf papa kilo papa",
+                  "$ref": "Kilo",
+                  "name": "November",
+                  "required": false
+                },
+                "Slot.F_26BBB6": {
+                  "description": "Mike november kilo charlie juliet",
+                  "$ref": "Lima",
+                  "name": "Bravo",
+                  "required": false
+                },
+                "Flow.F_30141F": {
+                  "$ref": "November",
+                  "name": "Oscar",
+                  "required": false
+                },
+                "Flow.F_636DFE": {
+                  "$ref": "Bravo",
+                  "name": "Papa",
+                  "required": false
+                },
+                "Flow.F_933198": {
+                  "$ref": "Delta",
+                  "name": "Delta",
+                  "required": false
+                },
+                "Flow.F_A2F9E3": {
+                  "$ref": "Echo",
+                  "name": "Hotel",
+                  "required": false
+                },
+                "Slot.F_7021C1": {
+                  "description": "Echo hotel lima india alpha",
+                  "$ref": "Delta",
+                  "name": "Charlie",
+                  "required": false
+                },
+                "Slot.F_7BAA68": {
+                  "description": "Hotel oscar oscar foxtrot india",
+                  "$ref": "India",
+                  "name": "Alpha",
+                  "required": false
+                },
+                "Flow.F_D8CEBB": {
+                  "$ref": "Oscar",
+                  "name": "India",
+                  "required": false
+                },
+                "Slot.F_2D9F2E": {
+                  "description": "Golf mike november november oscar",
+                  "$ref": "Oscar",
+                  "name": "Lima",
+                  "required": false
+                },
+                "Slot.F_4B62F2": {
+                  "description": "Oscar papa foxtrot juliet juliet",
+                  "$ref": "Charlie",
+                  "name": "Charlie",
+                  "required": false
+                },
+                "Slot.F_30AF38": {
+                  "description": "India india oscar papa hotel",
+                  "$ref": "India",
+                  "name": "Papa",
+                  "required": false
+                },
+                "Slot.F_6F3B4B": {
+                  "description": "Hotel papa papa november papa",
+                  "$ref": "Juliet",
+                  "name": "Juliet",
+                  "required": false
+                },
+                "Slot.F_323A99": {
+                  "description": "Hotel lima india oscar golf",
+                  "$ref": "Charlie",
+                  "name": "Mike",
+                  "required": false
+                },
+                "Flow.F_AF9DDB": {
+                  "type": "array",
+                  "maxItems": 2000,
+                  "items": {
+                    "$ref": "November"
+                  },
+                  "name": "Golf",
+                  "required": false
+                },
+                "Flow.F_845C1C": {
+                  "$ref": "India",
+                  "name": "India",
+                  "required": false
+                },
+                "Slot.F_D7EBB5": {
+                  "description": "India kilo india papa kilo",
+                  "$ref": "Oscar",
+                  "name": "Bravo",
+                  "required": false
+                },
+                "Slot.F_5658A3": {
+                  "description": "November lima charlie alpha november",
+                  "$ref": "Echo",
+                  "name": "Hotel",
+                  "required": false
+                },
+                "Slot.F_E99980": {
+                  "description": "Oscar papa mike november lima",
+                  "$ref": "Hotel",
+                  "name": "Lima",
+                  "required": false
+                },
+                "Slot.F_30DAFF": {
+                  "description": "Delta delta alpha charlie bravo",
+                  "$ref": "November",
+                  "name": "Foxtrot",
+                  "required": false
+                },
+                "Slot.F_77E53C": {
+                  "description": "Oscar alpha foxtrot november golf",
+                  "$ref": "Charlie",
+                  "name": "Kilo",
+                  "required": false
+                }
+              },
+              "additionalProperties": false,
+              "definitions": {
+                "archString": {
+                  "archDataTypeId": "Charlie",
+                  "oneOf": [
+                    {
+                      "type": "null",
+                      "description": "Echo charlie bravo india"
+                    },
+                    {
+                      "type": "string",
+                      "maxLength": 32000,
+                      "description": "November hotel oscar echo foxtrot charlie"
+                    }
+                  ]
+                }
+              }
+            },
+            "outputSchema": {
+              "$schema": "Juliet",
+              "title": "Mike mike kilo",
+              "description": "Delta echo bravo bravo charlie delta",
+              "type": "object",
+              "properties": {
+                "Slot.F_FC12FF": {
+                  "description": "Oscar charlie november foxtrot golf",
+                  "$ref": "Alpha",
+                  "name": "Oscar",
+                  "required": false
+                },
+                "Slot.F_643608": {
+                  "description": "Alpha golf lima charlie echo",
+                  "$ref": "Golf",
+                  "name": "Golf",
+                  "required": false
+                },
+                "Slot.F_F7D14D": {
+                  "description": "Delta oscar lima lima november",
+                  "$ref": "Mike",
+                  "name": "Lima",
+                  "required": false
+                },
+                "Flow.F_0A79AC": {
+                  "$ref": "Oscar",
+                  "name": "Bravo",
+                  "required": false
+                },
+                "Slot.F_581AF3": {
+                  "description": "Hotel mike oscar papa alpha",
+                  "$ref": "Echo",
+                  "name": "Golf",
+                  "required": false
+                },
+                "Slot.F_C381C2": {
+                  "description": "Kilo papa juliet delta foxtrot",
+                  "$ref": "Foxtrot",
+                  "name": "Lima",
+                  "required": false
+                },
+                "Slot.F_26BBB6": {
+                  "description": "Oscar mike papa november alpha",
+                  "$ref": "Oscar",
+                  "name": "Juliet",
+                  "required": false
+                },
+                "Flow.F_30141F": {
+                  "$ref": "Hotel",
+                  "name": "Golf",
+                  "required": false
+                },
+                "Flow.F_636DFE": {
+                  "$ref": "Delta",
+                  "name": "November",
+                  "required": false
+                },
+                "Flow.F_933198": {
+                  "$ref": "Bravo",
+                  "name": "Kilo",
+                  "required": false
+                },
+                "Flow.F_A2F9E3": {
+                  "$ref": "Papa",
+                  "name": "Hotel",
+                  "required": false
+                },
+                "Slot.F_7021C1": {
+                  "description": "Juliet mike juliet lima kilo",
+                  "$ref": "Echo",
+                  "name": "Kilo",
+                  "required": false
+                },
+                "Slot.F_7BAA68": {
+                  "description": "Echo alpha lima oscar oscar",
+                  "$ref": "Kilo",
+                  "name": "Delta",
+                  "required": false
+                },
+                "Flow.F_D8CEBB": {
+                  "$ref": "Golf",
+                  "name": "Hotel",
+                  "required": false
+                },
+                "Slot.F_2D9F2E": {
+                  "description": "Bravo mike lima lima charlie",
+                  "$ref": "Juliet",
+                  "name": "Papa",
+                  "required": false
+                },
+                "Slot.F_4B62F2": {
+                  "description": "Bravo kilo kilo juliet india",
+                  "$ref": "Echo",
+                  "name": "India",
+                  "required": false
+                },
+                "Slot.F_30AF38": {
+                  "description": "Delta lima golf kilo papa",
+                  "$ref": "November",
+                  "name": "Juliet",
+                  "required": false
+                },
+                "Slot.F_6F3B4B": {
+                  "description": "Golf november kilo papa november",
+                  "$ref": "Golf",
+                  "name": "Juliet",
+                  "required": false
+                },
+                "Slot.F_323A99": {
+                  "description": "Alpha november charlie papa bravo",
+                  "$ref": "Foxtrot",
+                  "name": "India",
+                  "required": false
+                },
+                "Flow.F_AF9DDB": {
+                  "type": "array",
+                  "maxItems": 2000,
+                  "items": {
+                    "$ref": "Charlie"
+                  },
+                  "name": "Mike",
+                  "required": false
+                },
+                "Flow.F_845C1C": {
+                  "$ref": "Oscar",
+                  "name": "Bravo",
+                  "required": false
+                },
+                "Slot.F_D7EBB5": {
+                  "description": "Bravo november alpha echo foxtrot",
+                  "$ref": "Delta",
+                  "name": "November",
+                  "required": false
+                },
+                "Slot.F_5658A3": {
+                  "description": "Mike alpha oscar alpha oscar",
+                  "$ref": "Golf",
+                  "name": "Papa",
+                  "required": false
+                },
+                "Slot.F_E99980": {
+                  "description": "Alpha india echo delta november",
+                  "$ref": "Juliet",
+                  "name": "Mike",
+                  "required": false
+                },
+                "Slot.F_30DAFF": {
+                  "description": "Foxtrot echo delta charlie juliet",
+                  "$ref": "Hotel",
+                  "name": "Charlie",
+                  "required": false
+                },
+                "Slot.F_77E53C": {
+                  "description": "Golf echo juliet oscar foxtrot",
+                  "$ref": "Echo",
+                  "name": "November",
+                  "required": false
+                }
+              },
+              "additionalProperties": false,
+              "definitions": {
+                "archString": {
+                  "archDataTypeId": "Golf",
+                  "oneOf": [
+                    {
+                      "type": "null",
+                      "description": "Bravo november alpha mike"
+                    },
+                    {
+                      "type": "string",
+                      "maxLength": 32000,
+                      "description": "Mike alpha oscar papa charlie oscar"
+                    }
+                  ]
+                }
+              }
+            },
+            "version": "24.0",
+            "name": "Oscar",
+            "id": "60cba542-fad8-480e-a744-1df0dab2b68a",
+            "result": "Foxtrot",
+            "publishedVersion": {
+              "name": "Golf"
+            },
+            "supportedLanguages": [
+              {
+                "isDefault": true,
+                "language": "en-us"
+              }
+            ],
+            "division": {
+              "id": "8be7d94b-be02-4462-a589-3f964ac04254",
+              "name": "Alpha"
+            }
+          }
+        ],
+        "publishedVersion": {
+          "name": "Papa"
+        },
+        "supportedLanguages": [
+          {
+            "isDefault": true,
+            "language": "en-us"
+          }
+        ],
+        "division": {
+          "id": "8be7d94b-be02-4462-a589-3f964ac04254",
+          "name": "Bravo"
+        }
+      }
+    ]
+  },
+  "supportedLanguages": ["en-US"],
+  "manifest": {
+    "dataAction": [
+      {
+        "name": "Hotel",
+        "id": "custom_-_7a2165a1-b2f7-4a8a-a21b-c64e4d250be3",
+        "context": [
+          {
+            "actionName": "Papa delta november",
+            "id": "bf1542d3-cd08-445c-af18-6b79e0050afb",
+            "name": "Kilo golf hotel"
+          }
+        ]
+      }
+    ],
+    "botFlow": [
+      {
+        "name": "Mike",
+        "id": "60cba542-fad8-480e-a744-1df0dab2b68a",
+        "version": "published",
+        "context": [
+          {
+            "actionName": "Golf echo charlie",
+            "id": "ee13b2d2-1a21-4bdc-ac30-ce5f4613673e",
+            "name": "Hotel lima india"
+          }
+        ]
+      }
+    ],
+    "ttsEngine": [
+      {
+        "name": "Foxtrot november",
+        "id": "Hotel",
+        "context": [
+          {
+            "id": "Golf"
+          }
+        ]
+      }
+    ],
+    "ttsVoice": [
+      {
+        "name": "November",
+        "id": "Alpha",
+        "context": [
+          {
+            "id": "Bravo"
+          }
+        ]
+      }
+    ],
+    "contactList": [
+      {
+        "name": "Oscar",
+        "id": "89455cec-1384-4235-a25e-6335656f39ca",
+        "context": [
+          {
+            "id": "Mike"
+          }
+        ]
+      }
+    ],
+    "acdWrapupCode": [
+      {
+        "name": "Foxtrot",
+        "id": "8dd9f1b4-4671-415e-a8b4-9423d478d748",
+        "context": [
+          {
+            "id": "Oscar"
+          }
+        ]
+      }
+    ],
+    "language": [
+      {
+        "id": "en-US"
+      }
+    ],
+    "userPrompt": [],
+    "systemPrompt": []
+  },
+  "type": "outboundcall",
+  "isSecure": false,
+  "debugSettings": {},
+  "disableAsr": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "false",
+        "type": "bln"
+      }
+    },
+    "text": "false",
+    "type": "bln",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {},
+    "version": 2
+  },
+  "disableAsrCompanyDirectory": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "true",
+        "type": "bln"
+      }
+    },
+    "text": "true",
+    "type": "bln",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {},
+    "version": 2
+  },
+  "errorHandling": {
+    "audio": {
+      "bargeInExpression": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "true",
+            "type": "bln"
+          }
+        },
+        "text": "true",
+        "type": "bln",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "flushExpression": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "false",
+            "type": "bln"
+          }
+        },
+        "text": "false",
+        "type": "bln",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2,
+        "outOfService": true
+      },
+      "defaultAudio": {
+        "config": {
+          "AudioPlaybackOptions": {
+            "pos": 1,
+            "text": "Kilo golf kilo november papa oscar",
+            "operands": [
+              {
+                "ToAudioTTS": {
+                  "pos": 22,
+                  "operands": [
+                    {
+                      "lit": {
+                        "pos": 33,
+                        "text": "Papa foxtrot golf bravo november bravo",
+                        "type": "str"
+                      }
+                    }
+                  ],
+                  "type": "aud"
+                }
+              },
+              {
+                "lit": {
+                  "pos": 91,
+                  "text": "true",
+                  "type": "bln"
+                }
+              }
+            ],
+            "type": "aud"
+          }
+        },
+        "text": "Lima lima bravo papa delta mike",
+        "type": "aud",
+        "uiMetaData": {
+          "sequenceItems": [
+            {
+              "type": 0,
+              "parameter": "Golf juliet lima delta juliet lima",
+              "error": ""
+            }
+          ],
+          "customExpressionMode": false,
+          "optional": true
+        },
+        "metaData": {}
+      },
+      "cases": []
+    },
+    "queue": {
+      "config": {
+        "emp": {
+          "pos": 1,
+          "text": "",
+          "type": "que"
+        }
+      },
+      "text": "",
+      "type": "que",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "handlingType": "Delta"
+  },
+  "initialPrompts": {
+    "bargeInExpression": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "true",
+          "type": "bln"
+        }
+      },
+      "text": "true",
+      "type": "bln",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "flushExpression": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "false",
+          "type": "bln"
+        }
+      },
+      "text": "false",
+      "type": "bln",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2,
+      "outOfService": true
+    },
+    "defaultAudio": {
+      "config": {
+        "emp": {
+          "pos": 1,
+          "text": "",
+          "type": "aud"
+        }
+      },
+      "text": "",
+      "type": "aud",
+      "uiMetaData": {
+        "sequenceItems": [
+          {
+            "type": 0,
+            "parameter": "",
+            "error": ""
+          }
+        ],
+        "customExpressionMode": false,
+        "optional": true
+      },
+      "metaData": {}
+    },
+    "cases": []
+  },
+  "outboundCallSettings": {
+    "contactList": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "Lima",
+          "type": "cnl",
+          "val": "89455cec-1384-4235-a25e-6335656f39ca"
+        }
+      },
+      "text": "Oscar",
+      "type": "cnl",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    },
+    "defaultWrapupCode": {
+      "config": {
+        "lit": {
+          "pos": 1,
+          "text": "Hotel",
+          "type": "wrc",
+          "val": "8dd9f1b4-4671-415e-a8b4-9423d478d748"
+        }
+      },
+      "text": "Mike",
+      "type": "wrc",
+      "uiMetaData": {
+        "mode": 1
+      },
+      "metaData": {},
+      "version": 2
+    }
+  },
+  "speechRecCompanyDirectory": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "false",
+        "type": "bln"
+      }
+    },
+    "text": "false",
+    "type": "bln",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {},
+    "version": 2
+  },
+  "speechRecEngine": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "",
+        "type": "str"
+      }
+    },
+    "text": "",
+    "type": "str",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {}
+  },
+  "suppressRecording": {
+    "config": {
+      "lit": {
+        "pos": 1,
+        "text": "false",
+        "type": "bln"
+      }
+    },
+    "text": "false",
+    "type": "bln",
+    "uiMetaData": {
+      "mode": 1
+    },
+    "metaData": {},
+    "version": 2
+  },
+  "customDefinitions": {
+    "dataTypeDefinitions": []
+  },
+  "defaultSettings": {
+    "PlayAudioOnSilenceAction": {
+      "allowedRepeatCount": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Juliet",
+            "type": "int"
+          }
+        },
+        "text": "Alpha",
+        "type": "int",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "silenceDuration": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Papa",
+            "type": "dur"
+          }
+        },
+        "text": "November",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "timeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Oscar",
+            "type": "dur"
+          }
+        },
+        "text": "Mike",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "DetectSilenceAction": {
+      "silenceDuration": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Lima",
+            "type": "dur"
+          }
+        },
+        "text": "Bravo",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "timeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Papa",
+            "type": "dur"
+          }
+        },
+        "text": "November",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "DataAction": {
+      "processingPrompt": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "pmt"
+          }
+        },
+        "text": "",
+        "type": "pmt",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "CollectInputAction": {
+      "interDigitTimeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Golf",
+            "type": "dur"
+          }
+        },
+        "text": "Mike",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "noEntryTimeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Mike",
+            "type": "dur"
+          }
+        },
+        "text": "Bravo",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "DialExtensionAction": {
+      "digitTimeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Golf",
+            "type": "dur"
+          }
+        },
+        "text": "November",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "TransferUserAction": {
+      "connTimeout": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "dur"
+          }
+        },
+        "text": "",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "TransferExternalAction": {
+      "connTimeout": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "dur"
+          }
+        },
+        "text": "",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "TransferGroupAction": {
+      "connTimeout": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "dur"
+          }
+        },
+        "text": "",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "TransferFlowSecureAction": {
+      "connTimeout": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Charlie",
+            "type": "dur"
+          }
+        },
+        "text": "Papa",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "Menu": {
+      "promptRepeatCount": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "November",
+            "type": "int"
+          }
+        },
+        "text": "Hotel",
+        "type": "int",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "promptRepeatDelay": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Juliet",
+            "type": "dur"
+          }
+        },
+        "text": "Foxtrot",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "extensionDialingDelay": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Oscar",
+            "type": "dur"
+          }
+        },
+        "text": "Bravo",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "useExtensionDialing": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "true",
+            "type": "bln"
+          }
+        },
+        "text": "true",
+        "type": "bln",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    "SpeechRec": {
+      "speechRecMinConfidence": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "November",
+            "type": "int"
+          }
+        },
+        "text": "Oscar",
+        "type": "int",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "speechRecTimeoutComplete": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "November",
+            "type": "dur"
+          }
+        },
+        "text": "Juliet",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "speechRecTimeoutIncomplete": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Oscar",
+            "type": "dur"
+          }
+        },
+        "text": "Alpha",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "speechRecTimeoutTotal": {
+        "config": {
+          "lit": {
+            "pos": 1,
+            "text": "Delta",
+            "type": "dur"
+          }
+        },
+        "text": "Lima",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 1
+        },
+        "metaData": {},
+        "version": 2
+      }
+    }
+  },
+  "flowMetaData": {
+    "flowDocumentVersion": "India",
+    "minimumServerVersion": "Foxtrot",
+    "ttsDataVersion": "Juliet"
+  },
+  "flowSequenceItemList": [
+    {
+      "startAction": "50dca38c-369c-424d-a026-58398c3f71a8",
+      "trackingId": 12,
+      "id": "15522b51-afdc-48f0-a842-608f9fd2a463",
+      "name": "Bravo november charlie",
+      "uiMetaData": {
+        "collapsed": false
+      },
+      "__type": "Task",
+      "paths": [
+        {
+          "label": "India",
+          "outputId": "__DEFAULT__"
+        }
+      ],
+      "actionList": [
+        {
+          "actionName": "Delta",
+          "actionId": "custom_-_7a2165a1-b2f7-4a8a-a21b-c64e4d250be3",
+          "category": {
+            "id": "Mike delta hotel golf",
+            "name": "Lima papa echo echo"
+          },
+          "useSuggestedTimeout": true,
+          "nextAction": "bbe94551-199c-4a9a-af92-cd271377ab90",
+          "trackingId": 13,
+          "id": "bf1542d3-cd08-445c-af18-6b79e0050afb",
+          "name": "Echo delta november",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "DataAction",
+          "errorBindings": [],
+          "processingPrompt": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "pmt"
+              }
+            },
+            "text": "",
+            "type": "pmt",
+            "uiMetaData": {
+              "mode": 3
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "inputs": [
+            {
+              "name": "Golf",
+              "value": {
+                "config": {
+                  "F_CDB4EE": {
+                    "pos": 17,
+                    "text": "Bravo",
+                    "operands": [
+                      {
+                        "lit": {
+                          "pos": 17,
+                          "text": "Mike",
+                          "type": "str"
+                        }
+                      },
+                      {
+                        "sysref": {
+                          "pos": 1,
+                          "text": "India",
+                          "type": "cnl",
+                          "val": "Oscar"
+                        }
+                      }
+                    ],
+                    "type": "str"
+                  }
+                },
+                "text": "Juliet",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "Oscar",
+                      "type": "cnl",
+                      "isSysRef": true,
+                      "name": "Lima"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Lima",
+              "value": {
+                "config": {
+                  "sysref": {
+                    "pos": 1,
+                    "text": "Foxtrot",
+                    "type": "str",
+                    "val": "Juliet"
+                  }
+                },
+                "text": "Foxtrot",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "Bravo",
+                      "type": "str",
+                      "isSysRef": true,
+                      "name": "Lima"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Papa",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Echo",
+                    "type": "str",
+                    "val": "3c5ccacf-0dbc-41b8-ab4b-bff0f1023386"
+                  }
+                },
+                "text": "Papa",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 2
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "3c5ccacf-0dbc-41b8-ab4b-bff0f1023386",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Echo"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Oscar",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Golf",
+                    "type": "str",
+                    "val": "fe741f0d-cc49-4569-a17a-cb4d1fc5c0c8"
+                  }
+                },
+                "text": "India",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 2
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "fe741f0d-cc49-4569-a17a-cb4d1fc5c0c8",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "India"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Hotel",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Bravo",
+                    "type": "str",
+                    "val": "393ab29e-eb3d-4a76-a2d0-6f2f46d1f27e"
+                  }
+                },
+                "text": "Delta",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 2
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "393ab29e-eb3d-4a76-a2d0-6f2f46d1f27e",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Echo"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Papa",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "India",
+                    "type": "str",
+                    "val": "e1a58b59-e768-427d-a259-7969ebe1dc73"
+                  }
+                },
+                "text": "India",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 2
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "e1a58b59-e768-427d-a259-7969ebe1dc73",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Oscar"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Golf",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Alpha",
+                    "type": "str",
+                    "val": "ae992541-badc-405b-aaf0-9ad5450d510e"
+                  }
+                },
+                "text": "Alpha",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 2
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "ae992541-badc-405b-aaf0-9ad5450d510e",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Foxtrot"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Lima",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Mike",
+                    "type": "str",
+                    "val": "7ac64e5d-5be9-47af-af6a-55d3d48f5af0"
+                  }
+                },
+                "text": "Golf",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 2
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "7ac64e5d-5be9-47af-af6a-55d3d48f5af0",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Kilo"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Hotel",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Juliet",
+                    "type": "str",
+                    "val": "64981a5b-5b73-4066-ab87-14bd40fb32eb"
+                  }
+                },
+                "text": "November",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 2
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "64981a5b-5b73-4066-ab87-14bd40fb32eb",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "November"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Alpha",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Oscar",
+                    "type": "str",
+                    "val": "ba8abfc2-3897-4932-aed8-30933fa5b6d9"
+                  }
+                },
+                "text": "Lima",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 2
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "ba8abfc2-3897-4932-aed8-30933fa5b6d9",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Kilo"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            }
+          ],
+          "timeout": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "Mike",
+                "type": "dur"
+              }
+            },
+            "text": "Kilo",
+            "type": "dur",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2,
+            "outOfService": true
+          },
+          "paths": [
+            {
+              "nextActionId": "ee13b2d2-1a21-4bdc-ac30-ce5f4613673e",
+              "label": "November",
+              "outputId": "__SUCCESS__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            },
+            {
+              "nextActionId": "994abe71-44a8-4d14-a353-215890f90e27",
+              "label": "Golf",
+              "outputId": "__FAILURE__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            },
+            {
+              "nextActionId": "1553439e-400a-4447-a02e-bf5af0c623a5",
+              "label": "Juliet",
+              "outputId": "__TIMEOUT__",
+              "uiMetaData": {
+                "collapsed": false
+              }
+            }
+          ]
+        },
+        {
+          "trackingId": 15,
+          "id": "bbe94551-199c-4a9a-af92-cd271377ab90",
+          "name": "Kilo",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "DisconnectAction"
+        },
+        {
+          "trackingId": 16,
+          "id": "7e9bcc66-f124-4adf-a0b5-0d7dd900f80f",
+          "name": "Mike",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "DisconnectAction"
+        },
+        {
+          "trackingId": 17,
+          "id": "1553439e-400a-4447-a02e-bf5af0c623a5",
+          "name": "Foxtrot",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "DisconnectAction"
+        },
+        {
+          "nextAction": "bf1542d3-cd08-445c-af18-6b79e0050afb",
+          "trackingId": 19,
+          "id": "50dca38c-369c-424d-a026-58398c3f71a8",
+          "name": "Golf",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "TranscriptionAction",
+          "enableTranscription": {
+            "config": {
+              "lit": {
+                "pos": 1,
+                "text": "true",
+                "type": "bln"
+              }
+            },
+            "text": "true",
+            "type": "bln",
+            "uiMetaData": {
+              "mode": 1
+            },
+            "metaData": {},
+            "version": 2
+          }
+        },
+        {
+          "nextAction": "7e9bcc66-f124-4adf-a0b5-0d7dd900f80f",
+          "trackingId": 20,
+          "id": "994abe71-44a8-4d14-a353-215890f90e27",
+          "name": "Echo foxtrot",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "PlayAudioAction",
+          "prompts": {
+            "bargeInExpression": {
+              "config": {
+                "lit": {
+                  "pos": 1,
+                  "text": "true",
+                  "type": "bln"
+                }
+              },
+              "text": "true",
+              "type": "bln",
+              "uiMetaData": {
+                "mode": 1
+              },
+              "metaData": {},
+              "version": 2
+            },
+            "flushExpression": {
+              "config": {
+                "lit": {
+                  "pos": 1,
+                  "text": "false",
+                  "type": "bln"
+                }
+              },
+              "text": "false",
+              "type": "bln",
+              "uiMetaData": {
+                "mode": 1
+              },
+              "metaData": {},
+              "version": 2,
+              "outOfService": true
+            },
+            "defaultAudio": {
+              "config": {
+                "AudioPlaybackOptions": {
+                  "pos": 1,
+                  "text": "India golf india",
+                  "operands": [
+                    {
+                      "ToAudioTTS": {
+                        "pos": 22,
+                        "operands": [
+                          {
+                            "lit": {
+                              "pos": 33,
+                              "text": "Echo mike",
+                              "type": "str"
+                            }
+                          }
+                        ],
+                        "type": "aud"
+                      }
+                    },
+                    {
+                      "lit": {
+                        "pos": 49,
+                        "text": "true",
+                        "type": "bln"
+                      }
+                    }
+                  ],
+                  "type": "aud"
+                }
+              },
+              "text": "Papa alpha delta",
+              "type": "aud",
+              "uiMetaData": {
+                "sequenceItems": [
+                  {
+                    "type": 0,
+                    "error": "",
+                    "parameter": "Juliet india"
+                  }
+                ],
+                "customExpressionMode": false
+              },
+              "metaData": {}
+            },
+            "cases": []
+          }
+        },
+        {
+          "flowId": "60cba542-fad8-480e-a744-1df0dab2b68a",
+          "flowName": "Lima",
+          "flowLatestVersion": true,
+          "flowDebugPublished": false,
+          "nextAction": "f6ba80e1-c6cd-4fb1-a9fa-438544200136",
+          "trackingId": 21,
+          "id": "ee13b2d2-1a21-4bdc-ac30-ce5f4613673e",
+          "name": "Juliet hotel kilo",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "flowOutOfService": false,
+          "__type": "CallBotFlowAction",
+          "exitReason": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "str"
+              }
+            },
+            "text": "",
+            "type": "str",
+            "uiMetaData": {
+              "mode": 3
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "inputs": [
+            {
+              "name": "Foxtrot",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Oscar",
+                    "type": "str",
+                    "val": "64981a5b-5b73-4066-ab87-14bd40fb32eb"
+                  }
+                },
+                "text": "Charlie",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "64981a5b-5b73-4066-ab87-14bd40fb32eb",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Papa"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Oscar",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Delta",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Delta",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Kilo",
+                    "type": "str",
+                    "val": "64981a5b-5b73-4066-ab87-14bd40fb32eb"
+                  }
+                },
+                "text": "Kilo",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "64981a5b-5b73-4066-ab87-14bd40fb32eb",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Foxtrot"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Juliet",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "India",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Golf",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Papa",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Echo",
+                    "type": "str",
+                    "val": "7ac64e5d-5be9-47af-af6a-55d3d48f5af0"
+                  }
+                },
+                "text": "Oscar",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "7ac64e5d-5be9-47af-af6a-55d3d48f5af0",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Papa"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "India",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Golf",
+                    "type": "str",
+                    "val": "e1a58b59-e768-427d-a259-7969ebe1dc73"
+                  }
+                },
+                "text": "November",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "e1a58b59-e768-427d-a259-7969ebe1dc73",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Delta"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Papa",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Juliet",
+                    "type": "str",
+                    "val": "fe741f0d-cc49-4569-a17a-cb4d1fc5c0c8"
+                  }
+                },
+                "text": "Lima",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "fe741f0d-cc49-4569-a17a-cb4d1fc5c0c8",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Juliet"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Papa",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Bravo",
+                    "type": "str",
+                    "val": "3c5ccacf-0dbc-41b8-ab4b-bff0f1023386"
+                  }
+                },
+                "text": "Delta",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "3c5ccacf-0dbc-41b8-ab4b-bff0f1023386",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Golf"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Juliet",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Oscar",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Juliet",
+              "value": {
+                "config": {
+                  "sysref": {
+                    "pos": 1,
+                    "text": "Mike",
+                    "type": "str",
+                    "val": "Echo"
+                  }
+                },
+                "text": "Oscar",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "Delta",
+                      "type": "str",
+                      "isSysRef": true,
+                      "name": "Delta"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "November",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Echo",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Mike",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Delta",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "India",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Delta",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str_coll"
+                  }
+                },
+                "text": "",
+                "type": "str_coll",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Foxtrot",
+              "value": {
+                "config": {
+                  "ref": {
+                    "pos": 1,
+                    "text": "Echo",
+                    "type": "str",
+                    "val": "ba8abfc2-3897-4932-aed8-30933fa5b6d9"
+                  }
+                },
+                "text": "Charlie",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 0
+                },
+                "metaData": {
+                  "references": [
+                    {
+                      "id": "ba8abfc2-3897-4932-aed8-30933fa5b6d9",
+                      "type": "str",
+                      "isSysRef": false,
+                      "name": "Foxtrot"
+                    }
+                  ]
+                },
+                "version": 2
+              }
+            },
+            {
+              "name": "Charlie",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Golf",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Golf",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "November",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Papa",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            }
+          ],
+          "intent": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "str"
+              }
+            },
+            "text": "",
+            "type": "str",
+            "uiMetaData": {
+              "mode": 3
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "outputs": [
+            {
+              "name": "November",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Juliet",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Golf",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Kilo",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Kilo",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Alpha",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Kilo",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "November",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Lima",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Charlie",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Oscar",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Delta",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Oscar",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Papa",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Lima",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Juliet",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Delta",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "November",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "November",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Alpha",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str_coll"
+                  }
+                },
+                "text": "",
+                "type": "str_coll",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "India",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "India",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Mike",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Lima",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Juliet",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            },
+            {
+              "name": "Papa",
+              "value": {
+                "config": {
+                  "emp": {
+                    "pos": 1,
+                    "text": "",
+                    "type": "str"
+                  }
+                },
+                "text": "",
+                "type": "str",
+                "uiMetaData": {
+                  "mode": 3
+                },
+                "metaData": {},
+                "version": 2
+              }
+            }
+          ],
+          "inputText": {
+            "config": {
+              "emp": {
+                "pos": 1,
+                "text": "",
+                "type": "str"
+              }
+            },
+            "text": "",
+            "type": "str",
+            "uiMetaData": {
+              "mode": 3
+            },
+            "metaData": {},
+            "version": 2
+          },
+          "paths": []
+        },
+        {
+          "trackingId": 22,
+          "id": "f6ba80e1-c6cd-4fb1-a9fa-438544200136",
+          "name": "November",
+          "uiMetaData": {
+            "collapsed": false
+          },
+          "__type": "DisconnectAction"
+        }
+      ],
+      "variables": []
+    },
+    {
+      "trackingId": 10,
+      "id": "d561e7d3-b633-49a4-a64e-b675d57a12d0",
+      "name": "Golf delta",
+      "uiMetaData": {
+        "collapsed": false
+      },
+      "__type": "Menu",
+      "extensionDialingDelay": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "dur"
+          }
+        },
+        "text": "",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "menuChoiceList": [
+        {
+          "speechRecTerms": {
+            "F_5C49F8": []
+          },
+          "id": "1d47b4f2-abd7-465c-a6e4-bf12c891ac9f",
+          "name": "Oscar",
+          "action": {
+            "trackingId": 11,
+            "id": "00d9d2d9-0a4c-4302-a5fb-7001cc767b67",
+            "name": "Foxtrot",
+            "uiMetaData": {
+              "collapsed": false
+            },
+            "__type": "DisconnectAction"
+          },
+          "digit": 9
+        }
+      ],
+      "promptRepeatCount": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "int"
+          }
+        },
+        "text": "",
+        "type": "int",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "promptRepeatDelay": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "dur"
+          }
+        },
+        "text": "",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "prompts": {
+        "bargeInExpression": {
+          "config": {
+            "lit": {
+              "pos": 1,
+              "text": "true",
+              "type": "bln"
+            }
+          },
+          "text": "true",
+          "type": "bln",
+          "uiMetaData": {
+            "mode": 1
+          },
+          "metaData": {},
+          "version": 2
+        },
+        "flushExpression": {
+          "config": {
+            "lit": {
+              "pos": 1,
+              "text": "false",
+              "type": "bln"
+            }
+          },
+          "text": "false",
+          "type": "bln",
+          "uiMetaData": {
+            "mode": 1
+          },
+          "metaData": {},
+          "version": 2,
+          "outOfService": true
+        },
+        "defaultAudio": {
+          "config": {
+            "AudioPlaybackOptions": {
+              "pos": 1,
+              "text": "Bravo papa juliet alpha golf juliet",
+              "operands": [
+                {
+                  "ToAudioTTS": {
+                    "pos": 22,
+                    "operands": [
+                      {
+                        "lit": {
+                          "pos": 33,
+                          "text": "India lima india golf oscar india",
+                          "type": "str"
+                        }
+                      }
+                    ],
+                    "type": "aud"
+                  }
+                },
+                {
+                  "lit": {
+                    "pos": 85,
+                    "text": "true",
+                    "type": "bln"
+                  }
+                }
+              ],
+              "type": "aud"
+            }
+          },
+          "text": "Kilo charlie foxtrot echo papa hotel",
+          "type": "aud",
+          "uiMetaData": {
+            "sequenceItems": [
+              {
+                "type": 0,
+                "parameter": "Lima india papa delta mike delta",
+                "error": ""
+              }
+            ],
+            "customExpressionMode": false,
+            "optional": true
+          },
+          "metaData": {}
+        },
+        "cases": []
+      },
+      "speechRecMinConfidence": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "int"
+          }
+        },
+        "text": "",
+        "type": "int",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "speechRecTimeoutComplete": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "dur"
+          }
+        },
+        "text": "",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "speechRecTimeoutIncomplete": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "dur"
+          }
+        },
+        "text": "",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "speechRecTimeoutTotal": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "dur"
+          }
+        },
+        "text": "",
+        "type": "dur",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "useExtensionDialing": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "bln"
+          }
+        },
+        "text": "",
+        "type": "bln",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    }
+  ],
+  "supportedLanguageOptions": [
+    {
+      "language": "en-US",
+      "languageSkill": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "lac"
+          }
+        },
+        "text": "",
+        "type": "lac",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      },
+      "textToSpeech": {
+        "engine": {
+          "selection": "Lima",
+          "name": "Golf charlie",
+          "id": "Lima"
+        },
+        "voice": {
+          "selection": "Papa",
+          "name": "Alpha",
+          "id": "Papa"
+        }
+      }
+    }
+  ],
+  "variables": [
+    {
+      "id": "3c5ccacf-0dbc-41b8-ab4b-bff0f1023386",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Lima",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    {
+      "id": "35366ead-8856-458b-a21a-53d900d96000",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Charlie",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    {
+      "id": "393ab29e-eb3d-4a76-a2d0-6f2f46d1f27e",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "November",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    {
+      "id": "e1a58b59-e768-427d-a259-7969ebe1dc73",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Lima",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    {
+      "id": "fe741f0d-cc49-4569-a17a-cb4d1fc5c0c8",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Papa",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    {
+      "id": "7ac64e5d-5be9-47af-af6a-55d3d48f5af0",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "India",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    {
+      "id": "64981a5b-5b73-4066-ab87-14bd40fb32eb",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Oscar",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    {
+      "id": "ba8abfc2-3897-4932-aed8-30933fa5b6d9",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Delta",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    },
+    {
+      "id": "ae992541-badc-405b-aaf0-9ad5450d510e",
+      "isCollection": false,
+      "isInternal": false,
+      "isOutput": false,
+      "isInput": false,
+      "isSecure": false,
+      "version": "1.0",
+      "__type": "StringVariable",
+      "name": "Mike",
+      "initialValue": {
+        "config": {
+          "emp": {
+            "pos": 1,
+            "text": "",
+            "type": "str"
+          }
+        },
+        "text": "",
+        "type": "str",
+        "uiMetaData": {
+          "mode": 3
+        },
+        "metaData": {},
+        "version": 2
+      }
+    }
+  ],
+  "versionMetaData": {
+    "inputSchema": {
+      "$schema": "Juliet",
+      "title": "Oscar india golf",
+      "description": "Foxtrot juliet november india echo alpha",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "outputSchema": {
+      "$schema": "Golf",
+      "title": "Bravo oscar oscar",
+      "description": "November echo kilo charlie mike echo",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  "$archivistFixture": {
+    "note": "Sanitized from a real Architect flow configuration. Structure preserved exactly; every tenant-authored string replaced deterministically.",
+    "sourceFlowIdHash": "27d869e7c5c2",
+    "sourceType": "outboundcall",
+    "sourceVersion": "17.0",
+    "generatedBy": "scripts/spike/make-fixtures.mjs"
+  }
+}
