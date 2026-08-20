@@ -65,4 +65,8 @@ TDD. Write the failing test, watch it fail, write the minimal implementation, wa
 
 ## Status
 
-Pre-implementation. Phase 0 has not run yet — see `docs/spikes/`. Do not build a production Genesys adapter against an unverified source path; four candidates are being scored, and the winner is an empirical result, not an assumption.
+Phase 0 has run. Spikes S0–S3 passed and the source path is settled by measurement: the Platform API configuration endpoint (ADR-015). Plans 1–4 are complete — 408 tests, `npm run verify` green.
+
+**Stage 2 works end to end. Stage 1 has no production adapter.** `packages/genesys-source` and `packages/genesys-platform` are empty; `runCapture` takes a `GenesysSourceProvider` by injection and everything is proven against `FakeSourceProvider`. Building that adapter is the next substantial piece of work, and the permission-matrix spike (S4) is a release gate that has not run.
+
+Capture has two modes, `context` and `migration` — see ADR-018. A `context` bundle must never be mistakable for a migration-ready one.

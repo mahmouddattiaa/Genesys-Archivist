@@ -13,7 +13,26 @@ Archivist does not build that migration server. It guarantees the data contract 
 
 ## Status
 
-**Pre-implementation.** Phase 0 has not run. Design and plans are complete; no production code exists yet.
+**Stage 2 works end to end. Stage 1 works against an injected source provider, but no production Genesys adapter exists yet.**
+
+Phase 0 has run. Spikes S0–S3 all passed, and the source path is settled by measurement rather than assumption: the Platform API configuration endpoint (ADR-015). Plans 1–4 are complete — 408 tests across 48 files, with format, lint, production and test typechecking, and schema validation in `npm run verify`.
+
+What that means concretely: given a flow configuration, the tool already produces `business.md`, `technical.md`, `operations.md`, Mermaid diagrams, SVG, and PDF, every technical claim citing resolvable evidence. It can seal, verify, and re-read a capture bundle. What it cannot yet do is fetch anything from a real Genesys organization — `packages/genesys-source` and `packages/genesys-platform` are empty, and `runCapture` takes its provider by injection.
+
+## Two capture modes
+
+Per [ADR-018](docs/adr/ADR-018-capture-modes.md), capture has two jobs and they are named separately:
+
+```text
+archivist capture --mode context   --org <id> [--flow <id>...]
+archivist capture --mode migration --org <id> [--flow <id>...]
+```
+
+**`context`** captures flow definitions and the resource manifest that arrives with them, so a developer returning to an unfamiliar IVR can re-orient quickly. It does not walk resources to closure or download assets, which makes it fast enough to run across a whole organization routinely.
+
+**`migration`** captures everything needed to rebuild the IVRs elsewhere: every resource body, every byte of prompt audio, data-table rows.
+
+Both produce a bundle. A `context` bundle records `policy.mode: "context"`, reports `migrationReadiness.archyImportableYaml: false`, and carries a caveat saying so in words — it can never be mistaken for a migration-ready one.
 
 ## The architecture in one paragraph
 
@@ -47,11 +66,13 @@ Then read, in order:
 4. **[Plan 1: Foundation](docs/superpowers/plans/2026-08-20-01-foundation.md)** — twelve task-by-task TDD tasks that need no Genesys access.
 5. **[Phase 0 spikes](docs/spikes/README.md)** — the go/no-go gate that unblocks everything else.
 
-## Phase 0 is a go/no-go gate
+## Phase 0 was a go/no-go gate, and it passed
 
-Before the Genesys adapters are built, prove against a **non-production** organization that a read-only OAuth client can enumerate every required flow type across pages and divisions; that a source path can load and export published flows faithfully; that prompt audio downloads read-only; and that no mutation permission is required. Ten spikes, twelve kill criteria. See [docs/spikes/](docs/spikes/README.md).
+Four source paths were in contention — Platform API, the Archy CLI, the Architect Scripting SDK, and manual YAML. Which one won was an empirical result, not an assumption.
 
-Four source paths are in contention — Platform API, the Archy CLI, the Architect Scripting SDK, and manual YAML. Which one wins is an empirical result, not an assumption.
+Spike S1 measured the Platform API configuration endpoint at 100% structural fidelity against a manually exported Architect YAML baseline: 47 nodes, 10 construct types, zero unexplained differences. It additionally supplies a stable `trackingId` on every node and a manifest of referenced resources with ids and per-node provenance. The Architect Scripting SDK was dropped entirely ([ADR-015](docs/adr/README.md)); it would have supplied a strict subset at a much higher dependency cost.
+
+The permission-matrix spike (S4 in [docs/14](docs/14-open-questions-and-spikes.md)) has **not** run, and it is a release gate: no mutation permission may be reachable from a production adapter. See [docs/spikes/](docs/spikes/README.md).
 
 ## Repository layout
 
