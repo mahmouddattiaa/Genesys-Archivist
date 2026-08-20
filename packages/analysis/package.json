@@ -18,5 +18,8 @@
   },
   "dependencies": {
     "@genesys-archivist/domain": "*"
+  },
+  "devDependencies": {
+    "@genesys-archivist/normalization": "*"
   }
 }
