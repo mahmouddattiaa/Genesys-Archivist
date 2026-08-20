@@ -33,19 +33,21 @@ export type ResourceReader = (id: string) => Promise<DependencyResolution>;
 
 interface FetchedResource {
   readonly displayName: string | null;
-  /** Metadata only -- never an `asset` or `dataTableRows` payload. Those are
+  /** Metadata only -- never an `assets` or `dataTableRows` payload. Those are
    * merged in unredacted after this returns, because `redactResourceBody`
    * walks plain objects and arrays: handed a `Uint8Array` of audio bytes, it
    * would read it as an array-like of numeric-string keys and rebuild it as
-   * a plain object, silently destroying the very bytes `extractAsset` in
+   * a plain object, silently destroying the very bytes `extractAssets` in
    * `capture-run.ts` requires to still be `instanceof Uint8Array`. */
   readonly metadata: Record<string, unknown>;
   readonly references?: readonly DependencyRef[];
-  readonly asset?: {
+  /** Plural because a prompt has one recording per language. See
+   * `downloadAllAssets`. */
+  readonly assets?: readonly {
     readonly bytes: Uint8Array;
     readonly originalName: string;
     readonly mimeType: string;
-  };
+  }[];
   readonly dataTableRows?: readonly unknown[];
 }
 
@@ -84,7 +86,7 @@ function toResolution(ref: DependencyRef, fetched: FetchedResource): DependencyR
   const redactedMetadata = redactResourceBody(fetched.metadata) as Record<string, unknown>;
   const safeMetadata: Record<string, unknown> = { ...redactedMetadata };
   if (fetched.references !== undefined) safeMetadata['references'] = fetched.references;
-  if (fetched.asset !== undefined) safeMetadata['asset'] = fetched.asset;
+  if (fetched.assets !== undefined) safeMetadata['assets'] = fetched.assets;
   if (fetched.dataTableRows !== undefined) safeMetadata['dataTableRows'] = fetched.dataTableRows;
   return { ref, status: 'resolved', displayName: fetched.displayName, safeMetadata };
 }
@@ -159,23 +161,33 @@ async function downloadWithExpiryRetry(
   }
 }
 
+interface DownloadedAsset {
+  readonly bytes: Uint8Array;
+  readonly originalName: string;
+  readonly mimeType: string;
+}
+
 /**
- * Downloads the first prompt resource that carries a media URI, trying the
- * next language on a download failure rather than failing the whole prompt.
- * `DependencyResolution.safeMetadata` has one `asset` slot (see
- * `capture-run.ts`'s `extractAsset`), so a prompt with audio in several
- * languages currently surfaces only one through this seam -- every language
- * actually present is still named in `availableLanguages`, so a reader of
- * the bundle can see what exists even though only one file is captured.
- * This is a known limitation of the current `DependencyResolution` contract,
- * not a silent drop: see this adapter's final report for the seam gap this
- * points at (a resolution can carry only one asset).
+ * Downloads **every** language of a prompt, not the first one that works.
+ *
+ * A Genesys prompt carries one recording per language, and this adapter
+ * originally returned only the first because `safeMetadata` had a single
+ * `asset` slot. That made a `migration` bundle for a bilingual IVR capture the
+ * English audio, drop the Arabic, and still seal itself migration-ready --
+ * exactly the silent incompleteness AGENTS.md forbids, and invisible in a
+ * monolingual sandbox. `capture-run.ts` now reads a plural `assets` array.
+ *
+ * A language whose download fails is skipped rather than failing the whole
+ * prompt, and every language present is still named in `availableLanguages`,
+ * so a reader can compare what exists against what was captured. Returning
+ * partial audio is acceptable; returning partial audio *silently* is not.
  */
-async function downloadFirstAvailableAsset(
+async function downloadAllAssets(
   client: PlatformApiClient,
   resources: readonly PromptResource[],
   refetchResources: () => Promise<readonly PromptResource[]>,
-): Promise<{ bytes: Uint8Array; originalName: string; mimeType: string } | null> {
+): Promise<readonly DownloadedAsset[]> {
+  const assets: DownloadedAsset[] = [];
   for (const resource of resources) {
     if (
       resource.mediaUri === null ||
@@ -194,12 +206,20 @@ async function downloadFirstAvailableAsset(
           return fresh.find((r) => r.language === resource.language)?.mediaUri ?? null;
         },
       );
-      return { bytes, originalName: resource.fileName ?? `${language}.wav`, mimeType };
+      assets.push({
+        bytes,
+        // The language is part of the name because the asset store is
+        // content-addressed: two languages of the same prompt are two
+        // different files, and `index.json` is the only place a human can
+        // tell which is which.
+        originalName: resource.fileName ?? `${language}.wav`,
+        mimeType,
+      });
     } catch {
       continue;
     }
   }
-  return null;
+  return assets;
 }
 
 export function createResourceReaders(
@@ -243,11 +263,10 @@ export function createResourceReaders(
     makeReader('userPrompt', async (id) => {
       const prompt = await getUserPrompt(client, id);
       const resources = prompt.resources ?? [];
-      const asset =
-        (await downloadFirstAvailableAsset(client, resources, async () => {
-          const fresh = await getUserPrompt(client, id);
-          return fresh.resources ?? [];
-        })) ?? undefined;
+      const assets = await downloadAllAssets(client, resources, async () => {
+        const fresh = await getUserPrompt(client, id);
+        return fresh.resources ?? [];
+      });
       return {
         displayName: prompt.name,
         metadata: {
@@ -256,8 +275,9 @@ export function createResourceReaders(
           availableLanguages: resources
             .map((r) => r.language)
             .filter((l): l is string => l !== null && l !== undefined),
+          capturedAssetCount: assets.length,
         },
-        ...(asset !== undefined ? { asset } : {}),
+        ...(assets.length > 0 ? { assets } : {}),
       };
     }),
   );
@@ -267,11 +287,10 @@ export function createResourceReaders(
     makeReader('systemPrompt', async (id) => {
       const prompt = await getSystemPrompt(client, id);
       const resources = prompt.resources ?? [];
-      const asset =
-        (await downloadFirstAvailableAsset(client, resources, async () => {
-          const fresh = await getSystemPrompt(client, id);
-          return fresh.resources ?? [];
-        })) ?? undefined;
+      const assets = await downloadAllAssets(client, resources, async () => {
+        const fresh = await getSystemPrompt(client, id);
+        return fresh.resources ?? [];
+      });
       return {
         displayName: prompt.name ?? null,
         metadata: {
@@ -280,8 +299,9 @@ export function createResourceReaders(
           availableLanguages: resources
             .map((r) => r.language)
             .filter((l): l is string => l !== null && l !== undefined),
+          capturedAssetCount: assets.length,
         },
-        ...(asset !== undefined ? { asset } : {}),
+        ...(assets.length > 0 ? { assets } : {}),
       };
     }),
   );

@@ -51,8 +51,9 @@ export type { CaptureMode } from './bundle-writer.js';
  *      `DependencyRef`) is read as "what this flow directly points to".
  *   2. Any resolved resource's own outward references, asset payload, and
  *      data-table rows are read the same way: `safeMetadata.references`,
- *      `safeMetadata.asset` (`{bytes, originalName, mimeType}`), and
- *      `safeMetadata.dataTableRows` (an array). `DependencyResolution`
+ *      `safeMetadata.assets` (an array of `{bytes, originalName, mimeType}`;
+ *      the singular `safeMetadata.asset` is still accepted for the
+ *      one-payload case), and `safeMetadata.dataTableRows` (an array). `DependencyResolution`
  *      already declares `safeMetadata` as an open `Record<string,
  *      unknown>`, so nothing here requires a domain change to compile --
  *      but a production adapter needs one of these fields formalized on
@@ -171,8 +172,7 @@ interface AssetPayload {
   readonly mimeType: string;
 }
 
-function extractAsset(resolution: DependencyResolution): AssetPayload | undefined {
-  const raw = resolution.safeMetadata['asset'];
+function toAssetPayload(raw: unknown): AssetPayload | undefined {
   if (typeof raw !== 'object' || raw === null) return undefined;
   const candidate = raw as Record<string, unknown>;
   if (
@@ -187,6 +187,29 @@ function extractAsset(resolution: DependencyResolution): AssetPayload | undefine
     };
   }
   return undefined;
+}
+
+/**
+ * Reads every asset a resolution carries.
+ *
+ * `assets` (plural) is the field a provider should populate; `asset` is
+ * accepted for the single-payload case and kept because the convention this
+ * module documents at the top of the file named it.
+ *
+ * The plural form is not cosmetic. A Genesys prompt has one audio recording
+ * *per language*, and the singular field could only ever carry one of them —
+ * so a `migration` bundle for a bilingual IVR captured the English audio,
+ * silently dropped the Arabic, and still declared itself migration-ready. That
+ * is precisely the failure AGENTS.md's "never silently drop" rule exists to
+ * prevent, and it is invisible in a monolingual sandbox.
+ */
+function extractAssets(resolution: DependencyResolution): readonly AssetPayload[] {
+  const plural = resolution.safeMetadata['assets'];
+  if (Array.isArray(plural)) {
+    return plural.map(toAssetPayload).filter((a): a is AssetPayload => a !== undefined);
+  }
+  const single = toAssetPayload(resolution.safeMetadata['asset']);
+  return single === undefined ? [] : [single];
 }
 
 function extractDataTableRows(resolution: DependencyResolution): readonly unknown[] | undefined {
@@ -763,8 +786,7 @@ async function execute({ options, alreadyPromoted }: ExecuteParams): Promise<Cap
 
         await writer.writeResource(node.type, node.id, sanitizeBody(resolution.safeMetadata));
 
-        const asset = extractAsset(resolution);
-        if (asset !== undefined) {
+        for (const asset of extractAssets(resolution)) {
           await writer.putAsset(asset.bytes, {
             originalName: asset.originalName,
             mimeType: asset.mimeType,
@@ -831,12 +853,18 @@ async function execute({ options, alreadyPromoted }: ExecuteParams): Promise<Cap
   }
 }
 
-/** Strips the free-form `references` / `asset` / `dataTableRows` modeling
- * keys back out of a resolution's safeMetadata before it is written as a
- * resource body -- those are this file's own bookkeeping, not part of the
+/** Strips the free-form `references` / `asset` / `assets` / `dataTableRows`
+ * modeling keys back out of a resolution's safeMetadata before it is written
+ * as a resource body -- those are this file's own bookkeeping, not part of the
  * resource. Everything else in safeMetadata is, by the domain interface's
- * own contract, already safe to persist. */
-const MODELING_ONLY_KEYS = new Set(['references', 'asset', 'dataTableRows']);
+ * own contract, already safe to persist.
+ *
+ * `assets` has to be in this set for a second and much sharper reason than the
+ * others: it holds raw audio bytes. Omitting it would serialize a Uint8Array
+ * of prompt audio into the resource's JSON body -- megabytes of it, per
+ * language, duplicated alongside the content-addressed copy the asset store
+ * already holds. */
+const MODELING_ONLY_KEYS = new Set(['references', 'asset', 'assets', 'dataTableRows']);
 
 function sanitizeBody(safeMetadata: Readonly<Record<string, unknown>>): Record<string, unknown> {
   return Object.fromEntries(

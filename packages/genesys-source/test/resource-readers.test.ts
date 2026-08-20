@@ -146,7 +146,7 @@ describe('createResourceReaders: dataTable', () => {
 });
 
 describe('createResourceReaders: userPrompt audio', () => {
-  it('downloads audio and reports it as a single asset plus every available language', async () => {
+  it('downloads one asset per language, not just the first', async () => {
     const routed = createRoutedFetch([
       apiRoute(API_HOST, '/api/v2/architect/prompts/:id', () =>
         jsonResponse({
@@ -178,15 +178,25 @@ describe('createResourceReaders: userPrompt audio', () => {
     const readers = createResourceReaders(makeClient(routed.fetch));
     const result = await readers.get('userPrompt')!('p1');
     expect(result.status).toBe('resolved');
-    const asset = result.safeMetadata['asset'] as {
+    // A prompt carries one recording per language. Returning only the first
+    // made a migration bundle for a bilingual IVR drop every other language's
+    // audio while still sealing itself migration-ready.
+    const assets = result.safeMetadata['assets'] as readonly {
       bytes: Uint8Array;
       originalName: string;
       mimeType: string;
-    };
-    expect(asset.bytes).toBeInstanceOf(Uint8Array);
-    expect(Array.from(asset.bytes)).toEqual([1, 2, 3]);
-    expect(asset.mimeType).toBe('audio/x-wav');
+    }[];
+    expect(assets).toHaveLength(2);
+    for (const asset of assets) {
+      expect(asset.bytes).toBeInstanceOf(Uint8Array);
+      expect(Array.from(asset.bytes)).toEqual([1, 2, 3]);
+      expect(asset.mimeType).toBe('audio/x-wav');
+    }
+    expect(assets.map((a) => a.originalName)).toEqual(['en-us.wav', 'fr-fr.wav']);
     expect(result.safeMetadata['availableLanguages']).toEqual(['en-us', 'fr-fr']);
+    // Captured count next to available languages, so a bundle reader can see
+    // at a glance whether audio is complete rather than having to count files.
+    expect(result.safeMetadata['capturedAssetCount']).toBe(2);
     // The media host never receives this client's own bearer token.
     const mediaCall = routed.calls.find((c) => c.url.includes('media.example.mypurecloud.ie'));
     expect(mediaCall?.headers['authorization']).toBeUndefined();
@@ -223,12 +233,13 @@ describe('createResourceReaders: userPrompt audio', () => {
     const readers = createResourceReaders(makeClient(routed.fetch));
     const result = await readers.get('userPrompt')!('p1');
     expect(result.status).toBe('resolved');
-    const asset = result.safeMetadata['asset'] as { bytes: Uint8Array };
-    expect(Array.from(asset.bytes)).toEqual([9]);
+    const assets = result.safeMetadata['assets'] as readonly { bytes: Uint8Array }[];
+    expect(assets).toHaveLength(1);
+    expect(Array.from(assets[0]!.bytes)).toEqual([9]);
     expect(mediaAttempts).toBe(2);
   });
 
-  it('reports availableLanguages with no asset when no resource carries a media URI', async () => {
+  it('reports availableLanguages with no assets when no resource carries a media URI', async () => {
     const routed = createRoutedFetch([
       apiRoute(API_HOST, '/api/v2/architect/prompts/:id', () =>
         jsonResponse({ id: 'p1', name: 'Silent', resources: [{ language: 'en-us' }] }),
@@ -237,7 +248,7 @@ describe('createResourceReaders: userPrompt audio', () => {
     const readers = createResourceReaders(makeClient(routed.fetch));
     const result = await readers.get('userPrompt')!('p1');
     expect(result.status).toBe('resolved');
-    expect('asset' in result.safeMetadata).toBe(false);
+    expect('assets' in result.safeMetadata).toBe(false);
     expect(result.safeMetadata['availableLanguages']).toEqual(['en-us']);
   });
 });
