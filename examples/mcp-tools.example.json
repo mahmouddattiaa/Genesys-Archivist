@@ -15,7 +15,7 @@
           "organizationId": "org_demo_001",
           "organizationName": "IST Sandbox",
           "region": "example-region",
-          "sourceProvider": "architect-scripting-sdk",
+          "sourceProvider": "platform-api",
           "permissionStatus": "sufficient_for_pilot"
         },
         "warnings": [],
