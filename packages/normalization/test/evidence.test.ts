@@ -7,7 +7,12 @@ import { extractVariables } from '../src/extract-variables.js';
 import { extractDependencies } from '../src/extract-dependencies.js';
 import { buildEvidence } from '../src/evidence.js';
 
-let parts: { cfg: any; nodes: any; vars: any; deps: any };
+let parts: {
+  cfg: ReturnType<typeof parseFlowConfig>;
+  nodes: ReturnType<typeof extractNodes>;
+  vars: ReturnType<typeof extractVariables>;
+  deps: ReturnType<typeof extractDependencies>;
+};
 beforeAll(async () => {
   const raw: unknown = JSON.parse(
     await readFile('fixtures/flow-config/inboundcall-47-nodes.json', 'utf8'),

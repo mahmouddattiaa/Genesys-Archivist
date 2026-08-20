@@ -15,10 +15,10 @@ S1 measured 100% fidelity for **one** inbound call flow of 47 nodes. This asks w
 
 ## The two assumptions hold
 
-| Assumption | Verdict |
-| --- | --- |
+| Assumption                                                   | Verdict                                          |
+| ------------------------------------------------------------ | ------------------------------------------------ |
 | Every flow uses `flowSequenceItemList` as its container list | ✓ **holds for every sampled flow of every type** |
-| Every node carries a `trackingId` | ✓ **holds for every node of every sampled flow** |
+| Every node carries a `trackingId`                            | ✓ **holds for every node of every sampled flow** |
 
 This is the important result. The traversal strategy in `extract-nodes` — walk `flowSequenceItemList`, then each container's `actionList` and `menuChoiceList[].action` — and the identity strategy — prefer `trackingId` — are not artefacts of one flow type. They are how Architect represents flows generally.
 
@@ -43,7 +43,7 @@ ProcessVoicemailInputAction 2   ClearVoicemailSnippetAction 2   EndWorkflowActio
 
 Three of these matter structurally rather than merely semantically:
 
-- **`State` and `BotState`** are *container* types alongside `Task` and `Menu`, appearing directly in `flowSequenceItemList`. Bot and digital flows are state machines rather than task lists.
+- **`State` and `BotState`** are _container_ types alongside `Task` and `Menu`, appearing directly in `flowSequenceItemList`. Bot and digital flows are state machines rather than task lists.
 - **`LoopAction` / `ExitLoopAction` / `LoopTask`** introduce explicit iteration, which the caller-journey traversal must treat as a bounded cycle rather than a path to enumerate.
 - **`CallTaskAction` / `TaskAction` / `CallDigitalBotFlowAction`** are cross-flow and cross-task invocations — more edge sources for `extract-edges`, and reference types the resource graph must follow.
 
@@ -53,7 +53,7 @@ This quantifies **ADR-009**, the decision that capture handles all flow types fr
 
 `extract-nodes` marks any type outside the known ten as `supportLevel: 'unsupported'`. Applied to the wider corpus that would report most nodes in most non-inbound flows as unsupported, and the completeness gate in `docs/13` would read as catastrophic.
 
-That is inaccurate. For an unrecognised action the extractor still captures its identity, its type, its name, its container, and its edges — everything except an interpretation of what it *does*. The snapshot schema already distinguishes these: `full`, `partial`, `opaque`, `unsupported`.
+That is inaccurate. For an unrecognised action the extractor still captures its identity, its type, its name, its container, and its edges — everything except an interpretation of what it _does_. The snapshot schema already distinguishes these: `full`, `partial`, `opaque`, `unsupported`.
 
 **Correction required:** a structurally captured node whose semantics are not yet modelled is `partial`, not `unsupported`. `unsupported` should mean the construct cannot be represented at all. Without this the completeness score punishes breadth rather than measuring loss, and a release gate driven by a misleading number is worse than no gate.
 
@@ -75,28 +75,28 @@ Note `dialogflowAgent` and `knowledgeBase`: some flows depend on third-party NLU
 
 Value-wrapper discriminators seen beyond `lit`, `emp` and `ref`:
 
-| Discriminator | Occurrences | Assessment |
-| --- | ---: | --- |
-| `.` | 8 | Member access. Carries `operands`, so it already parses as an expression. |
-| `[` | 3 | Index access. Same. |
-| `and` | 3 | Logical operator with `operands`. Same. |
-| `or` | 2 | Same. |
-| **`nul`** | **7** | **A null literal.** Currently falls through to `opaque`. |
+| Discriminator | Occurrences | Assessment                                                                |
+| ------------- | ----------: | ------------------------------------------------------------------------- |
+| `.`           |           8 | Member access. Carries `operands`, so it already parses as an expression. |
+| `[`           |           3 | Index access. Same.                                                       |
+| `and`         |           3 | Logical operator with `operands`. Same.                                   |
+| `or`          |           2 | Same.                                                                     |
+| **`nul`**     |       **7** | **A null literal.** Currently falls through to `opaque`.                  |
 
 The operator cases need no change — `parseValueRef` treats anything carrying `operands` as an expression, which is why `AudioPlaybackOptions` already worked.
 
-`nul` is a real gap. It is a *value*, not an operator, and it belongs alongside `lit` and `emp`. Distinguishing "explicitly null" from "explicitly empty" from "absent" matters to a migration tool for exactly the reason `emp` did.
+`nul` is a real gap. It is a _value_, not an operator, and it belongs alongside `lit` and `emp`. Distinguishing "explicitly null" from "explicitly empty" from "absent" matters to a migration tool for exactly the reason `emp` did.
 
 ## Changes required
 
-| Change | Where |
-| --- | --- |
-| A structurally captured but semantically unmodelled node is `partial`, not `unsupported` | `packages/normalization/src/extract-nodes.ts`, and the completeness calculation |
-| Add `nul` to the `ValueRef` union as a null literal | `packages/domain/src/value-ref.ts` |
-| `State` and `BotState` join `Task` and `Menu` as container types | `extract-nodes`, `extract-edges` |
-| Loop constructs are bounded cycles for journey traversal | `packages/analysis` when it is written |
-| `CallTaskAction`, `TaskAction`, `CallDigitalBotFlowAction` are edge sources and cross-flow references | `extract-edges`, resource graph |
-| Coverage estimate: ~51 constructs for full organization depth, versus 10 today | ADR-009, Plan 3 successor |
+| Change                                                                                                | Where                                                                           |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| A structurally captured but semantically unmodelled node is `partial`, not `unsupported`              | `packages/normalization/src/extract-nodes.ts`, and the completeness calculation |
+| Add `nul` to the `ValueRef` union as a null literal                                                   | `packages/domain/src/value-ref.ts`                                              |
+| `State` and `BotState` join `Task` and `Menu` as container types                                      | `extract-nodes`, `extract-edges`                                                |
+| Loop constructs are bounded cycles for journey traversal                                              | `packages/analysis` when it is written                                          |
+| `CallTaskAction`, `TaskAction`, `CallDigitalBotFlowAction` are edge sources and cross-flow references | `extract-edges`, resource graph                                                 |
+| Coverage estimate: ~51 constructs for full organization depth, versus 10 today                        | ADR-009, Plan 3 successor                                                       |
 
 ## What S1b does not settle
 

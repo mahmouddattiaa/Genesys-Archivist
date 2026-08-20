@@ -32,14 +32,27 @@ const warn = (m) => console.log(`  ! ${m}`);
 
 /** The ten node types the normalizer handles today, from S1. */
 const KNOWN_NODE_TYPES = new Set([
-  'Task', 'Menu', 'MenuAction', 'PlayAudioAction', 'TransferMenuAction',
-  'TransferTaskAction', 'TransferPureMatchAction', 'DecisionAction',
-  'DisconnectAction', 'DataAction',
+  'Task',
+  'Menu',
+  'MenuAction',
+  'PlayAudioAction',
+  'TransferMenuAction',
+  'TransferTaskAction',
+  'TransferPureMatchAction',
+  'DecisionAction',
+  'DisconnectAction',
+  'DataAction',
 ]);
 
 /** The seven manifest categories seen in the reference flow. */
 const KNOWN_MANIFEST = new Set([
-  'dataAction', 'queue', 'ttsEngine', 'ttsVoice', 'language', 'userPrompt', 'systemPrompt',
+  'dataAction',
+  'queue',
+  'ttsEngine',
+  'ttsVoice',
+  'language',
+  'userPrompt',
+  'systemPrompt',
 ]);
 
 /** Value-wrapper discriminators the ValueRef parser models explicitly. */
@@ -178,16 +191,24 @@ async function main() {
 
   console.log('\n  --- generalization verdict ---');
   if (noSequenceList === 0) ok('every sampled flow uses flowSequenceItemList');
-  else bad(`${noSequenceList} sampled flow(s) have NO flowSequenceItemList — extractors need a second strategy`);
+  else
+    bad(
+      `${noSequenceList} sampled flow(s) have NO flowSequenceItemList — extractors need a second strategy`,
+    );
 
   if (notAllTracked === 0) ok('every node in every sampled flow carries a trackingId');
-  else bad(`${notAllTracked} sampled flow(s) have nodes WITHOUT a trackingId — deriveNodeId is load-bearing after all`);
+  else
+    bad(
+      `${notAllTracked} sampled flow(s) have nodes WITHOUT a trackingId — deriveNodeId is load-bearing after all`,
+    );
 
   console.log('');
   if (unknownNodeTypes.size === 0) ok('no node type beyond the ten already handled');
   else {
     warn(`${unknownNodeTypes.size} node type(s) beyond the ten handled today:`);
-    [...unknownNodeTypes.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30)
+    [...unknownNodeTypes.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 30)
       .forEach(([t, n]) => console.log(`      ${t.padEnd(34)} ${n}`));
   }
 
@@ -195,14 +216,17 @@ async function main() {
   if (unknownManifest.size === 0) ok('no manifest category beyond the seven already handled');
   else {
     warn(`${unknownManifest.size} manifest categor(ies) beyond the seven handled today:`);
-    [...unknownManifest.entries()].sort((a, b) => b[1] - a[1])
+    [...unknownManifest.entries()]
+      .sort((a, b) => b[1] - a[1])
       .forEach(([t, n]) => console.log(`      ${t.padEnd(34)} in ${n} flow(s)`));
   }
 
   if (unknownWrappers.size > 0) {
     console.log('');
     warn('value-wrapper discriminators not modelled explicitly:');
-    [...unknownWrappers.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15)
+    [...unknownWrappers.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 15)
       .forEach(([t, n]) => console.log(`      ${t.padEnd(34)} ${n}`));
   }
 
