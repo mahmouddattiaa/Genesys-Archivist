@@ -30,7 +30,7 @@
  * names are customer configuration.
  */
 import { createHash } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { REPO_ROOT, attempt, authenticate, loadSpikeEnv, platformClient } from './env.mjs';
 
@@ -398,21 +398,46 @@ async function main() {
     'utf8',
   );
   /**
-   * The role the product actually needs, emitted as something an admin can act
-   * on rather than a paragraph in a document they have to translate.
+   * The role the product actually needs.
    *
-   * Derived from PROBES, so it stays in step with the adapter's real call list
-   * instead of drifting into a hand-maintained second table. `view` and
-   * `search` only — by construction, this file has no way to emit a mutating
-   * action.
+   * Read out of `packages/genesys-platform/src/permissions.ts` — the table the
+   * adapter itself uses to name the permission behind a 403 — rather than out
+   * of PROBES above.
+   *
+   * That distinction is not academic. PROBES is a *diagnostic* list: it
+   * deliberately pokes endpoints to see what answers, and it had drifted to
+   * include four the adapter never calls (DID pools, routing skills, wrap-up
+   * codes, authorization divisions) while missing ones it does. An admin who
+   * built a role from that list would have granted `telephony:plugin`, which
+   * has no `view` action at all, and would still have hit a 403 on the first
+   * real capture.
+   *
+   * One source of truth, and it is the one the shipped code reads.
    */
+  const permissionsFile = join(REPO_ROOT, 'packages', 'genesys-platform', 'src', 'permissions.ts');
+  const permissionSource = await readFile(permissionsFile, 'utf8');
+  const declared = [
+    ...permissionSource.matchAll(/permission:\s*'([a-z]+:[A-Za-z]+:[A-Za-z]+)'/g),
+  ].map((match) => match[1]);
+  if (declared.length === 0) {
+    throw new Error(
+      `No permissions parsed from ${permissionsFile}. The adapter's table moved or changed ` +
+        'shape; emitting a role from a stale second list would be worse than emitting none.',
+    );
+  }
+
   const required = {};
-  for (const p of PROBES) {
-    const [domain, entity] = p.permission.split(':');
-    if (!domain || !entity) continue;
+  for (const declaration of declared) {
+    const [domain, entity, action] = declaration.split(':');
+    if (!domain || !entity || !action) continue;
+    // A mutating action appearing in that table would be a defect in the
+    // adapter, not something to pass quietly into a role an admin will create.
+    if (!READ_ACTIONS.has(action) && !action.startsWith('view')) {
+      throw new Error(`The adapter declares a non-read permission: ${declaration}`);
+    }
     required[domain] ??= {};
     required[domain][entity] ??= new Set();
-    required[domain][entity].add('view');
+    required[domain][entity].add(action);
   }
   await writeFile(
     join(dir, 's4-required-role.json'),
