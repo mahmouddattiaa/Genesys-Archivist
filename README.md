@@ -19,9 +19,13 @@ Plans 1–5 are built. Every `archivist` command is wired: `profile`, `doctor`, 
 
 Measured against the pilot sandbox: **511 flows across 15 types, 401 published**. A whole-organization `context` capture is about 400 requests, **~95 seconds**, ~10 MB ([S6](docs/spikes/S6-scale-budgets.md)).
 
-### One release gate is open
+### The permission gate is closed
 
-**The permission matrix fails.** The sandbox OAuth client is effectively an administrator: 783 permission policies, 580 of them granting a mutating action, including `architect:flow` publish and delete. Nothing in this repository calls them and nothing can, but the gate measures _permission held_, not calls made. `npm run spike:s4` emits the read-only role to create. Full detail and remediation in [S4](docs/spikes/S4-permission-matrix.md).
+S4 passes. A dedicated read-only role took the capture credential from 783
+permission policies with 580 mutating grants down to **16 policies with zero
+mutation, caller-data, or credential permissions** — while keeping every
+endpoint the adapter calls reachable. Details, and the four things the exercise
+found that reading could not, are in [S4](docs/spikes/S4-permission-matrix.md).
 
 ### Known gaps
 

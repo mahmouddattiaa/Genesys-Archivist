@@ -2,13 +2,13 @@
 
 ```text
 Spike:        S4 — what is the true minimum permission set?
-Decision:     FAIL. The sandbox OAuth client holds 580 mutation grants and
-              128 caller-data grants, including architect:flow delete/publish
-              and architect:dependencyTracking rebuild.
-Date:         2026-08-20
+Decision:     PASS, after remediation. A dedicated read-only role was created
+              and the gate now reports zero mutation, caller-data, and secret
+              grants, with every endpoint the adapter calls reachable.
+Date:         2026-08-20 (FAIL) / 2026-08-21 (PASS after remediation)
 Environment:  purecloud-platform-client-v2, Node v22.15.0, region eu_west_1
 Method:       scripts/spike/s4-permissions.mjs  (npm run spike:s4)
-Result:       NO-GO until a dedicated read-only role is created.
+Result:       GO
 ```
 
 `docs/14` sets the pass bar at **"a reviewed read-only role with no
@@ -24,6 +24,64 @@ It is not met.
 > calls this one S4, so this file keeps that name. **The prompt-audio download
 > question is unanswered under either numbering** and is tracked as its own item
 > in `docs/spikes/README.md`; migration mode's asset capture depends on it.
+
+## Result after remediation — PASS
+
+```text
+before:  783 permission policies   580 mutation   128 caller-data
+after:    16 permission policies     0 mutation     0 caller-data   0 secret
+```
+
+A dedicated `Genesys Archivist (read-only)` role was created and a new OAuth
+client scoped to it alone. **14 of 17 probed endpoints reachable, which is 100%
+of what the adapter calls.** The three that 403 are diagnostic-only —
+`architect/ivrs`, `routing/wrapupcodes` and `telephony/didpools` — and no
+shipped code requests any of them during a capture.
+
+Four things this exercise established that no amount of reading would have:
+
+1. **Five permission names in the adapter's own table did not exist.**
+   `architect:datatable:viewRow` is really `architect:datatableRow:view`;
+   schedules, schedule groups and emergency groups live in the `routing`
+   domain, not `architect`; and `architect:ivr` and `routing:language:view`
+   do not exist in any form. Found because a human could not locate them in the
+   admin UI, then confirmed against the org's own catalogue of 1,728
+   permissions via `scripts/spike/list-permissions.mjs`.
+
+2. **A correctly scoped client cannot verify itself.** Reading its own OAuth
+   configuration needs `oauth:client:view`, which is credential-adjacent and
+   exactly what this gate keeps out. The spike now probes endpoints as the
+   restricted client and reads grants with a separate admin credential
+   (`GENESYS_ADMIN_CLIENT_*`). The restricted client failing that read is the
+   role working, not a defect.
+
+3. **Two violations only appeared under review of a real candidate role**:
+   `integrations:actionCertificate` ("View client certificate for actions")
+   is credential material that a check matching the literal word "credential"
+   waved through, and `architect:flowExecution` exposes real calls while
+   sitting inside the `architect` domain the product legitimately needs — so
+   the domain-granularity caller-data check could not see it. Both are now
+   caught by the gate; both were still present in the first saved role and are
+   the reason the second run failed.
+
+4. **Genesys's own metadata is sometimes wrong.**
+   `routing:identityResolutionIvr:view` is described by the API as _"Edit
+   identity resolution configuration."_ Not a UI glitch — that is what the
+   catalogue returns.
+
+## The role that passes
+
+```text
+architect:flow:view              architect:datatable:view
+architect:userPrompt:view        architect:datatableRow:view
+architect:systemPrompt:view      routing:queue:view
+routing:schedule:view            routing:emergencyGroup:view
+routing:scheduleGroup:view       integrations:integration:view
+                                 integrations:action:view
+```
+
+`/api/v2/organizations/me` and `/api/v2/languages/{id}` need no permission at
+all — both returned 200 under this role, and neither has a catalogue entry.
 
 ## Method
 

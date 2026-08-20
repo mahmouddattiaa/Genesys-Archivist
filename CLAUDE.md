@@ -69,11 +69,20 @@ Plans 1–5 are built. **Both stages work end to end against a real Genesys orga
 
 Capture has two modes, `context` and `migration` — see ADR-018. A `context` bundle must never be mistakable for a migration-ready one.
 
-### The one thing blocking release
+### The permission gate is closed
 
-**The S4 permission matrix FAILS.** `docs/spikes/S4-permission-matrix.md` has the measurement: the sandbox OAuth client holds 783 permission policies across 88 domains, of which 580 grant a mutating action and 128 reach caller data — including `architect:flow` publish and delete, and `architect:dependencyTracking: rebuild`, the one mutation AGENTS.md names by name.
+S4 passes as of 2026-08-21. The capture credential went from 783 permission
+policies with 580 mutating grants to **16 policies with zero mutation,
+caller-data or credential permissions**, with every endpoint the adapter calls
+still reachable. `npm run spike:s4` re-verifies it; it needs
+`GENESYS_ADMIN_CLIENT_*` in `.env.phase0` because a correctly scoped read-only
+client cannot read its own OAuth configuration — that would require
+`oauth:client:view`, which is precisely what the gate keeps out.
 
-No code calls any of them and none is reachable — ADR-019's transport exposes only GET. But the gate measures _permission held_, not calls made, because defence in depth assumes the first layer fails. `npm run spike:s4` emits the read-only role to create; the fix is a new OAuth client scoped to it, then re-run.
+**Do not "fix" a failure there by widening the role.** The permission table in
+`packages/genesys-platform/src/permissions.ts` is the source of truth, and it
+was itself wrong in five places until it was checked against the org's real
+catalogue with `scripts/spike/list-permissions.mjs`.
 
 ### Known gaps — read before assuming something works
 

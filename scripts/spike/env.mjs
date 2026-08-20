@@ -85,6 +85,13 @@ export async function loadSpikeEnv() {
 
   const region = resolveRegion(values.GENESYS_REGION);
   const secret = values.GENESYS_CLIENT_SECRET;
+  // Optional. An admin credential used for one thing only: reading the
+  // *restricted* client's granted roles. A properly scoped read-only client
+  // cannot read its own OAuth configuration -- that would need
+  // oauth:client:view, which is credential-adjacent and exactly the sort of
+  // permission the gate exists to keep out. So the client that must not be
+  // able to introspect itself is introspected by something else.
+  const adminSecret = values.GENESYS_ADMIN_CLIENT_SECRET ?? null;
 
   const env = {
     region: region.key,
@@ -94,6 +101,9 @@ export async function loadSpikeEnv() {
     // can be filled in, after which the tenant guard is armed.
     expectedOrgId: values.GENESYS_EXPECTED_ORG_ID || null,
     targetIvrId: values.GENESYS_TARGET_IVR_ID || null,
+    adminClientId: values.GENESYS_ADMIN_CLIENT_ID || null,
+    hasAdminCredential:
+      Boolean(values.GENESYS_ADMIN_CLIENT_ID) && Boolean(values.GENESYS_ADMIN_CLIENT_SECRET),
     toJSON() {
       return {
         region: this.region,
@@ -110,6 +120,14 @@ export async function loadSpikeEnv() {
   // Non-enumerable: excluded from spread, Object.keys, and JSON.stringify.
   Object.defineProperty(env, 'secret', {
     get: () => secret,
+    enumerable: false,
+    configurable: false,
+  });
+
+  // Same treatment as the primary secret: non-enumerable, so it cannot escape
+  // through a spread, Object.keys, or JSON.stringify.
+  Object.defineProperty(env, 'adminSecret', {
+    get: () => adminSecret,
     enumerable: false,
     configurable: false,
   });

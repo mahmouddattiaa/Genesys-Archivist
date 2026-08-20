@@ -47,7 +47,7 @@ below by filename. Cite a spike by filename, not by number.
 | `S1b-corpus-generalization.md`  | Does S1 generalize beyond one flow?              | PASS                           |
 | `S2-discovery.md`               | Can every flow and version be discovered?        | PASS                           |
 | `S3-references.md`              | Does the reference walk reach closure read-only? | PASS — manifest, ADR-013       |
-| `S4-permission-matrix.md`       | What is the true minimum permission set?         | **FAIL — see the file**        |
+| `S4-permission-matrix.md`       | What is the true minimum permission set?         | PASS — after remediation       |
 | `S5-prompt-audio.md`            | Can prompt audio be downloaded read-only?        | PASS — kill criterion 11 clear |
 | `S6-scale-budgets.md`           | What are realistic scale budgets?                | PASS — 401 flows in ~95s       |
 

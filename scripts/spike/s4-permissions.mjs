@@ -96,6 +96,13 @@ const EXECUTION_ENTITIES = new Set(['flowexecution', 'flowinstance', 'flowinstan
 /**
  * The endpoints the production adapter calls, addressed through the SDK.
  *
+ * Scoped to what the adapter actually requests. It previously carried five
+ * extra endpoints -- IVRs, routing skills, wrap-up codes, DID pools,
+ * authorization divisions -- none of which any shipped code calls. Under the
+ * correctly restricted role three of them 403, and a passing run then listed
+ * three "missing permissions", which reads as a capability gap and is not one.
+ * A diagnostic that cries wolf on a green result gets ignored on a red one.
+ *
  * Resolved by name at run time rather than referenced directly: the SDK's
  * method names drift between major versions, and a probe that dies on an
  * unknown method tells you nothing about the eighteen it could have checked.
@@ -118,6 +125,8 @@ const PROBES = [
   {
     api: 'ArchitectApi',
     method: 'getArchitectIvrs',
+    // Diagnostic only: the adapter has an ivr reader, but no flow manifest in the corpus references an IVR.
+    optional: true,
     args: [{ pageSize: 1 }],
     permission: 'architect:ivr:view',
   },
@@ -172,12 +181,16 @@ const PROBES = [
   {
     api: 'RoutingApi',
     method: 'getRoutingSkills',
+    // Diagnostic only: never called by any shipped code.
+    optional: true,
     args: [{ pageSize: 1 }],
     permission: 'routing:skill:view',
   },
   {
     api: 'RoutingApi',
     method: 'getRoutingWrapupcodes',
+    // Diagnostic only: acdWrapupCode is a manifest type, but the adapter has no reader and resolves it unsupported.
+    optional: true,
     args: [{ pageSize: 1 }],
     permission: 'routing:wrapupCode:view',
   },
@@ -196,16 +209,34 @@ const PROBES = [
   {
     api: 'TelephonyProvidersEdgeApi',
     method: 'getTelephonyProvidersEdgesDidpools',
+    // Diagnostic only: never called by any shipped code.
+    optional: true,
     args: [{ pageSize: 1 }],
     permission: 'telephony:plugin:all',
   },
   {
     api: 'AuthorizationApi',
     method: 'getAuthorizationDivisions',
+    // Diagnostic only: never called by any shipped code.
+    optional: true,
     args: [{ pageSize: 1 }],
     permission: 'authorization:division:view',
   },
 ];
+
+/**
+ * Logs the shared SDK client in as a specific OAuth client.
+ *
+ * `authenticate` in env.mjs always uses the primary credential; this exists so
+ * one run can probe as the restricted client and then read grants as an admin.
+ * Only the status is surfaced on failure -- Genesys auth errors have been
+ * observed to echo request parameters back in the body.
+ */
+async function authenticateAs(clientId, clientSecret, host) {
+  const client = platformClient.ApiClient.instance;
+  client.setEnvironment(host);
+  await client.loginClientCredentialsGrant(clientId, clientSecret);
+}
 
 function instantiate(name) {
   const Ctor = platformClient[name];
@@ -342,14 +373,32 @@ async function main() {
   await authenticate(env);
   ok('authenticated (client credentials grant)');
 
+  console.log('\nEndpoint probes (as the restricted client)');
+  const probesEarly = await probeEndpoints();
+
   console.log('\nGranted roles and permission policies');
+  // Re-authenticated as the admin credential, if one is configured. The
+  // restricted client is *supposed* to be unable to read its own OAuth
+  // configuration; asking it to would mean granting oauth:client:view, which
+  // is exactly the kind of permission this gate exists to keep out. The
+  // endpoint probes above already ran as the restricted client, which is the
+  // half that has to be measured from inside.
+  if (env.hasAdminCredential) {
+    try {
+      await authenticateAs(env.adminClientId, env.adminSecret, env.host);
+      ok('re-authenticated with the admin credential to read grants');
+    } catch {
+      bad('the admin credential failed to authenticate; grants cannot be read');
+    }
+  }
   const granted = await readGrantedRoles(env.clientId);
   let violations = [];
   let policies = [];
 
   if (!granted.available) {
     warn(`could not read the OAuth client's own grants: ${granted.reason}`);
-    warn('the mutation assertion must be made by a human in Admin > Integrations > OAuth');
+    warn('set GENESYS_ADMIN_CLIENT_ID/SECRET in .env.phase0 so the grants can be read by an');
+    warn('admin credential, or make the assertion by hand in Admin > Integrations > OAuth');
   } else {
     const read = await readRolePolicies(granted.roles);
     policies = read.policies;
@@ -359,11 +408,12 @@ async function main() {
     for (const v of violations) bad(`${v.kind}: ${v.policy} — ${v.detail}`);
   }
 
-  console.log('\nEndpoint probes');
-  const probes = await probeEndpoints();
+  const probes = probesEarly;
 
   const reachable = probes.filter((p) => p.outcome === 'reachable').length;
   const forbidden = probes.filter((p) => p.outcome === 'forbidden');
+  const requiredForbidden = forbidden.filter((p) => p.optional !== true);
+  const optionalForbidden = forbidden.filter((p) => p.optional === true);
 
   /**
    * Three outcomes, not two.
@@ -392,10 +442,20 @@ async function main() {
     console.log(`  violations: ${mutation} mutation, ${callerData} caller-data, ${secret} secret`);
   }
   console.log(`  reachable: ${reachable}/${probes.length} read endpoints`);
-  console.log(`  forbidden: ${forbidden.length}`);
-  if (forbidden.length > 0) {
-    console.log('  missing permissions:');
-    for (const p of forbidden) console.log(`    - ${p.permission}`);
+  console.log(
+    `  forbidden: ${String(requiredForbidden.length)} required, ${String(optionalForbidden.length)} diagnostic-only`,
+  );
+  if (requiredForbidden.length > 0) {
+    console.log('  MISSING permissions (the adapter calls these):');
+    for (const probe of requiredForbidden) console.log(`    - ${probe.permission}`);
+  }
+  if (optionalForbidden.length > 0) {
+    // Reported, but not as a gap. A diagnostic that cries wolf on a green run
+    // gets ignored on a red one.
+    console.log(
+      `  ${String(optionalForbidden.length)} diagnostic-only endpoint(s) forbidden, which no shipped code calls:`,
+    );
+    for (const probe of optionalForbidden) console.log(`    - ${probe.method}`);
   }
   console.log('─'.repeat(64) + '\n');
 
