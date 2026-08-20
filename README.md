@@ -13,11 +13,22 @@ Archivist does not build that migration server. It guarantees the data contract 
 
 ## Status
 
-**Stage 2 works end to end. Stage 1 works against an injected source provider, but no production Genesys adapter exists yet.**
+**Both stages work end to end against a real Genesys organization.** ~1,166 tests, with format, lint, production and test typechecking, and schema validation in `npm run verify`.
 
-Phase 0 has run. Spikes S0–S3 all passed, and the source path is settled by measurement rather than assumption: the Platform API configuration endpoint (ADR-015). Plans 1–4 are complete — 408 tests across 48 files, with format, lint, production and test typechecking, and schema validation in `npm run verify`.
+Plans 1–5 are built. Every `archivist` command is wired: `profile`, `doctor`, `capture`, `document`, `verify`. The MCP server exposes nine tools, eight of them backed by real implementations. The source path was settled by measurement rather than assumption — the Platform API configuration endpoint ([ADR-015](docs/adr/README.md)) — and the adapter reaches it over a transport that exposes only `GET`, so read-only is a property of the type rather than a matter of reviewer attention ([ADR-019](docs/adr/ADR-019-http-transport.md)).
 
-What that means concretely: given a flow configuration, the tool already produces `business.md`, `technical.md`, `operations.md`, Mermaid diagrams, SVG, and PDF, every technical claim citing resolvable evidence. It can seal, verify, and re-read a capture bundle. What it cannot yet do is fetch anything from a real Genesys organization — `packages/genesys-source` and `packages/genesys-platform` are empty, and `runCapture` takes its provider by injection.
+Measured against the pilot sandbox: **511 flows across 15 types, 401 published**. A whole-organization `context` capture is about 400 requests, **~95 seconds**, ~10 MB ([S6](docs/spikes/S6-scale-budgets.md)).
+
+### One release gate is open
+
+**The permission matrix fails.** The sandbox OAuth client is effectively an administrator: 783 permission policies, 580 of them granting a mutating action, including `architect:flow` publish and delete. Nothing in this repository calls them and nothing can, but the gate measures _permission held_, not calls made. `npm run spike:s4` emits the read-only role to create. Full detail and remediation in [S4](docs/spikes/S4-permission-matrix.md).
+
+### Known gaps
+
+- **Migration mode holds every asset in memory at once** — ~110 MB on the sandbox, unbounded in organization size. Do not run it against a large real organization yet; `context` mode is unaffected. Three ranked fixes are in [Plan 5](docs/superpowers/plans/2026-08-20-05-production-adapter-and-server.md).
+- `genesys_flow_diff` still returns an explicit rejection rather than a result.
+- Change detection exists as a pure decision function, but its I/O is unwired, so every run reprocesses every flow.
+- One test file flakes roughly 1 run in 6 on Windows, documented in its own header.
 
 ## Two capture modes
 
@@ -56,7 +67,63 @@ flowchart TD
 ```bash
 npm install
 npm run verify        # format + lint + typecheck + test + schema validation
+npm run build
 ```
+
+### Point it at an organization
+
+A profile holds the non-secret metadata and names the credential. **The client
+secret is read from stdin or a hidden prompt, never from a flag** — argv is
+visible in process listings and shell history, so `--client-secret` is refused
+with an explanation rather than accepted.
+
+```bash
+archivist profile add \
+  --id acme --display-name "Acme Bank" \
+  --region euw1 --org <organizationId> \
+  --client-id <oauthClientId> \
+  --output-root /path/to/output
+# then paste the secret at the prompt, or:  echo "$SECRET" | archivist profile add ...
+
+archivist doctor                 # Node version, credential store, profiles
+archivist profile validate acme  # profile parses, secret present, root writable
+```
+
+### Capture and document
+
+```bash
+# Fast, whole-organization. Definitions plus the resource manifest that
+# already travels with them. Cannot be migrated — see ADR-018.
+archivist capture --profile acme --mode context --org <organizationId>
+
+# Everything needed to rebuild elsewhere: resource bodies, prompt audio,
+# data-table rows. See the memory caveat above before running this at scale.
+archivist capture --profile acme --mode migration --org <organizationId> --flow <flowId>
+
+archivist verify   --bundle <bundleDir>    # content hashes still match
+archivist document --bundle <bundleDir>    # business.md, technical.md, operations.md, diagrams
+```
+
+`--profile` is required for `capture`, and not merely for convenience: the
+profile supplies the approved output root and the `expectedOrganizationId` that
+guards against a mistyped credential capturing the wrong customer's
+configuration.
+
+### Drive it from an AI client
+
+```json
+{
+  "mcpServers": {
+    "genesys-archivist": { "command": "genesys-archivist-mcp" }
+  }
+}
+```
+
+STDIO only. The server writes protocol messages to stdout and everything else
+to stderr, opens no network listener, and **exposes no tool that accepts a
+credential** — a test walks every registered tool's input schema and fails if
+any property name is credential-shaped at any depth. Provisioning is CLI-only,
+forever.
 
 Then read, in order:
 
@@ -72,7 +139,7 @@ Four source paths were in contention — Platform API, the Archy CLI, the Archit
 
 Spike S1 measured the Platform API configuration endpoint at 100% structural fidelity against a manually exported Architect YAML baseline: 47 nodes, 10 construct types, zero unexplained differences. It additionally supplies a stable `trackingId` on every node and a manifest of referenced resources with ids and per-node provenance. The Architect Scripting SDK was dropped entirely ([ADR-015](docs/adr/README.md)); it would have supplied a strict subset at a much higher dependency cost.
 
-The permission-matrix spike (S4 in [docs/14](docs/14-open-questions-and-spikes.md)) has **not** run, and it is a release gate: no mutation permission may be reachable from a production adapter. See [docs/spikes/](docs/spikes/README.md).
+The permission-matrix spike has since run and **failed** — see [S4](docs/spikes/S4-permission-matrix.md) and the Status section above. Prompt audio downloads read-only, clearing kill criterion 11 ([S5](docs/spikes/S5-prompt-audio.md)), and scale budgets are measured ([S6](docs/spikes/S6-scale-budgets.md)). Note that two spike-numbering schemes disagree from S3 onward; cite spikes by filename, not number.
 
 ## Repository layout
 

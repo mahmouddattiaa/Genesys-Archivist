@@ -65,8 +65,19 @@ TDD. Write the failing test, watch it fail, write the minimal implementation, wa
 
 ## Status
 
-Phase 0 has run. Spikes S0–S3 passed and the source path is settled by measurement: the Platform API configuration endpoint (ADR-015). Plans 1–4 are complete — 408 tests, `npm run verify` green.
-
-**Stage 2 works end to end. Stage 1 has no production adapter.** `packages/genesys-source` and `packages/genesys-platform` are empty; `runCapture` takes a `GenesysSourceProvider` by injection and everything is proven against `FakeSourceProvider`. Building that adapter is the next substantial piece of work, and the permission-matrix spike (S4) is a release gate that has not run.
+Plans 1–5 are built. **Both stages work end to end against a real Genesys organization.** ~1,166 tests; no package is a stub any more. Every `archivist` command and eight of the nine MCP tools are wired to real implementations.
 
 Capture has two modes, `context` and `migration` — see ADR-018. A `context` bundle must never be mistakable for a migration-ready one.
+
+### The one thing blocking release
+
+**The S4 permission matrix FAILS.** `docs/spikes/S4-permission-matrix.md` has the measurement: the sandbox OAuth client holds 783 permission policies across 88 domains, of which 580 grant a mutating action and 128 reach caller data — including `architect:flow` publish and delete, and `architect:dependencyTracking: rebuild`, the one mutation AGENTS.md names by name.
+
+No code calls any of them and none is reachable — ADR-019's transport exposes only GET. But the gate measures _permission held_, not calls made, because defence in depth assumes the first layer fails. `npm run spike:s4` emits the read-only role to create; the fix is a new OAuth client scoped to it, then re-run.
+
+### Known gaps — read before assuming something works
+
+- **Migration mode holds every asset in memory at once.** It resolves the whole graph before writing, and cached resolutions carry asset bytes: peak memory is every asset in the organization simultaneously (~110 MB measured on the sandbox, unbounded in org size). Three ranked fixes are in Plan 5. **Do not run migration mode against a large real organization until this is fixed.** `context` mode is unaffected.
+- **`genesys_flow_diff`** is the one MCP tool still returning an explicit rejection rather than a result.
+- **`packages/composition/test/archivist-port.test.ts` flakes roughly 1 run in 6** on Windows. Documented in its own header; a test-lifecycle race, not a product defect.
+- Change detection exists as a pure decision function; its I/O is not wired, so every run reprocesses.
