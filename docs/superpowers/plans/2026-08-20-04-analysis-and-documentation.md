@@ -841,7 +841,18 @@ describe('createRenderer', () => {
 
 ### Task 10: `archivist document` — the end-to-end command
 
-**Files:** create `apps/cli/src/commands/document.ts`, test `apps/cli/test/document.test.ts`.
+**Files:** create `packages/composition/src/document-flow.ts`, thin delegate `apps/cli/src/commands/document.ts`, test `apps/cli/test/document.test.ts`.
+
+> **Correction, found during implementation.** This task originally put the whole
+> pipeline in `apps/cli/src/commands/document.ts`. That violates the dependency
+> rule the repo enforces in ESLint: an app may import `application` and
+> `composition` only, and this function needs `normalization`, `analysis` and
+> `documentation` all at once. Wiring several packages together is the
+> composition root's entire job, so the pipeline lives there and the CLI command
+> delegates to it. `runDocument` is also **synchronous**, not `Promise`-returning
+> as written below — Stage 2 opens no socket and this function writes no file, so
+> an async signature would advertise I/O the design forbids. Callers that `await`
+> it are unaffected, so the tests below are unchanged.
 
 **Produces:** `runDocument(deps): Promise<DocumentResult>` — reads a flow configuration from disk, normalizes, analyzes, renders all three documents plus diagrams, and returns them as an in-memory map of relative path to contents. **Writing to disk is the caller's job**, which keeps this testable with no filesystem.
 
@@ -940,7 +951,7 @@ WAVE C   Task 4      packages/analysis      needs 1, 2, 3
 
 WAVE D   Task 7, 8   packages/documentation needs 4 and 6
 
-WAVE E   Task 10     apps/cli               needs everything
+WAVE E   Task 10     composition + apps/cli  needs everything
 ```
 
 One agent owns a package's `index.ts` per wave.
