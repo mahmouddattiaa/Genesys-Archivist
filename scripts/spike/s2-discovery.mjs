@@ -127,36 +127,56 @@ async function main() {
   }
   evidence.probes.divisions = { status: divisions.status, count: divisions.entities.length };
 
-  // --- flows by type --------------------------------------------------------
-  console.log('\n  flows by type');
+  // --- flows: UNFILTERED walk is authoritative ------------------------------
+  //
+  // Enumerating by a hardcoded list of type filters silently under-counts. In
+  // this organization it found 491 flows while the unfiltered walk found 511:
+  // INQUEUESHORTMESSAGE, INQUEUEEMAIL, SURVEYINVITE, WORKITEM and VOICEMAIL
+  // were absent from the list, and "survey" is not even a valid filter value.
+  //
+  // That is the "false completeness" failure in the docs/08 FMEA arriving from
+  // a stale type enum rather than from permissions. The server is the authority
+  // on which types exist; a local list is only ever a cross-check.
+  console.log('\n  flows (unfiltered walk — authoritative)');
+  const all = await pageThrough('flows:all', (o) => architectApi.getFlows(o));
   const byType = {};
   const nameIndex = new Map(); // "type|name" -> Set(divisionId)
-  let total = 0;
 
-  for (const type of FLOW_TYPES) {
-    const res = await pageThrough(`flows:${type}`, (o) => architectApi.getFlows({ ...o, type }));
-    byType[type] = { count: res.entities.length, pages: res.pages, status: res.status };
-
-    if (res.status !== 200) {
-      console.log(`    ${type.padEnd(20)} unavailable (${res.status})`);
-      continue;
-    }
-    if (res.entities.length === 0) continue;
-
-    total += res.entities.length;
-    console.log(
-      `    ${type.padEnd(20)} ${String(res.entities.length).padStart(4)}   ${res.pages} page(s)` +
-        (res.complete ? '' : '   INCOMPLETE'),
-    );
-
-    for (const flow of res.entities) {
-      const key = `${type}|${flow.name}`;
-      if (!nameIndex.has(key)) nameIndex.set(key, new Set());
-      nameIndex.get(key).add(flow.division?.id ?? 'none');
-    }
+  for (const flow of all.entities) {
+    const type = String(flow.type ?? 'UNKNOWN').toLowerCase();
+    byType[type] = (byType[type] ?? 0) + 1;
+    const key = `${type}|${flow.name}`;
+    if (!nameIndex.has(key)) nameIndex.set(key, new Set());
+    nameIndex.get(key).add(flow.division?.id ?? 'none');
   }
-  console.log(`    ${'TOTAL'.padEnd(20)} ${String(total).padStart(4)}`);
-  evidence.probes.flows = { total, byType };
+
+  for (const [type, count] of Object.entries(byType).sort((a, b) => b[1] - a[1])) {
+    console.log(`    ${type.padEnd(22)} ${String(count).padStart(4)}`);
+  }
+  console.log(
+    `    ${'TOTAL'.padEnd(22)} ${String(all.entities.length).padStart(4)}   ` +
+      `${all.pages} page(s)` +
+      (all.complete ? '' : '   INCOMPLETE'),
+  );
+
+  // Cross-check the local list against reality and fail loudly on drift.
+  const serverTypes = new Set(Object.keys(byType));
+  const unknownToUs = [...serverTypes].filter((t) => !FLOW_TYPES.includes(t));
+  console.log('');
+  if (unknownToUs.length === 0) {
+    ok('every type the server returned is known to the local list');
+  } else {
+    bad(`${unknownToUs.length} type(s) exist that the local list does not know:`);
+    for (const t of unknownToUs) console.log(`      ${t}  (${byType[t]} flow(s))`);
+    bad('a hardcoded type list would report false completeness — never enumerate by one');
+  }
+  evidence.probes.flows = {
+    total: all.entities.length,
+    pages: all.pages,
+    complete: all.complete,
+    byType,
+    typesUnknownToLocalList: unknownToUs,
+  };
 
   // --- the number that matters most ----------------------------------------
   // Architect YAML references every resource by display NAME, not by ID. If two

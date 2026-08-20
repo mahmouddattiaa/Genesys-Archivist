@@ -142,7 +142,7 @@ Selection criteria in priority order: structural fidelity against a manual UI YA
 
 1. Authenticate with client credentials. Resolve organization identity and compare against the profile's expected organization ID. **Mismatch aborts before any read.**
 2. Enumerate divisions; record visibility boundaries.
-3. Enumerate flows for **every** Architect flow type, following pagination to server-reported completion. Deduplicate by stable ID only. Same-name flows in different divisions stay distinct.
+3. Enumerate flows with an **unfiltered** paginated walk, following pagination to server-reported completion, and let the server report each flow's type. **Never enumerate by a local list of flow types** — spike S2 measured 491 flows that way against 511 from an unfiltered walk, silently missing five types the list did not know existed. A local type list may only cross-check and log drift. Deduplicate by stable ID only. Same-name flows in different divisions stay distinct.
 4. Record every version observed per flow, plus published / latest-checked-in / working-copy state.
 5. Write `inventory.json`, recording partial visibility explicitly where permissions blocked a division or type.
 
