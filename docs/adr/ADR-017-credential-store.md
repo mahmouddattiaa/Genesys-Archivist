@@ -1,8 +1,8 @@
 # ADR-017: OS credential store via `@napi-rs/keyring`, injected behind `KeyringBackend`
 
-Date:           2026-08-20
-Status:         accepted
-Deciders:       Plan 2, Task 1 (packages/security)
+Date: 2026-08-20
+Status: accepted
+Deciders: Plan 2, Task 1 (packages/security)
 
 ## Context
 

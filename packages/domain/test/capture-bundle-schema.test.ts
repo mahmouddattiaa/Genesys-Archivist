@@ -15,7 +15,7 @@ beforeAll(async () => {
 });
 
 const minimal = (): Record<string, unknown> => ({
-  schemaVersion: '1.0',
+  schemaVersion: '1.1',
   captureId: '2026-08-20T14-02-11Z_a1b2c3',
   sealedAt: '2026-08-20T14:31:00Z',
   classification: 'restricted',
