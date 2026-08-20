@@ -1,37 +1,59 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import platformClient from 'purecloud-platform-client-v2';
 
 // fileURLToPath, not URL.pathname: on Windows the latter yields
 // "/d:/Personal%20Project" with the drive slash intact and spaces encoded.
 export const REPO_ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 
 /**
- * Region enum to host mapping. The region is authoritative; never infer it from
- * an organization display name.
+ * Region hosts come from the SDK, never from a local table.
+ *
+ * An earlier version of this file hand-coded thirteen regions. The SDK ships
+ * eighteen, so that table was already wrong, which is exactly the failure
+ * docs/02 warns about when it says the adapter must map the region enum using
+ * official SDK configuration.
  */
-export const REGIONS = {
-  use1: { api: 'api.mypurecloud.com', login: 'login.mypurecloud.com' },
-  use2: { api: 'api.use2.us-gov-pure.cloud', login: 'login.use2.us-gov-pure.cloud' },
-  usw2: { api: 'api.usw2.pure.cloud', login: 'login.usw2.pure.cloud' },
-  cac1: { api: 'api.cac1.pure.cloud', login: 'login.cac1.pure.cloud' },
-  euw1: { api: 'api.mypurecloud.ie', login: 'login.mypurecloud.ie' },
-  euw2: { api: 'api.euw2.pure.cloud', login: 'login.euw2.pure.cloud' },
-  euc1: { api: 'api.mypurecloud.de', login: 'login.mypurecloud.de' },
-  apne1: { api: 'api.mypurecloud.jp', login: 'login.mypurecloud.jp' },
-  apne2: { api: 'api.apne2.pure.cloud', login: 'login.apne2.pure.cloud' },
-  apse2: { api: 'api.mypurecloud.com.au', login: 'login.mypurecloud.com.au' },
-  aps1: { api: 'api.aps1.pure.cloud', login: 'login.aps1.pure.cloud' },
-  mec1: { api: 'api.mec1.pure.cloud', login: 'login.mec1.pure.cloud' },
-  sae1: { api: 'api.sae1.pure.cloud', login: 'login.sae1.pure.cloud' },
+export const REGION_KEYS = Object.keys(platformClient.PureCloudRegionHosts);
+
+/** Accepts the SDK form (eu_west_1) and the short form (euw1). */
+const SHORT_FORM = {
+  use1: 'us_east_1',
+  use2: 'us_east_2',
+  usw2: 'us_west_2',
+  cac1: 'ca_central_1',
+  euw1: 'eu_west_1',
+  euw2: 'eu_west_2',
+  euc1: 'eu_central_1',
+  apne1: 'ap_northeast_1',
+  apne2: 'ap_northeast_2',
+  apne3: 'ap_northeast_3',
+  apse2: 'ap_southeast_2',
+  aps1: 'ap_south_1',
+  mec1: 'me_central_1',
+  sae1: 'sa_east_1',
 };
+
+export function resolveRegion(raw) {
+  const key = SHORT_FORM[raw] ?? raw;
+  const host = platformClient.PureCloudRegionHosts[key];
+  if (!host) {
+    throw new Error(
+      `Unknown region "${raw}". The SDK knows: ${REGION_KEYS.join(', ')}\n` +
+        'Short forms such as euw1 are also accepted.',
+    );
+  }
+  return { key, host };
+}
 
 /**
  * Reads .env.phase0.
  *
  * The secret is exposed through a non-enumerable getter with a toJSON override,
- * so `console.log(env)`, `JSON.stringify(env)`, and object spread cannot emit
- * it. Its one legitimate use is the Basic auth header in getAccessToken().
+ * so console.log, JSON.stringify, object spread, Object.keys, Object.entries,
+ * util.inspect and template interpolation all cannot emit it. Its one
+ * legitimate use is the argument to loginClientCredentialsGrant.
  */
 export async function loadSpikeEnv() {
   let raw;
@@ -61,18 +83,14 @@ export async function loadSpikeEnv() {
     );
   }
 
-  const region = values.GENESYS_REGION;
-  if (!REGIONS[region]) {
-    throw new Error(`Unknown region "${region}". Known: ${Object.keys(REGIONS).join(', ')}`);
-  }
-
+  const region = resolveRegion(values.GENESYS_REGION);
   const secret = values.GENESYS_CLIENT_SECRET;
 
   const env = {
-    region,
-    hosts: REGIONS[region],
+    region: region.key,
+    host: region.host,
     clientId: values.GENESYS_CLIENT_ID,
-    // Blank on the first ever run. The probe prints what it discovers so this
+    // Blank on the very first run. The probe prints what it discovers so this
     // can be filled in, after which the tenant guard is armed.
     expectedOrgId: values.GENESYS_EXPECTED_ORG_ID || null,
     targetIvrId: values.GENESYS_TARGET_IVR_ID || null,
@@ -100,45 +118,40 @@ export async function loadSpikeEnv() {
 }
 
 /**
- * Exchanges client credentials for an access token.
+ * Authenticates the shared SDK client with the client credentials grant.
  *
- * The token and the secret both stay in memory. Neither is returned to a caller
- * that might log it, and an auth failure reports the HTTP status only -- never
- * the response body, which has been observed to echo request parameters.
+ * The SDK owns token lifecycle and retry metadata, which is most of why
+ * docs/01 mandates it over hand-rolled HTTP. On failure only the status and
+ * a short message are surfaced: Genesys auth errors have been observed to
+ * echo request parameters back in the body.
  */
-export async function getAccessToken(env) {
-  const credentials = Buffer.from(`${env.clientId}:${env.secret}`).toString('base64');
-  const response = await fetch(`https://${env.hosts.login}/oauth/token`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  });
+export async function authenticate(env) {
+  const client = platformClient.ApiClient.instance;
+  client.setEnvironment(env.host);
 
-  if (!response.ok) {
+  try {
+    await client.loginClientCredentialsGrant(env.clientId, env.secret);
+  } catch (err) {
+    const status = err?.status ?? err?.code ?? 'unknown';
     throw new Error(
-      `Authentication failed with HTTP ${response.status}. ` +
-        'Check that the OAuth client uses the client credentials grant and that the region is correct. ' +
+      `Authentication failed (${status}). Check that the OAuth client uses the ` +
+        'client credentials grant and that the region is correct. ' +
         'The response body is deliberately not shown.',
     );
   }
-
-  const body = await response.json();
-  return body.access_token;
+  return client;
 }
 
-/** GET a Platform API path. Returns { ok, status, body } and never throws on HTTP status. */
-export async function apiGet(env, token, path) {
-  const response = await fetch(`https://${env.hosts.api}${path}`, {
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-  });
-  let body = null;
+export { platformClient };
+
+/**
+ * Calls an SDK method and converts a rejection into a status, so a probe can
+ * discover what is reachable instead of dying on the first permission gap.
+ */
+export async function attempt(label, fn) {
   try {
-    body = await response.json();
-  } catch {
-    body = null;
+    return { ok: true, status: 200, body: await fn(), label };
+  } catch (err) {
+    return { ok: false, status: err?.status ?? 0, body: null, label };
   }
-  return { ok: response.ok, status: response.status, body };
 }
