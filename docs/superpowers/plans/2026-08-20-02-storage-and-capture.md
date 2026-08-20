@@ -1323,6 +1323,12 @@ git commit -m "feat(capture): resource reference-graph walker"
 
 - [ ] **Step 1: Write the failing test**
 
+> **Correction before you write this.** Several tests below build a second
+> writer with `{ ...opts(), root: await mkdtemp(...) }`. Those extra
+> directories are never removed — `afterEach` only deletes the one `root` from
+> `beforeEach` — so every run of the suite leaks temp directories, forever.
+> Track every directory you create and remove them all in `afterEach`.
+
 ```ts
 // packages/capture/test/bundle-writer.test.ts
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
@@ -1683,12 +1689,26 @@ describe('runCapture', () => {
     expect(result.errors.some((e) => e.code === 'TENANT_MISMATCH')).toBe(true);
   });
 
+  // CORRECTED. The original version of this test was a race, not a test:
+  //
+  //     const first = runCapture(opts({ runId: 'run_a' }));   // not awaited
+  //     const second = await runCapture(opts({ runId: 'run_b' }));
+  //
+  // Both calls suspend inside acquireLock before either has created the lock
+  // file, so the OS decides which one wins. The assertion that `second` is the
+  // loser holds only by luck, and the test would fail intermittently in CI
+  // while looking correct on the machine it was written on. Acquire the lock
+  // deterministically first, then assert that a run cannot start.
   it('refuses to start when another run holds the lock', async () => {
-    const first = runCapture(opts({ runId: 'run_a' }));
-    const second = await runCapture(opts({ runId: 'run_b' }));
-    await first;
-    expect(second.state).toBe('failed');
-    expect(second.errors.some((e) => e.code === 'OUTPUT_LOCKED')).toBe(true);
+    const held = await acquireLock(root, 'capture');
+    expect(held).not.toBeNull();
+    try {
+      const blocked = await runCapture(opts({ runId: 'run_b' }));
+      expect(blocked.state).toBe('failed');
+      expect(blocked.errors.some((e) => e.code === 'OUTPUT_LOCKED')).toBe(true);
+    } finally {
+      await held?.release();
+    }
   });
 
   it('persists a run manifest that satisfies the published schema', async () => {
