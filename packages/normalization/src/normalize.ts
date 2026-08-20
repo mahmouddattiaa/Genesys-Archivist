@@ -18,6 +18,8 @@ import {
   type VariableUsageIndex,
 } from './extract-variables.js';
 import { buildEvidence, type Evidence } from './evidence.js';
+import { extractPromptReferences } from './extract-prompts.js';
+import { extractSettings } from './extract-settings.js';
 import { finalizeWarnings, type NormalizationWarning } from './warnings.js';
 
 /**
@@ -307,6 +309,8 @@ function toSnapshotNode(
   variableReadsByNode: ReadonlyMap<string, string[]>,
   variableWritesByNode: ReadonlyMap<string, string[]>,
   dependencyRefsByNode: ReadonlyMap<string, string[]>,
+  promptRefsByNode: ReadonlyMap<string, readonly string[]>,
+  settingsByNode: ReadonlyMap<string, Readonly<Record<string, unknown>>>,
 ): FlowSnapshotNode {
   return {
     nodeId: node.nodeId,
@@ -316,11 +320,11 @@ function toSnapshotNode(
     name: node.name,
     containerPath: node.containerPath,
     supportLevel: node.supportLevel,
-    settings: {},
+    settings: settingsByNode.get(node.nodeId) ?? {},
     variableReads: dedupe(variableReadsByNode.get(node.nodeId) ?? []),
     variableWrites: dedupe(variableWritesByNode.get(node.nodeId) ?? []),
     dependencyRefs: dedupe(dependencyRefsByNode.get(node.nodeId) ?? []),
-    promptRefs: [],
+    promptRefs: dedupe(promptRefsByNode.get(node.nodeId) ?? []),
     evidenceIds: dedupe(evidenceByPointer.get(node.sourcePointer) ?? []),
   };
 }
@@ -451,6 +455,12 @@ export function normalizeFlow(input: NormalizeInput): FlowSnapshot {
   const { dependencies, warnings: dependencyWarnings } = extractDependencies(cfg, nodes);
   const { edges, warnings: edgeWarnings } = extractEdges(cfg, nodes, dependencies);
   const { variables, warnings: variableWarnings } = extractVariables(cfg);
+  const { promptRefsByNode, warnings: promptWarnings } = extractPromptReferences(
+    cfg,
+    nodes,
+    dependencies,
+  );
+  const { settingsByNode, warnings: settingsWarnings } = extractSettings(cfg, nodes);
   const usage = indexVariableUsage(cfg, nodes);
   const evidence = buildEvidence(cfg, nodes, variables, dependencies);
   const warnings = finalizeWarnings([
@@ -458,6 +468,8 @@ export function normalizeFlow(input: NormalizeInput): FlowSnapshot {
     ...edgeWarnings,
     ...dependencyWarnings,
     ...variableWarnings,
+    ...promptWarnings,
+    ...settingsWarnings,
   ]);
 
   const evidenceByPointer = groupEvidenceByPointer(evidence);
@@ -473,6 +485,8 @@ export function normalizeFlow(input: NormalizeInput): FlowSnapshot {
         variableReadsByNode,
         variableWritesByNode,
         dependencyRefsByNode,
+        promptRefsByNode,
+        settingsByNode,
       ),
     ),
     edges: edges.map(toSnapshotEdge),

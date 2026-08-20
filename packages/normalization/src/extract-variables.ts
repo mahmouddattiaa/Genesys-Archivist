@@ -138,8 +138,51 @@ export function extractVariables(cfg: RawFlowConfig): ExtractVariablesResult {
  * declaration rather than a use site. Walking into these would either
  * double-attribute a read to the wrong node, or misread a variable's default
  * `initialValue` as a use of that variable.
+ *
+ * Exported because `extract-prompts.ts` needs the identical exclusion set for
+ * its own walk over the same raw node objects — reusing it here keeps the
+ * two walks from silently drifting apart on what counts as "owned
+ * elsewhere".
  */
-const OWNED_ELSEWHERE = new Set(['actionList', 'menuChoiceList', 'variables']);
+export const OWNED_ELSEWHERE: ReadonlySet<string> = new Set([
+  'actionList',
+  'menuChoiceList',
+  'variables',
+]);
+
+/**
+ * Walks `raw`'s own fields, invoking `onValueRef` once for every value-ref
+ * wrapper boundary reached (`{ config: { ... } }` — see `domain/value-ref.ts`)
+ * and recursing through arrays and plain records everywhere else.
+ *
+ * This is the traversal `collectReadsFromRaw` (below) has always used to
+ * build `variableReads`, factored out so `extract-prompts.ts` can reuse it
+ * unchanged rather than re-implementing the same "stop at a value-ref
+ * wrapper, skip owned-elsewhere fields" walk a second time. Both callers
+ * apply `parseValueRef` to the wrapper `onValueRef` receives; they differ
+ * only in which part of the parsed `ValueRef` they keep (a variable id here,
+ * a prompt id there).
+ */
+export function walkValueRefs(
+  raw: unknown,
+  onValueRef: (wrapper: Record<string, unknown>) => void,
+): void {
+  if (Array.isArray(raw)) {
+    for (const item of raw) walkValueRefs(item, onValueRef);
+    return;
+  }
+  if (!isRecord(raw)) return;
+
+  if (isRecord(raw['config'])) {
+    onValueRef(raw);
+    return;
+  }
+
+  for (const [key, value] of Object.entries(raw)) {
+    if (OWNED_ELSEWHERE.has(key)) continue;
+    walkValueRefs(value, onValueRef);
+  }
+}
 
 /**
  * Every variable id read anywhere inside `raw`'s own fields — recursing
@@ -149,21 +192,7 @@ const OWNED_ELSEWHERE = new Set(['actionList', 'menuChoiceList', 'variables']);
  * expression AST from that point on.
  */
 function collectReadsFromRaw(raw: unknown, into: Set<string>): void {
-  if (Array.isArray(raw)) {
-    for (const item of raw) collectReadsFromRaw(item, into);
-    return;
-  }
-  if (!isRecord(raw)) return;
-
-  if (isRecord(raw['config'])) {
-    collectVariableReads(parseValueRef(raw), into);
-    return;
-  }
-
-  for (const [key, value] of Object.entries(raw)) {
-    if (OWNED_ELSEWHERE.has(key)) continue;
-    collectReadsFromRaw(value, into);
-  }
+  walkValueRefs(raw, (wrapper) => collectVariableReads(parseValueRef(wrapper), into));
 }
 
 /** Variable ids a `DataAction`'s `outputs[]` bind a result to. Only entries
@@ -179,7 +208,7 @@ function collectWritesFromRaw(raw: Record<string, unknown>, into: Set<string>): 
   }
 }
 
-interface RawNodeIndex {
+export interface RawNodeIndex {
   readonly byTrackingId: ReadonlyMap<string, Record<string, unknown>>;
   readonly bySourceId: ReadonlyMap<string, Record<string, unknown>>;
 }
@@ -190,8 +219,12 @@ interface RawNodeIndex {
  * `ExtractedNode` itself carries no raw fields — only identity and
  * classification — so usage indexing needs this second walk to reach the
  * `inputs`, `outputs`, `expression`, and prompt fields a node actually holds.
+ *
+ * Exported so `extract-prompts.ts` and `extract-settings.ts` can recover the
+ * same raw node objects by the same identifiers, instead of each running a
+ * third copy of this structural walk.
  */
-function indexRawNodes(cfg: RawFlowConfig): RawNodeIndex {
+export function indexRawNodes(cfg: RawFlowConfig): RawNodeIndex {
   const byTrackingId = new Map<string, Record<string, unknown>>();
   const bySourceId = new Map<string, Record<string, unknown>>();
 
@@ -227,7 +260,10 @@ function indexRawNodes(cfg: RawFlowConfig): RawNodeIndex {
   return { byTrackingId, bySourceId };
 }
 
-function findRawNode(index: RawNodeIndex, node: ExtractedNode): Record<string, unknown> | null {
+export function findRawNode(
+  index: RawNodeIndex,
+  node: ExtractedNode,
+): Record<string, unknown> | null {
   if (node.trackingId !== null) {
     const byTracking = index.byTrackingId.get(node.trackingId);
     if (byTracking !== undefined) return byTracking;

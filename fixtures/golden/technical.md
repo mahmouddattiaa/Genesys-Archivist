@@ -26,7 +26,7 @@ _Generated 2026-08-20T00:00:00Z for audience: contact-center engineers and devel
 
 - **Generator (this technical.md renderer):** 1.0.0
 - **Normalizer canonicalizer version:** 1.0.0
-- **Normalized graph hash (sha256):** `4c86b7e52ec332da9f66d2d270761bc1a45fca40e421029d6fcda99d665b238b`
+- **Normalized graph hash (sha256):** `b689ada62f6aa1a313b921a9942613dcdec3508473d0f4424ffd29984f14ea2d`
 - **Document generated at:** 2026-08-20T00:00:00Z
 
 ### Completeness
