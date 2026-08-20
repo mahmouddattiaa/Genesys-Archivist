@@ -48,6 +48,9 @@ export interface FindingsGraph {
 export interface FindingsVariable {
   readonly variableId: string;
   readonly name: string;
+  /** Architect scopes variables (`Flow`, `Task`, …) and permits the same
+   * name in two scopes, so a name alone does not identify a variable. */
+  readonly scope: string;
   readonly readNodeIds: readonly string[];
   readonly writeNodeIds: readonly string[];
   readonly evidenceIds: readonly string[];
@@ -83,6 +86,20 @@ export interface FlowAnalysisSnapshot {
 export type FindingKind = 'fact' | 'derived' | 'inference' | 'unknown';
 export type FindingSeverity = 'info' | 'warning' | 'error' | 'critical';
 
+/**
+ * What a finding is *about*, when that is not a node.
+ *
+ * `nodeIds` alone cannot identify the subject of a variable finding: a
+ * declared-but-unused variable has no node sites at all, so its `nodeIds` is
+ * empty and the only trace of which variable it names is prose inside
+ * `message`. A renderer, a migration tool, or a reviewer filtering findings
+ * would have to parse English to know. This carries the id instead.
+ */
+export interface FindingSubject {
+  readonly kind: 'variable' | 'node' | 'edge' | 'dependency';
+  readonly id: string;
+}
+
 export interface Finding {
   readonly code: string;
   readonly severity: FindingSeverity;
@@ -90,6 +107,7 @@ export interface Finding {
   readonly message: string;
   readonly nodeIds: readonly string[];
   readonly evidenceIds: readonly string[];
+  readonly subject?: FindingSubject;
 }
 
 export interface AnalyzeFlowOptions {
@@ -146,9 +164,10 @@ function variableReadNeverWrittenFindings(variables: readonly FindingsVariable[]
       code: 'VARIABLE_READ_NEVER_WRITTEN',
       severity: 'error' as const,
       kind: 'derived' as const,
-      message: `Variable "${v.name}" is read but never written anywhere in this flow. Any branch or prompt depending on its value cannot behave as intended.`,
+      message: `Variable "${v.name}" (${v.scope} scope) is read but never written anywhere in this flow. Any branch or prompt depending on its value cannot behave as intended.`,
       nodeIds: sortedUnique(v.readNodeIds),
       evidenceIds: sortedUnique(v.evidenceIds),
+      subject: { kind: 'variable' as const, id: v.variableId },
     }));
 }
 
@@ -161,9 +180,10 @@ function variableDeclaredUnusedFindings(variables: readonly FindingsVariable[]):
       code: 'VARIABLE_DECLARED_UNUSED',
       severity: 'info' as const,
       kind: 'derived' as const,
-      message: `Variable "${v.name}" is declared but never read or written.`,
+      message: `Variable "${v.name}" (${v.scope} scope) is declared but never read or written.`,
       nodeIds: [],
       evidenceIds: sortedUnique(v.evidenceIds),
+      subject: { kind: 'variable' as const, id: v.variableId },
     }));
 }
 
@@ -298,7 +318,10 @@ function nodeSemanticsUnmodelledFindings(nodes: readonly FindingsGraphNode[]): F
 }
 
 function findingSortKey(f: Finding): string {
-  return `${f.code}\u0000${f.nodeIds.join(',')}\u0000${f.evidenceIds.join(',')}\u0000${f.message}`;
+  // The subject participates in the key so that two findings differing only
+  // in which same-named variable they are about still order deterministically.
+  const subject = f.subject === undefined ? '' : `${f.subject.kind}:${f.subject.id}`;
+  return `${f.code}\u0000${subject}\u0000${f.nodeIds.join(',')}\u0000${f.evidenceIds.join(',')}\u0000${f.message}`;
 }
 
 function buildFindings(
