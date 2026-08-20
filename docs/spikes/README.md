@@ -27,6 +27,39 @@ Spike code is throwaway. Write it in a scratch directory, prove the thing, recor
 | S9  | Can hostile source content escape into logs, paths, or prompts?        | The canary corpus and adversarial fixtures stay contained; the workflow completes or fails safely.                                                                      |
 | S10 | Can the renderer be packaged and shipped?                              | Playwright Chromium runs from the distributed package on all three operating systems, or an alternative is chosen and recorded.                                         |
 
+## Status, and a numbering warning
+
+**The table above and `docs/14-open-questions-and-spikes.md` do not agree, and
+both are in use.** `docs/14` lists ten spikes S0–S9; this table lists eleven,
+S0–S10. From S3 onward the two disagree about which question owns which number —
+`docs/14` calls S3 "flow-type matrix" and S4 "permission matrix", while this
+table calls S3 "reference closure" and S5 "permission matrix".
+
+The spikes that were actually executed follow **this** table's questions, but
+were filed under **`docs/14`'s** numbers, which is how the collision got baked
+in. Rather than renumber committed decision records, the executed set is listed
+below by filename. Cite a spike by filename, not by number.
+
+| File                            | Question answered                                | Result                       |
+| ------------------------------- | ------------------------------------------------ | ---------------------------- |
+| `S1-source-path.md`             | Which source path? Fidelity vs. privilege        | PASS — Platform API, ADR-015 |
+| `S1-yaml-structure-findings.md` | What does an Architect YAML export contain?      | superseded by S3             |
+| `S1b-corpus-generalization.md`  | Does S1 generalize beyond one flow?              | PASS                         |
+| `S2-discovery.md`               | Can every flow and version be discovered?        | PASS                         |
+| `S3-references.md`              | Does the reference walk reach closure read-only? | PASS — manifest, ADR-013     |
+| `S4-permission-matrix.md`       | What is the true minimum permission set?         | **FAIL — see the file**      |
+
+Not yet run, and each is a release gate or close to one:
+
+- **Prompt audio download read-only.** Migration mode's asset capture depends on
+  it, and kill criterion 11 says the bundle is documentation-grade rather than
+  migration-grade if it fails. Unanswered under either numbering.
+- **Scale budgets** — per-flow latency, memory, request count, bundle size.
+- **Republish mid-capture** — the stale version must never be promoted as current.
+- **Cross-client STDIO portability** across the pinned clients.
+- **Hostile source content** containment — the canary corpus end to end.
+- **Renderer packaging** on all three operating systems.
+
 ## S1 in detail — the spike everything else waits on
 
 Four candidate source paths. Run each against the **same** 6-10 sandbox flows spanning inbound call, in-queue, common module, bot, and one digital type.
