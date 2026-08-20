@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { asProfileId } from '@genesys-archivist/domain';
 import { EnvSecretStore } from '../src/secret-store-env.js';
-import { profileMetadataSchema } from '../src/profiles.js';
+import { profileMetadataSchema, toSafeProfileSummary } from '../src/profiles.js';
 
 describe('ProfileMetadata', () => {
   it('accepts a well-formed profile', () => {
@@ -11,7 +11,7 @@ describe('ProfileMetadata', () => {
       displayName: 'Acme Sandbox',
       region: 'mec1',
       expectedOrganizationId: 'org_123',
-      clientIdFingerprint: 'sha256:abc',
+      clientId: 'a1b2c3d4-0000-4000-a000-000000000001',
       outputRoot: '/work/out',
     });
     expect(parsed.profileId).toBe('acme-sandbox');
@@ -24,7 +24,7 @@ describe('ProfileMetadata', () => {
         displayName: 'Acme Sandbox',
         region: 'mec1',
         expectedOrganizationId: 'org_123',
-        clientIdFingerprint: 'sha256:abc',
+        clientId: 'a1b2c3d4-0000-4000-a000-000000000001',
         outputRoot: '/work/out',
         clientSecret: 'oops',
       }),
@@ -38,7 +38,7 @@ describe('ProfileMetadata', () => {
         displayName: 'x',
         region: 'mec1',
         expectedOrganizationId: 'org_123',
-        clientIdFingerprint: 'sha256:abc',
+        clientId: 'a1b2c3d4-0000-4000-a000-000000000001',
         outputRoot: '/work/out',
       }),
     ).toThrow();
@@ -68,5 +68,44 @@ describe('EnvSecretStore', () => {
     const store = new EnvSecretStore({ ARCHIVIST_CI_SECRETS: '1', ARCHIVIST_SECRET_X: 'shhh' });
     expect(JSON.stringify(store)).not.toContain('shhh');
     expect(String(store)).not.toContain('shhh');
+  });
+});
+
+describe('toSafeProfileSummary', () => {
+  const profile = profileMetadataSchema.parse({
+    profileId: 'acme',
+    displayName: 'Acme Bank',
+    region: 'eu_west_1',
+    expectedOrganizationId: 'org_123',
+    clientId: 'a1b2c3d4-0000-4000-a000-000000000001',
+    outputRoot: '/work/acme',
+  });
+
+  it('omits the client ID, which docs/03 forbids MCP tools from returning', () => {
+    const summary = toSafeProfileSummary(profile, true);
+    expect(JSON.stringify(summary)).not.toContain('a1b2c3d4');
+    expect('clientId' in summary).toBe(false);
+  });
+
+  it('keeps the fields an operator needs to identify a profile', () => {
+    const summary = toSafeProfileSummary(profile, true);
+    expect(summary.profileId).toBe('acme');
+    expect(summary.region).toBe('eu_west_1');
+    expect(summary.expectedOrganizationId).toBe('org_123');
+  });
+
+  it('reports secret presence without exposing the secret', () => {
+    expect(toSafeProfileSummary(profile, true).secretPresent).toBe(true);
+    expect(toSafeProfileSummary(profile, false).secretPresent).toBe(false);
+  });
+
+  it('normalises a missing validation timestamp to null', () => {
+    expect(toSafeProfileSummary(profile, true).lastValidatedAt).toBeNull();
+  });
+
+  it('stores the client ID so authentication is actually possible', () => {
+    // The regression this guards: an earlier revision stored only a hash, so a
+    // profile carried no way to authenticate at all.
+    expect(profile.clientId).toBe('a1b2c3d4-0000-4000-a000-000000000001');
   });
 });

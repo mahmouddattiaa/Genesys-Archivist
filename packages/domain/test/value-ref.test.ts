@@ -71,6 +71,12 @@ describe('parseValueRef', () => {
     });
   });
 
+  it('parses an explicit null, distinct from unset and from absent', () => {
+    expect(parseValueRef({ config: { nul: {} } })).toEqual({ kind: 'null' });
+    expect(parseValueRef({ config: { emp: {} } })).toEqual({ kind: 'unset' });
+    expect(parseValueRef(undefined)).toEqual({ kind: 'unset' });
+  });
+
   it('never throws on an unknown discriminator; marks it opaque', () => {
     expect(parseValueRef({ config: { somethingNew: { x: 1 } } })).toEqual({
       kind: 'opaque',

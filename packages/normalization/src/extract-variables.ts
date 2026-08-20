@@ -15,6 +15,8 @@ export interface ExtractedVariable {
   readonly variableId: string;
   readonly name: string;
   readonly scope: VariableScope;
+  /** RFC 6901 JSON pointer to this variable's declaration in the configuration. */
+  readonly sourcePointer: string;
   /** Derived from `__type` (e.g. `BoolVariable` -> `bool`), never invented. */
   readonly dataType: string;
   readonly direction: VariableDirection;
@@ -55,12 +57,17 @@ function deriveDirection(isInput: boolean, isOutput: boolean): VariableDirection
   return 'none';
 }
 
-function buildVariable(raw: Record<string, unknown>, scope: VariableScope): ExtractedVariable {
+function buildVariable(
+  raw: Record<string, unknown>,
+  scope: VariableScope,
+  sourcePointer: string,
+): ExtractedVariable {
   const sourceType = asString(raw['__type']);
   return {
     variableId: asString(raw['id']),
     name: asString(raw['name']),
     scope,
+    sourcePointer,
     dataType: deriveDataType(sourceType),
     direction: deriveDirection(asBoolean(raw['isInput']), asBoolean(raw['isOutput'])),
     isCollection: asBoolean(raw['isCollection']),
@@ -77,20 +84,21 @@ function buildVariable(raw: Record<string, unknown>, scope: VariableScope): Extr
 export function extractVariables(cfg: RawFlowConfig): readonly ExtractedVariable[] {
   const variables: ExtractedVariable[] = [];
 
-  for (const rawVariable of cfg.variables) {
-    if (!isRecord(rawVariable)) continue;
-    variables.push(buildVariable(rawVariable, 'flow'));
-  }
+  cfg.variables.forEach((rawVariable: unknown, index) => {
+    if (!isRecord(rawVariable)) return;
+    variables.push(buildVariable(rawVariable, 'flow', `/variables/${String(index)}`));
+  });
 
-  for (const rawItem of cfg.flowSequenceItemList) {
-    if (!isRecord(rawItem)) continue;
+  cfg.flowSequenceItemList.forEach((rawItem: unknown, itemIndex) => {
+    if (!isRecord(rawItem)) return;
     const taskVariables = rawItem['variables'];
-    if (!Array.isArray(taskVariables)) continue;
-    for (const rawVariable of taskVariables) {
-      if (!isRecord(rawVariable)) continue;
-      variables.push(buildVariable(rawVariable, 'task'));
-    }
-  }
+    if (!Array.isArray(taskVariables)) return;
+    taskVariables.forEach((rawVariable: unknown, varIndex) => {
+      if (!isRecord(rawVariable)) return;
+      const pointer = `/flowSequenceItemList/${String(itemIndex)}/variables/${String(varIndex)}`;
+      variables.push(buildVariable(rawVariable, 'task', pointer));
+    });
+  });
 
   return variables;
 }

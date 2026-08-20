@@ -21,6 +21,14 @@ export interface ExtractedNode {
   readonly sourceType: string;
   readonly name: string;
   readonly containerPath: readonly string[];
+  /**
+   * RFC 6901 JSON pointer to this node inside the flow configuration.
+   *
+   * Evidence records must cite a location a reviewer can resolve back to the
+   * source. Recording it during the walk is exact; re-deriving it afterwards
+   * would mean duplicating this traversal and risking drift between the two.
+   */
+  readonly sourcePointer: string;
   readonly supportLevel: NodeSupportLevel;
 }
 
@@ -85,6 +93,7 @@ function deriveIdentity(
 function buildNode(
   raw: Record<string, unknown>,
   containerPath: readonly string[],
+  sourcePointer: string,
   index: number,
   kind: NodeKind,
 ): ExtractedNode {
@@ -92,7 +101,7 @@ function buildNode(
   const name = asString(raw['name']);
   const identity = readIdentity(raw);
   const nodeId = deriveIdentity(identity, containerPath, sourceType, `${String(index)}:${name}`);
-  const supportLevel: NodeSupportLevel = KNOWN_TYPES.has(sourceType) ? 'full' : 'unsupported';
+  const supportLevel: NodeSupportLevel = KNOWN_TYPES.has(sourceType) ? 'full' : 'partial';
 
   return {
     nodeId,
@@ -102,6 +111,7 @@ function buildNode(
     sourceType,
     name,
     containerPath,
+    sourcePointer,
     supportLevel,
   };
 }
@@ -122,7 +132,8 @@ export function extractNodes(cfg: RawFlowConfig): readonly ExtractedNode[] {
   cfg.flowSequenceItemList.forEach((rawItem, itemIndex) => {
     if (!isRecord(rawItem)) return;
 
-    const container = buildNode(rawItem, [], itemIndex, 'container');
+    const itemPointer = `/flowSequenceItemList/${String(itemIndex)}`;
+    const container = buildNode(rawItem, [], itemPointer, itemIndex, 'container');
     nodes.push(container);
     const containerPath = [container.name];
 
@@ -130,7 +141,8 @@ export function extractNodes(cfg: RawFlowConfig): readonly ExtractedNode[] {
     if (Array.isArray(actionList)) {
       actionList.forEach((rawAction: unknown, actionIndex) => {
         if (!isRecord(rawAction)) return;
-        nodes.push(buildNode(rawAction, containerPath, actionIndex, 'action'));
+        const pointer = `${itemPointer}/actionList/${String(actionIndex)}`;
+        nodes.push(buildNode(rawAction, containerPath, pointer, actionIndex, 'action'));
       });
     }
 
@@ -140,7 +152,8 @@ export function extractNodes(cfg: RawFlowConfig): readonly ExtractedNode[] {
         if (!isRecord(rawChoice)) return;
         const action = rawChoice['action'];
         if (!isRecord(action)) return;
-        nodes.push(buildNode(action, containerPath, choiceIndex, 'action'));
+        const pointer = `${itemPointer}/menuChoiceList/${String(choiceIndex)}/action`;
+        nodes.push(buildNode(action, containerPath, pointer, choiceIndex, 'action'));
       });
     }
   });

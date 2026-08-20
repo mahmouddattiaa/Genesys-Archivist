@@ -2,6 +2,7 @@
 export type ValueRef =
   | { readonly kind: 'literal'; readonly dataType: string; readonly text: string }
   | { readonly kind: 'unset' }
+  | { readonly kind: 'null' }
   | { readonly kind: 'variableRef'; readonly variableId: string; readonly dataType: string }
   | {
       readonly kind: 'expression';
@@ -29,6 +30,12 @@ export function parseValueRef(raw: unknown): ValueRef {
   const body = inner[discriminator];
 
   if (discriminator === 'emp') return { kind: 'unset' };
+
+  // `nul` is an explicit null, distinct from `emp` (explicitly cleared) and
+  // from an absent key. Spike S1b found 7 occurrences across the corpus; they
+  // previously fell through to `opaque`. A migration tool needs the three
+  // states kept apart for the same reason `emp` mattered.
+  if (discriminator === 'nul') return { kind: 'null' };
 
   if (discriminator === 'lit' && isRecord(body)) {
     return { kind: 'literal', dataType: str(body['type']), text: str(body['text']) };
