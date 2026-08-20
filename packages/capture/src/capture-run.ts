@@ -661,6 +661,9 @@ async function execute({ options, alreadyPromoted }: ExecuteParams): Promise<Cap
         await writer.writeFlow(source.flowId, source.versionId, source.body, {
           id: flow.flowId,
           type: flow.type,
+          // The provider reports the serialization it returned; discarding it
+          // here is what disconnected capture from documentation.
+          format: source.format,
         });
         manifestState.progress = {
           ...manifestState.progress,

@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Options, ValidateFunction } from 'ajv';
 import { contentHash } from '@genesys-archivist/domain';
-import { BUNDLE_CANONICAL } from './bundle-writer.js';
+import { BUNDLE_CANONICAL, definitionFileName } from './bundle-writer.js';
 
 // packages/capture/src/bundle-verifier.ts -> <repo>/schemas/capture-bundle.schema.json.
 // The build output (packages/capture/dist/bundle-verifier.js) sits at the same
@@ -101,7 +101,7 @@ async function listFileNames(path: string): Promise<string[]> {
 interface ReconstructedFlow {
   readonly flowId: string;
   readonly versionId: string;
-  readonly definitionYaml: string;
+  readonly definition: string;
   readonly meta: unknown;
 }
 
@@ -139,18 +139,23 @@ async function reconstructFlows(
       findings.push({ code: 'FILE_MISSING', message: 'A captured flow is missing flow.json.' });
       continue;
     }
+    // The definition's filename follows the format recorded in flow.json, so
+    // read the format first rather than assuming one and reporting the other
+    // as missing.
+    const format =
+      isRecord(meta) && meta['format'] === 'json' ? ('json' as const) : ('yaml' as const);
     const versionIds = await listDirNames(join(dir, 'flows', flowId, 'versions'));
     for (const versionId of versionIds) {
       try {
-        const definitionYaml = await readFile(
-          join(dir, 'flows', flowId, 'versions', versionId, 'definition.yaml'),
+        const definition = await readFile(
+          join(dir, 'flows', flowId, 'versions', versionId, definitionFileName(format)),
           'utf8',
         );
-        flows.push({ flowId, versionId, definitionYaml, meta });
+        flows.push({ flowId, versionId, definition, meta });
       } catch {
         findings.push({
           code: 'FILE_MISSING',
-          message: 'A captured flow version is missing definition.yaml.',
+          message: 'A captured flow version is missing its definition file.',
         });
       }
     }

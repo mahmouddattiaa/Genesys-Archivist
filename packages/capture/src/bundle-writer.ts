@@ -69,9 +69,27 @@ export interface BundleWriterOptions {
   readonly now: () => Date;
 }
 
+/** The on-disk name for a flow definition of a given format. Exported so the
+ * verifier looks for the same file the writer produced, rather than keeping a
+ * second copy of this rule that can drift. */
+export function definitionFileName(format: 'yaml' | 'json'): string {
+  return format === 'json' ? 'definition.json' : 'definition.yaml';
+}
+
 export interface FlowMeta {
   readonly id: string;
   readonly type: string;
+  /**
+   * The serialization the source actually returned.
+   *
+   * `GenesysSourceProvider` reports this per flow (`RawFlowSource.format`)
+   * because it genuinely varies: the Platform API configuration endpoint
+   * returns JSON, an Architect export is YAML. Stage 2 must parse the
+   * definition to normalize it, and a bundle that does not record the format
+   * leaves it guessing — so this is part of the bundle contract, not an
+   * implementation detail of whoever wrote it.
+   */
+  readonly format: 'yaml' | 'json';
 }
 
 export interface BundleCounts {
@@ -114,7 +132,7 @@ export interface SealedBundle {
 interface FlowRecord {
   readonly flowId: string;
   readonly versionId: string;
-  readonly definitionYaml: string;
+  readonly definition: string;
   readonly meta: FlowMeta;
 }
 
@@ -217,18 +235,22 @@ export class BundleWriter {
   async writeFlow(
     flowId: string,
     versionId: string,
-    definitionYaml: string,
+    definition: string,
     flowMeta: FlowMeta,
   ): Promise<void> {
     this.#flows.set(`${flowId}:${versionId}`, {
       flowId,
       versionId,
-      definitionYaml,
+      definition,
       meta: flowMeta,
     });
+    // The extension follows the real format. Writing JSON into a file named
+    // definition.yaml was how the format got lost between the two stages:
+    // capture stored whatever the provider returned, the name said otherwise,
+    // and Stage 2 had nothing to go on.
     await this.#writeText(
-      ['flows', flowId, 'versions', versionId, 'definition.yaml'],
-      definitionYaml,
+      ['flows', flowId, 'versions', versionId, definitionFileName(flowMeta.format)],
+      definition,
     );
     await this.#writeJson(['flows', flowId, 'flow.json'], flowMeta);
   }

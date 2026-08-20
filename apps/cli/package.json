@@ -6,6 +6,9 @@
   "description": "The archivist CLI: profile provisioning, diagnostics, capture, documentation, and headless sync.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "archivist": "./dist/bin.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -24,7 +27,8 @@
     "@genesys-archivist/domain": "*",
     "@genesys-archivist/normalization": "*",
     "@genesys-archivist/rendering": "*",
-    "@genesys-archivist/security": "*"
+    "@genesys-archivist/security": "*",
+    "commander": "^7.2.0"
   },
   "devDependencies": {
     "@genesys-archivist/testing": "*"

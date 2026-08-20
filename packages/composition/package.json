@@ -29,6 +29,10 @@
     "@genesys-archivist/analysis": "*",
     "@genesys-archivist/documentation": "*",
     "@genesys-archivist/rendering": "*",
-    "@genesys-archivist/narrative": "*"
+    "@genesys-archivist/narrative": "*",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@genesys-archivist/testing": "*"
   }
 }
