@@ -67,6 +67,7 @@ import {
   type SecretStore,
 } from '@genesys-archivist/security';
 import type { ProfileStore } from '@genesys-archivist/storage';
+import type { RendererBundle } from '@genesys-archivist/rendering';
 import { documentBundleToDisk } from './document-bundle-to-disk.js';
 import {
   createRunStore,
@@ -110,6 +111,15 @@ export interface ArchivistPortDeps {
    * this default, which exists only so a single-profile test can omit both.
    */
   readonly outputRoot?: string;
+  /**
+   * Diagram/PDF renderer, passed straight through to `documentBundleToDisk`.
+   *
+   * Injected for the same reason `providerFor` is: without it this port
+   * creates a real Playwright renderer on every run, which probes for and
+   * launches Chromium. That is right for a server and wrong for a test -- it
+   * took the run tests in this package from ~300ms to timing out.
+   */
+  readonly renderer?: RendererBundle;
   readonly now?: () => Date;
   readonly generateId?: () => string;
   readonly generateRunId?: () => string;
@@ -564,6 +574,7 @@ export function createArchivistPort(deps: ArchivistPortDeps): ArchivistPort {
       const diskResult = await documentBundleToDisk({
         bundleDir,
         outputRoot: profile.outputRoot,
+        ...(deps.renderer !== undefined ? { renderer: deps.renderer } : {}),
         generatedAt: now().toISOString(),
       });
 

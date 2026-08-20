@@ -266,7 +266,9 @@ export async function documentBundle(
       '',
       '## Source',
       '',
-      'Generated from the captured definition at:',
+      `The captured definition is in this folder as \`${flow.format === 'json' ? 'definition.json' : 'definition.yaml'}\`.`,
+      '',
+      'The canonical, id-keyed copy the migration path reads lives at:',
       '',
       `\`\`\`text`,
       `flows/${flow.flowId}/versions/${flow.versionId}/${flow.format === 'json' ? 'definition.json' : 'definition.yaml'}`,
@@ -279,6 +281,21 @@ export async function documentBundle(
     ].join('\n');
     scoped[`${dir}/index.md`] = index;
     files[`${dir}/index.md`] = index;
+
+    // The captured definition, copied beside its own documents.
+    //
+    // The bundle's `flows/<flowId>/` tree remains the canonical, id-keyed
+    // copy and is what a migration server reads -- that tree is a published,
+    // content-hashed contract, and keying it on a tenant-authored display name
+    // that changes and collides would be a defect, not a convenience.
+    //
+    // This is a second copy for the person browsing, so one folder per IVR
+    // holds everything about that IVR. It costs roughly a doubling of bundle
+    // size, which is the price of not making the machine-facing layout depend
+    // on names.
+    const definitionFile = flow.format === 'json' ? 'definition.json' : 'definition.yaml';
+    scoped[`${dir}/${definitionFile}`] = flow.definition;
+    files[`${dir}/${definitionFile}`] = flow.definition;
     documented.push({ flowId: flow.flowId, versionId: flow.versionId, files: scoped });
   }
 

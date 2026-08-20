@@ -48,6 +48,13 @@ import { FakeSourceProvider } from '@genesys-archivist/testing';
 import type { ProfileMetadata, SecretStore } from '@genesys-archivist/security';
 import type { ProfileListResult, ProfileStore } from '@genesys-archivist/storage';
 import { createArchivistPort } from '../src/archivist-port.js';
+import { createRenderer } from '@genesys-archivist/rendering';
+
+// Every run here goes through documentBundleToDisk, which creates a real
+// Playwright renderer unless given one -- probing for and launching Chromium
+// on each run. That took these tests from ~300ms to timing out. Whether a
+// browser can draw is packages/rendering's test, not this file's.
+const DEGRADED_RENDERER = await createRenderer({ forceDegraded: true });
 // Vitest's default testTimeout is 5s, and none of these blocks overrode it.
 // Every test in this file drives a real run: capture, normalize, document, and
 // an atomic stage-and-promote against the filesystem. Alone that is ~300ms;
@@ -259,6 +266,7 @@ async function buildHarness(options: {
     });
 
   const port = createArchivistPort({
+    renderer: DEGRADED_RENDERER,
     profileStore,
     secretStore,
     providerFor: () => Promise.resolve(provider),
@@ -442,6 +450,7 @@ describe('archivist-port: cancellation never disturbs prior good output', () => 
     // document/promote phase) completes.
     const gated = new GatedProvider(harness.provider);
     const gatedPort = createArchivistPort({
+      renderer: DEGRADED_RENDERER,
       profileStore: harness.profileStore,
       secretStore: harness.secretStore,
       providerFor: () => Promise.resolve(gated),
