@@ -295,7 +295,20 @@ export class BundleWriter {
       flows: [...this.#flows.values()],
       resources: [...this.#resources.values()],
       graph: this.#graph ?? null,
-      assets: [...this.#assets.entries()].map(([digest, asset]) => ({ digest, ...asset })),
+      // Bare hex, matching `assets/index.json`'s own keys.
+      //
+      // This map is keyed by the *address* `putAsset` returns ("sha256:<hex>"),
+      // because that is the form a caller references an asset by. The verifier
+      // can only reconstruct what is on disk, and the index is keyed by bare
+      // hex -- so hashing the address here made every bundle containing an
+      // asset fail its own verification. Migration bundles never verified.
+      //
+      // It went unnoticed because the verifier's own tests seal bundles with no
+      // assets in them, where the two forms never meet.
+      assets: [...this.#assets.entries()].map(([address, asset]) => ({
+        digest: address.startsWith('sha256:') ? address.slice('sha256:'.length) : address,
+        ...asset,
+      })),
     };
     const hash = contentHash(record, BUNDLE_CANONICAL);
 

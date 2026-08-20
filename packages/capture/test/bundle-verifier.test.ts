@@ -91,3 +91,69 @@ describe('verifyBundle', () => {
     expect(JSON.stringify(result)).not.toContain('SECRET-CUSTOMER');
   });
 });
+
+describe('verifyBundle: a bundle that actually contains an asset', () => {
+  // Every case above seals a bundle with no assets in it, which is why a
+  // one-character mismatch in the hashed asset digest survived: the writer
+  // hashed the address it hands callers ("sha256:<hex>") while the verifier
+  // could only reconstruct assets/index.json's own bare-hex keys. The two
+  // forms never met, so no test noticed that every migration bundle -- the
+  // only kind that carries assets -- failed its own verification.
+  let assetRoot = '';
+
+  beforeEach(async () => {
+    assetRoot = await mkdtemp(join(tmpdir(), 'archivist-verify-asset-'));
+    const writer = new BundleWriter({
+      root: assetRoot,
+      captureId: '2026-08-21T09-00-00Z_asset1',
+      organization: { id: 'org_1', region: 'mec1' },
+      policy: {
+        mode: 'migration' as const,
+        versionSelection: 'published' as const,
+        captureAssets: true,
+        captureDataTableRows: true,
+      },
+      versions: { application: '0.1.0', adapter: '0.1.0', sourceProvider: 'fixture' },
+      now: () => new Date('2026-08-21T09:00:00Z'),
+    });
+    await writer.writeFlow('f1', '1', 'name: Main\n', {
+      id: 'f1',
+      type: 'inboundcall',
+      format: 'yaml',
+    });
+    await writer.putAsset(new Uint8Array([1, 2, 3, 4, 5]), {
+      originalName: 'greeting-en-us.wav',
+      mimeType: 'audio/wav',
+      usedBy: { type: 'userPrompt', id: 'p1' },
+    });
+    await writer.seal();
+  });
+
+  afterEach(async () => {
+    await rm(assetRoot, { recursive: true, force: true });
+  });
+
+  it('verifies a sealed bundle containing an asset', async () => {
+    const result = await verifyBundle(assetRoot);
+    expect(result.ok, JSON.stringify(result.findings)).toBe(true);
+  });
+
+  it('still detects a tampered asset index', async () => {
+    const indexPath = join(assetRoot, 'assets', 'index.json');
+    const index = JSON.parse(await readFile(indexPath, 'utf8')) as Record<string, unknown>;
+    const first = Object.keys(index)[0]!;
+    (index[first] as Record<string, unknown>)['byteLength'] = 999999;
+    await writeFile(indexPath, JSON.stringify(index));
+    expect((await verifyBundle(assetRoot)).ok).toBe(false);
+  });
+
+  it('records the same digest form the index is keyed by', async () => {
+    // The concrete shape of the bug: a bare-hex key, never "sha256:"-prefixed.
+    const index = JSON.parse(
+      await readFile(join(assetRoot, 'assets', 'index.json'), 'utf8'),
+    ) as Record<string, unknown>;
+    for (const key of Object.keys(index)) {
+      expect(key).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
+});
