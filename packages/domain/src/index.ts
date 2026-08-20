@@ -5,3 +5,4 @@ export * from './identity.js';
 export * from './derive-node-id.js';
 export * from './canonical.js';
 export * from './source-provider.js';
+export * from './value-ref.js';
