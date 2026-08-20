@@ -3,6 +3,9 @@
 // Implemented by the tasks in docs/superpowers/plans/.
 export * from './redaction.js';
 export * from './paths.js';
+export * from './paths-real.js';
 export * from './secret-store.js';
 export * from './secret-store-env.js';
+export * from './secret-store-os.js';
+export * from './keyring.js';
 export * from './profiles.js';

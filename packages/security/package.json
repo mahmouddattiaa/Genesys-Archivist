@@ -17,6 +17,7 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@genesys-archivist/domain": "*"
+    "@genesys-archivist/domain": "*",
+    "@napi-rs/keyring": "^1.3.0"
   }
 }
