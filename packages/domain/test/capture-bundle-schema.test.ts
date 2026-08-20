@@ -15,12 +15,17 @@ beforeAll(async () => {
 });
 
 const minimal = (): Record<string, unknown> => ({
-  schemaVersion: '1.1',
+  schemaVersion: '1.2',
   captureId: '2026-08-20T14-02-11Z_a1b2c3',
   sealedAt: '2026-08-20T14:31:00Z',
   classification: 'restricted',
   organization: { id: 'org_1', region: 'mec1' },
-  policy: { versionSelection: 'published', captureAssets: true, captureDataTableRows: true },
+  policy: {
+    mode: 'migration',
+    versionSelection: 'published',
+    captureAssets: true,
+    captureDataTableRows: true,
+  },
   versions: { application: '0.1.0', adapter: '0.1.0', sourceProvider: 'platform-api' },
   counts: { flows: 2, resources: 14, assets: 9, unresolvedReferences: 1 },
   contentHash: 'sha256:' + 'a'.repeat(64),

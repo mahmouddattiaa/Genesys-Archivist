@@ -16,38 +16,68 @@
     "contentHash"
   ],
   "properties": {
-    "schemaVersion": { "const": "1.1" },
+    "schemaVersion": {
+      "const": "1.2"
+    },
     "captureId": {
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}Z_[0-9a-z]{6}$",
       "maxLength": 40
     },
-    "sealedAt": { "type": "string", "format": "date-time", "maxLength": 40 },
-    "classification": { "enum": ["restricted"] },
+    "sealedAt": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 40
+    },
+    "classification": {
+      "enum": ["restricted"]
+    },
     "organization": {
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "region"],
       "properties": {
-        "id": { "type": "string", "minLength": 1, "maxLength": 300 },
-        "name": { "type": "string", "maxLength": 500 },
-        "region": { "type": "string", "minLength": 1, "maxLength": 100 }
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
       }
     },
     "policy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["versionSelection", "captureAssets", "captureDataTableRows"],
+      "required": ["mode", "versionSelection", "captureAssets", "captureDataTableRows"],
       "properties": {
         "versionSelection": {
           "enum": ["published", "checked-in", "working-copy", "published-and-latest"]
         },
-        "captureAssets": { "type": "boolean" },
-        "captureDataTableRows": { "type": "boolean" },
+        "captureAssets": {
+          "type": "boolean"
+        },
+        "captureDataTableRows": {
+          "type": "boolean"
+        },
         "flowTypes": {
           "type": "array",
-          "items": { "type": "string", "maxLength": 100 },
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
           "uniqueItems": true
+        },
+        "mode": {
+          "description": "Which job this capture was for. 'context' captures flow definitions and their inline resource manifest so a developer can understand the flows; it does NOT walk resources to closure or download assets, and is never migration-ready. 'migration' captures everything needed to recreate the IVRs elsewhere. Required, because an unmarked bundle is exactly the ambiguity this field exists to prevent: a consumer must never have to infer fitness for migration from the absence of a field.",
+          "enum": ["context", "migration"]
         }
       }
     },
@@ -56,13 +86,27 @@
       "additionalProperties": false,
       "required": ["application", "adapter", "sourceProvider"],
       "properties": {
-        "application": { "type": "string", "minLength": 1, "maxLength": 100 },
-        "adapter": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "application": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "adapter": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
         "sourceProvider": {
           "enum": ["platform-api", "archy-cli", "manual-yaml", "fixture"]
         },
-        "genesysSdk": { "type": "string", "maxLength": 100 },
-        "archy": { "type": "string", "maxLength": 100 }
+        "genesysSdk": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "archy": {
+          "type": "string",
+          "maxLength": 100
+        }
       }
     },
     "counts": {
@@ -70,12 +114,30 @@
       "additionalProperties": false,
       "required": ["flows", "resources", "assets", "unresolvedReferences"],
       "properties": {
-        "flows": { "type": "integer", "minimum": 0 },
-        "resources": { "type": "integer", "minimum": 0 },
-        "assets": { "type": "integer", "minimum": 0 },
-        "assetBytes": { "type": "integer", "minimum": 0 },
-        "unresolvedReferences": { "type": "integer", "minimum": 0 },
-        "dataTableRowsCaptured": { "type": "integer", "minimum": 0 }
+        "flows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "resources": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "assets": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "assetBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unresolvedReferences": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dataTableRowsCaptured": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "migrationReadiness": {
@@ -83,11 +145,25 @@
       "additionalProperties": false,
       "required": ["archyImportableYaml", "assetsCaptured"],
       "properties": {
-        "archyImportableYaml": { "type": "boolean" },
-        "assetsCaptured": { "type": "boolean" },
-        "caveats": { "type": "array", "items": { "type": "string", "maxLength": 2000 } }
+        "archyImportableYaml": {
+          "type": "boolean"
+        },
+        "assetsCaptured": {
+          "type": "boolean"
+        },
+        "caveats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        }
       }
     },
-    "contentHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$", "maxLength": 71 }
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "maxLength": 71
+    }
   }
 }

@@ -13,7 +13,12 @@ async function seededBundle(dir: string): Promise<void> {
     root: dir,
     captureId: '2026-08-20T14-02-11Z_a1b2c3',
     organization: { id: 'org_1', region: 'mec1' },
-    policy: { versionSelection: 'published', captureAssets: true, captureDataTableRows: true },
+    policy: {
+      mode: 'migration' as const,
+      versionSelection: 'published' as const,
+      captureAssets: true,
+      captureDataTableRows: true,
+    },
     versions: { application: '0.1.0', adapter: '0.1.0', sourceProvider: 'fixture' },
     now: () => new Date('2026-08-20T14:31:00Z'),
   });

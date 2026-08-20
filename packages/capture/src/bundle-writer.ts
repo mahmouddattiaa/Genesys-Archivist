@@ -31,7 +31,21 @@ export interface BundleOrganization {
   readonly name?: string;
 }
 
+/**
+ * Which job this capture was for. See docs/adr/ADR-018-capture-modes.md.
+ *
+ * 'context' captures flow definitions and the resource manifest that arrives
+ * with them, so a developer can understand the flows. It does not walk
+ * resources to closure or download assets, and is never migration-ready.
+ * 'migration' captures everything needed to recreate the IVRs elsewhere.
+ */
+export type CaptureMode = 'context' | 'migration';
+
 export interface BundlePolicy {
+  /** Required, not optional. An unmarked bundle is exactly the ambiguity this
+   * field exists to prevent: no consumer should ever have to infer fitness
+   * for migration from a field's absence. */
+  readonly mode: CaptureMode;
   readonly versionSelection: VersionSelection;
   readonly captureAssets: boolean;
   readonly captureDataTableRows: boolean;
@@ -123,6 +137,7 @@ function pickOrganization(o: BundleOrganization): BundleOrganization {
 
 function pickPolicy(p: BundlePolicy): BundlePolicy {
   return {
+    mode: p.mode,
     versionSelection: p.versionSelection,
     captureAssets: p.captureAssets,
     captureDataTableRows: p.captureDataTableRows,
@@ -144,6 +159,11 @@ const TRUNCATED_CAVEAT =
   'The resource reference walk was truncated: it stopped at the request budget before ' +
   'reaching closure. resource-graph.json is honestly statused for every node it reached, ' +
   'but some references this capture depends on may be missing from it entirely.';
+
+const CONTEXT_MODE_CAVEAT =
+  'This bundle was captured in context mode: flow definitions and their resource manifest ' +
+  'only. Resource configuration was not fetched and assets were not downloaded, so it ' +
+  'documents these flows but cannot be migrated. Recapture in migration mode to move them.';
 
 const ASSETS_NOT_CAPTURED_CAVEAT =
   'Prompt and response assets were not captured, by policy. A migration target will need ' +
@@ -264,6 +284,7 @@ export class BundleWriter {
     const caveats: string[] = [];
     if (this.#truncated) caveats.push(TRUNCATED_CAVEAT);
     if (!this.#policy.captureAssets) caveats.push(ASSETS_NOT_CAPTURED_CAVEAT);
+    if (this.#policy.mode === 'context') caveats.push(CONTEXT_MODE_CAVEAT);
 
     const counts: BundleCounts = {
       flows: this.#flows.size,
@@ -274,13 +295,18 @@ export class BundleWriter {
     };
 
     const migrationReadiness: MigrationReadiness = {
-      archyImportableYaml: this.#flows.size > 0,
+      // A context capture is never migration-ready, however many flows it
+      // holds: it deliberately skipped the resource bodies and the audio a
+      // migration would have to recreate. Deciding this from the mode rather
+      // than from what happens to be present means a context bundle cannot
+      // drift into looking importable as its flow count grows.
+      archyImportableYaml: this.#policy.mode === 'migration' && this.#flows.size > 0,
       assetsCaptured: this.#policy.captureAssets,
       ...(caveats.length > 0 ? { caveats } : {}),
     };
 
     const manifest: BundleManifest = {
-      schemaVersion: '1.1',
+      schemaVersion: '1.2',
       captureId: this.#captureId,
       sealedAt: this.#now().toISOString(),
       classification: 'restricted',

@@ -19,6 +19,7 @@ const opts = () => ({
   captureId: '2026-08-20T14-02-11Z_a1b2c3',
   organization: { id: 'org_1', region: 'mec1' },
   policy: {
+    mode: 'migration' as const,
     versionSelection: 'published' as const,
     captureAssets: true,
     captureDataTableRows: true,

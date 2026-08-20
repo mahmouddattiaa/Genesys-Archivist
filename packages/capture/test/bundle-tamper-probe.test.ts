@@ -32,6 +32,7 @@ const opts = (dir: string) => ({
   captureId: '2026-08-20T14-02-11Z_a1b2c3',
   organization: { id: 'org_1', region: 'euw1' },
   policy: {
+    mode: 'migration' as const,
     versionSelection: 'published' as const,
     captureAssets: true,
     captureDataTableRows: true,
@@ -158,5 +159,66 @@ describe('the verifier actually catches tampering', () => {
     const result = await verifyBundle(empty);
     expect(result.ok).toBe(false);
     expect(result.findings.length).toBeGreaterThan(0);
+  });
+});
+
+describe('a context bundle can never be mistaken for a migration bundle', () => {
+  // The whole risk of having two modes: someone hands a context bundle to the
+  // migration server, which recreates an IVR whose prompts are silent and
+  // whose queues do not exist. See docs/adr/ADR-018-capture-modes.md.
+  const contextOpts = (dir: string) => ({
+    ...opts(dir),
+    policy: {
+      mode: 'context' as const,
+      versionSelection: 'published' as const,
+      captureAssets: false,
+      captureDataTableRows: false,
+    },
+  });
+
+  it('declares itself not importable, however many flows it holds', async () => {
+    const dir = await freshRoot();
+    const writer = new BundleWriter(contextOpts(dir));
+    // A migration bundle with these same flows WOULD be importable, so this
+    // cannot be passing merely because the bundle is empty.
+    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', { id: 'f1', type: 'inboundcall' });
+    await writer.writeFlow('f2', '2.0', 'name: After Hours\n', { id: 'f2', type: 'inboundcall' });
+    const sealed = await writer.seal();
+
+    expect(sealed.manifest.policy.mode).toBe('context');
+    expect(sealed.manifest.migrationReadiness?.archyImportableYaml).toBe(false);
+    expect(sealed.manifest.migrationReadiness?.assetsCaptured).toBe(false);
+  });
+
+  it('says why, in words, not just in a boolean', async () => {
+    const dir = await freshRoot();
+    const writer = new BundleWriter(contextOpts(dir));
+    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', { id: 'f1', type: 'inboundcall' });
+    const sealed = await writer.seal();
+
+    const caveats = sealed.manifest.migrationReadiness?.caveats ?? [];
+    expect(caveats.join(' ')).toMatch(/context mode/i);
+    expect(caveats.join(' ')).toMatch(/cannot be migrated|recapture/i);
+  });
+
+  it('the same flows in migration mode ARE importable', async () => {
+    // The control. Without it, the assertions above are satisfied by a writer
+    // that reports nothing as importable, ever.
+    const dir = await freshRoot();
+    const writer = new BundleWriter(opts(dir));
+    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', { id: 'f1', type: 'inboundcall' });
+    const sealed = await writer.seal();
+
+    expect(sealed.manifest.policy.mode).toBe('migration');
+    expect(sealed.manifest.migrationReadiness?.archyImportableYaml).toBe(true);
+  });
+
+  it('still seals and verifies as a valid bundle', async () => {
+    const dir = await freshRoot();
+    const writer = new BundleWriter(contextOpts(dir));
+    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', { id: 'f1', type: 'inboundcall' });
+    await writer.seal();
+    const result = await verifyBundle(dir);
+    expect(result.ok, JSON.stringify(result.findings)).toBe(true);
   });
 });
