@@ -11,6 +11,9 @@
 // package not installed, browser binary not downloaded, launch refused,
 // sandbox restriction. Per docs/08-failure-analysis.md, diagram rendering
 // failure must never block tabular documentation.
+import { createRequire } from 'node:module';
+import { readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { NullRenderer } from './null-renderer.js';
 import type {
   CreateRendererOptions,
@@ -28,6 +31,8 @@ import type {
 interface PlaywrightPage {
   setContent(html: string, options?: { waitUntil?: 'load' }): Promise<void>;
   pdf(options?: { printBackground?: boolean }): Promise<Uint8Array>;
+  addScriptTag(options: { content: string }): Promise<unknown>;
+  evaluate<T>(fn: (arg: string) => T | Promise<T>, arg: string): Promise<T>;
 }
 interface PlaywrightBrowser {
   newPage(): Promise<PlaywrightPage>;
@@ -35,6 +40,24 @@ interface PlaywrightBrowser {
 }
 interface PlaywrightBrowserType {
   launch(options?: { headless?: boolean }): Promise<PlaywrightBrowser>;
+}
+
+let cachedBundle: string | null = null;
+
+/**
+ * Reads Mermaid's browser bundle from node_modules once per process.
+ *
+ * `securityLevel: 'strict'` is set at initialize time, but the primary
+ * defence against hostile diagram text is escapeMermaidLabel in
+ * packages/documentation, applied before source ever reaches here.
+ */
+async function readMermaidBundle(): Promise<string> {
+  if (cachedBundle !== null) return cachedBundle;
+  const require = createRequire(import.meta.url);
+  const packageJsonPath = require.resolve('mermaid/package.json');
+  const bundlePath = join(dirname(packageJsonPath), 'dist', 'mermaid.min.js');
+  cachedBundle = await readFile(bundlePath, 'utf8');
+  return cachedBundle;
 }
 
 /**
@@ -47,22 +70,40 @@ interface PlaywrightBrowserType {
 export class PlaywrightRenderer implements DiagramRenderer, DocumentRenderer {
   constructor(private readonly browserType: PlaywrightBrowserType) {}
 
-  renderSvg(mermaid: string): Promise<string> {
-    // Mermaid-to-SVG conversion needs the `mermaid` package loaded into the
-    // page's DOM to parse and lay out the diagram source. That package is
-    // not yet a dependency of this package -- this task adds Playwright
-    // only, per the plan -- so real diagram rendering is deferred to the
-    // task that adds `mermaid`. Failing loudly here (rather than returning
-    // a placeholder, which is NullRenderer's job) keeps the gap honest
-    // instead of silently pretending the diagram rendered.
-    void mermaid;
-    return Promise.reject(
-      new Error(
-        'PlaywrightRenderer.renderSvg is not yet implemented: the "mermaid" package ' +
-          'is not a dependency of @genesys-archivist/rendering. Use createRenderer() ' +
-          'and its NullRenderer fallback, or add mermaid rendering in a follow-up task.',
-      ),
-    );
+  /**
+   * Renders Mermaid source to SVG inside the page.
+   *
+   * The Mermaid bundle is read from `node_modules` and injected as inline
+   * script content. It is deliberately NOT loaded from a CDN: the design
+   * requires Stage 2 to open no sockets, and a documentation run that
+   * silently reached the network would break that guarantee for every
+   * customer whose configuration it is rendering.
+   *
+   * `startOnLoad` is false and the source is passed as an argument rather
+   * than written into the page, so tenant-authored diagram text is never
+   * interpolated into HTML.
+   */
+  async renderSvg(mermaidSource: string): Promise<string> {
+    const bundle = await readMermaidBundle();
+    const browser = await this.browserType.launch({ headless: true });
+    try {
+      const page = await browser.newPage();
+      await page.setContent('<!doctype html><html><body></body></html>', { waitUntil: 'load' });
+      await page.addScriptTag({ content: bundle });
+      return await page.evaluate(async (source: string) => {
+        const globalWithMermaid = globalThis as unknown as {
+          mermaid: {
+            initialize(config: Record<string, unknown>): void;
+            render(id: string, text: string): Promise<{ svg: string }>;
+          };
+        };
+        globalWithMermaid.mermaid.initialize({ startOnLoad: false, securityLevel: 'strict' });
+        const { svg } = await globalWithMermaid.mermaid.render('archivist-diagram', source);
+        return svg;
+      }, mermaidSource);
+    } finally {
+      await browser.close();
+    }
   }
 
   async renderPdf(html: string, meta: PdfMeta): Promise<Uint8Array> {

@@ -17,6 +17,7 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@genesys-archivist/domain": "*"
+    "@genesys-archivist/domain": "*",
+    "mermaid": "^11.0.0"
   }
 }
