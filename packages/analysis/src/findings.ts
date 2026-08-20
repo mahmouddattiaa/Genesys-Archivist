@@ -298,7 +298,7 @@ function nodeSemanticsUnmodelledFindings(nodes: readonly FindingsGraphNode[]): F
 }
 
 function findingSortKey(f: Finding): string {
-  return `${f.code} ${f.nodeIds.join(',')} ${f.evidenceIds.join(',')} ${f.message}`;
+  return `${f.code}\u0000${f.nodeIds.join(',')}\u0000${f.evidenceIds.join(',')}\u0000${f.message}`;
 }
 
 function buildFindings(
