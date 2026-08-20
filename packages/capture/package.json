@@ -22,6 +22,8 @@
     "@genesys-archivist/genesys-source": "*",
     "@genesys-archivist/storage": "*",
     "@genesys-archivist/security": "*",
-    "@genesys-archivist/observability": "*"
+    "@genesys-archivist/observability": "*",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
   }
 }

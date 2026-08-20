@@ -20,6 +20,15 @@ let root = '';
 const TRIALS = 25;
 const CALLERS = 12;
 
+/**
+ * These do 300 real filesystem lock acquisitions apiece. Vitest's 5s default
+ * is not a meaningful assertion about them — it just makes the suite fail
+ * whenever this file happens to run alongside something heavy (the Playwright
+ * browser launch, for instance). A timeout should catch a hang, not lose a
+ * race with the scheduler.
+ */
+const SLOW = 60_000;
+
 beforeEach(async () => {
   root = await mkdtemp(join(tmpdir(), 'archivist-lockprobe-'));
 });
@@ -28,7 +37,7 @@ afterEach(async () => {
 });
 
 describe('lock mutual exclusion under real concurrency', () => {
-  it('grants a contested key to exactly one caller, every trial', async () => {
+  it('grants a contested key to exactly one caller, every trial', { timeout: SLOW }, async () => {
     for (let trial = 0; trial < TRIALS; trial += 1) {
       const key = `contested-${String(trial)}`;
       const results = await Promise.all(
@@ -40,7 +49,7 @@ describe('lock mutual exclusion under real concurrency', () => {
     }
   });
 
-  it('never overlaps two holders, measured by a shared counter', async () => {
+  it('never overlaps two holders, measured by a shared counter', { timeout: SLOW }, async () => {
     // Counting grants is not quite enough: a lock could grant once, be
     // released, and be granted again within the same batch. This asserts the
     // stronger property — that the number of simultaneous holders never
@@ -65,7 +74,7 @@ describe('lock mutual exclusion under real concurrency', () => {
     expect(maxHeld).toBe(1);
   });
 
-  it('reclaims a stale lock for exactly one caller', async () => {
+  it('reclaims a stale lock for exactly one caller', { timeout: SLOW }, async () => {
     for (let trial = 0; trial < TRIALS; trial += 1) {
       const key = `stale-${String(trial)}`;
       let clock = 1_000_000;
@@ -86,7 +95,7 @@ describe('lock mutual exclusion under real concurrency', () => {
     }
   });
 
-  it('refuses every contender while a live holder has not expired', async () => {
+  it('refuses every contender while a live holder has not expired', { timeout: SLOW }, async () => {
     for (let trial = 0; trial < TRIALS; trial += 1) {
       const key = `live-${String(trial)}`;
       const clock = 2_000_000;

@@ -19,7 +19,11 @@ describe('NullRenderer', () => {
 });
 
 describe('createRenderer', () => {
-  it('always resolves, with or without a browser', async () => {
+  // Launching a real headless browser routinely exceeds vitest's 5s default
+  // when this file runs alongside anything else heavy, which made this fail
+  // intermittently in a full-suite run while passing every time in isolation.
+  // The timeout is here to catch a hang, not to race the scheduler.
+  it('always resolves, with or without a browser', { timeout: 60_000 }, async () => {
     const r = await createRenderer();
     expect(typeof r.degraded).toBe('boolean');
   });
