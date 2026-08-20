@@ -49,10 +49,10 @@ below by filename. Cite a spike by filename, not by number.
 | `S3-references.md`              | Does the reference walk reach closure read-only? | PASS — manifest, ADR-013       |
 | `S4-permission-matrix.md`       | What is the true minimum permission set?         | **FAIL — see the file**        |
 | `S5-prompt-audio.md`            | Can prompt audio be downloaded read-only?        | PASS — kill criterion 11 clear |
+| `S6-scale-budgets.md`           | What are realistic scale budgets?                | PASS — 401 flows in ~95s       |
 
 Not yet run, and each is a release gate or close to one:
 
-- **Scale budgets** — per-flow latency, memory, request count, bundle size.
 - **Republish mid-capture** — the stale version must never be promoted as current.
 - **Cross-client STDIO portability** across the pinned clients.
 - **Hostile source content** containment — the canary corpus end to end.
