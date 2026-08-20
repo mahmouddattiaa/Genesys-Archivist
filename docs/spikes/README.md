@@ -40,20 +40,18 @@ were filed under **`docs/14`'s** numbers, which is how the collision got baked
 in. Rather than renumber committed decision records, the executed set is listed
 below by filename. Cite a spike by filename, not by number.
 
-| File                            | Question answered                                | Result                       |
-| ------------------------------- | ------------------------------------------------ | ---------------------------- |
-| `S1-source-path.md`             | Which source path? Fidelity vs. privilege        | PASS — Platform API, ADR-015 |
-| `S1-yaml-structure-findings.md` | What does an Architect YAML export contain?      | superseded by S3             |
-| `S1b-corpus-generalization.md`  | Does S1 generalize beyond one flow?              | PASS                         |
-| `S2-discovery.md`               | Can every flow and version be discovered?        | PASS                         |
-| `S3-references.md`              | Does the reference walk reach closure read-only? | PASS — manifest, ADR-013     |
-| `S4-permission-matrix.md`       | What is the true minimum permission set?         | **FAIL — see the file**      |
+| File                            | Question answered                                | Result                         |
+| ------------------------------- | ------------------------------------------------ | ------------------------------ |
+| `S1-source-path.md`             | Which source path? Fidelity vs. privilege        | PASS — Platform API, ADR-015   |
+| `S1-yaml-structure-findings.md` | What does an Architect YAML export contain?      | superseded by S3               |
+| `S1b-corpus-generalization.md`  | Does S1 generalize beyond one flow?              | PASS                           |
+| `S2-discovery.md`               | Can every flow and version be discovered?        | PASS                           |
+| `S3-references.md`              | Does the reference walk reach closure read-only? | PASS — manifest, ADR-013       |
+| `S4-permission-matrix.md`       | What is the true minimum permission set?         | **FAIL — see the file**        |
+| `S5-prompt-audio.md`            | Can prompt audio be downloaded read-only?        | PASS — kill criterion 11 clear |
 
 Not yet run, and each is a release gate or close to one:
 
-- **Prompt audio download read-only.** Migration mode's asset capture depends on
-  it, and kill criterion 11 says the bundle is documentation-grade rather than
-  migration-grade if it fails. Unanswered under either numbering.
 - **Scale budgets** — per-flow latency, memory, request count, bundle size.
 - **Republish mid-capture** — the stale version must never be promoted as current.
 - **Cross-client STDIO portability** across the pinned clients.
