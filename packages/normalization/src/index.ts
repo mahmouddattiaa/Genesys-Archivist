@@ -4,3 +4,4 @@ export * from './extract-dependencies.js';
 export * from './extract-variables.js';
 export * from './extract-edges.js';
 export * from './evidence.js';
+export * from './normalize.js';

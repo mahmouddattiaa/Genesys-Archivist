@@ -37,7 +37,6 @@ const STRUCTURAL_KEYS = new Set([
   'nextTrackingNumber',
   'version',
   'defaultLanguage',
-  'initialSequence',
   'schemaVersion',
 ]);
 
@@ -183,6 +182,28 @@ async function main() {
   if (!res.ok) throw new Error(`configuration unavailable (${res.status})`);
 
   const clean = sanitize(res.body);
+
+  // Guard against exactly the bug this check was written for: a key listed as
+  // structural preserved a real GUID verbatim, and a name-only leak sweep did
+  // not notice. Collect every GUID in the source and assert none survives.
+  const originalGuids = new Set();
+  const collect = (v) => {
+    if (Array.isArray(v)) return v.forEach(collect);
+    if (!v || typeof v !== 'object') return;
+    for (const val of Object.values(v)) {
+      if (typeof val === 'string' && GUID_RE.test(val)) originalGuids.add(val.toLowerCase());
+      else collect(val);
+    }
+  };
+  collect(res.body);
+  const serialized = JSON.stringify(clean).toLowerCase();
+  const survivors = [...originalGuids].filter((g) => serialized.includes(g));
+  if (survivors.length > 0) {
+    throw new Error(
+      `${survivors.length} original GUID(s) survived sanitization. ` +
+        'A key is almost certainly listed in STRUCTURAL_KEYS that actually holds a reference.',
+    );
+  }
   clean.$archivistFixture = {
     note: 'Sanitized from a real Architect flow configuration. Structure preserved exactly; every tenant-authored string replaced deterministically.',
     sourceFlowIdHash: det(flowId, 12),
