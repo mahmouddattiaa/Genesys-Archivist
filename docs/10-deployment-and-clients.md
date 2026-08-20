@@ -1,11 +1,17 @@
 # 10 — Deployment and Client Integration
 
+> **Command name.** This document was written before the project was named
+> Genesys Archivist and said `genesys-docs-mcp` throughout. The binary that
+> `apps/mcp-server/package.json` actually installs is **`genesys-archivist-mcp`**,
+> and the CLI is **`archivist`**. Corrected here because a reader following the
+> old name would configure a command that does not exist.
+
 ## Recommended first deployment
 
 Ship a signed internal package that installs:
 
 - `genesys-docs` CLI.
-- `genesys-docs-mcp` STDIO entry point.
+- `genesys-archivist-mcp` STDIO entry point.
 - Versioned runtime dependencies.
 - A diagnostic command.
 - Default policies and schemas.
@@ -47,7 +53,7 @@ Desirable later, after proving the Genesys SDK and native dependencies can be pa
 3. Run secure profile provisioning outside any AI conversation.
 4. Validate organization identity and read-only permission coverage.
 5. Select an approved private output root.
-6. Register `genesys-docs-mcp` in each desired MCP client.
+6. Register `genesys-archivist-mcp` in each desired MCP client.
 7. Run the client smoke test.
 
 ## Client configuration behavior
@@ -58,7 +64,7 @@ The exact syntax changes over time; release documentation must be generated from
 {
   "mcpServers": {
     "genesys-architect-docs": {
-      "command": "genesys-docs-mcp",
+      "command": "genesys-archivist-mcp",
       "args": ["--config", "<non-secret-config-path>"]
     }
   }
