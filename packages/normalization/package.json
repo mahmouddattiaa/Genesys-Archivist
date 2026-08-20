@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@genesys-archivist/domain": "*",
-    "@genesys-archivist/security": "*"
+    "@genesys-archivist/security": "*",
+    "zod": "^4.0.0"
   }
 }
