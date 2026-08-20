@@ -10,6 +10,14 @@
 // probe them holds 580 mutating grants across 783 policies (including
 // `architect:flow: publish, delete` and `architect:dependencyTracking:
 // rebuild` -- the exact mutation AGENTS.md names as never to be held) --
+// VERIFIED against GET /api/v2/authorization/permissions on the live org.
+// Five names in this table did not exist: architect:datatable:viewRow is really
+// architect:datatableRow:view, and schedules, schedule groups and emergency
+// groups live in the routing domain rather than architect. architect:ivr and
+// routing:language:view do not exist in any form -- those two carry an empty
+// permission, meaning "not yet measured", the same convention organizations.me
+// already uses. A table whose whole job is to name the permission behind a 403
+// naming permissions that cannot be granted was worse than naming none.
 // which means a 200 there proves reachability, not minimum permission. S4's
 // own words: "the `permission` column... is therefore the *expected*
 // permission, not a measured one." The live measurement (re-running against
@@ -121,37 +129,37 @@ export const PERMISSION_MATRIX: readonly PermissionRequirement[] = [
   {
     operation: 'flows.datatables.rows.list',
     endpoint: 'GET /api/v2/flows/datatables/{datatableId}/rows',
-    permission: 'architect:datatable:viewRow',
+    permission: 'architect:datatableRow:view',
   },
   {
     operation: 'architect.schedules.get',
     endpoint: 'GET /api/v2/architect/schedules/{scheduleId}',
-    permission: 'architect:schedule:view',
+    permission: 'routing:schedule:view',
   },
   {
     operation: 'architect.scheduleGroups.get',
     endpoint: 'GET /api/v2/architect/schedulegroups/{scheduleGroupId}',
-    permission: 'architect:scheduleGroup:view',
+    permission: 'routing:scheduleGroup:view',
   },
   {
     operation: 'architect.emergencyGroups.get',
     endpoint: 'GET /api/v2/architect/emergencygroups/{emergencyGroupId}',
-    permission: 'architect:emergencyGroup:view',
+    permission: 'routing:emergencyGroup:view',
   },
   {
     operation: 'architect.ivrs.get',
     endpoint: 'GET /api/v2/architect/ivrs/{ivrId}',
-    permission: 'architect:ivr:view',
+    permission: '',
   },
   {
     operation: 'architect.ivrs.list',
     endpoint: 'GET /api/v2/architect/ivrs',
-    permission: 'architect:ivr:view',
+    permission: '',
   },
   {
     operation: 'languages.get',
     endpoint: 'GET /api/v2/languages/{languageId}',
-    permission: 'routing:language:view',
+    permission: '',
   },
 ];
 

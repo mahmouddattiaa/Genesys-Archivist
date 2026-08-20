@@ -63,8 +63,35 @@ const SENSITIVE_DOMAINS = new Set([
   'messaging',
 ]);
 
-/** Entities whose bodies can carry a credential regardless of domain. */
-const SECRET_ENTITIES = new Set(['credential', 'credentials', 'clientsecret', 'secret']);
+/**
+ * Entities whose bodies can carry a credential regardless of domain.
+ *
+ * `actionCertificate` was added after review: "View client certificate for
+ * actions" is credential material by any reasonable reading, and a check that
+ * only matched the literal word "credential" would have waved it through on a
+ * role a human was about to create.
+ */
+const SECRET_ENTITIES = new Set([
+  'credential',
+  'credentials',
+  'clientsecret',
+  'secret',
+  'certificate',
+  'actioncertificate',
+  'privatekey',
+  'keystore',
+]);
+
+/**
+ * Entities that expose a *running or completed interaction* rather than
+ * configuration.
+ *
+ * The SENSITIVE_DOMAINS check above works at domain granularity, which misses
+ * these: they sit inside `architect`, a domain this product legitimately needs.
+ * But a flow *execution* is a real call by a real caller, and this product
+ * documents how flows are configured, not what happened on them.
+ */
+const EXECUTION_ENTITIES = new Set(['flowexecution', 'flowinstance', 'flowinstanceexecutiondata']);
 
 /**
  * The endpoints the production adapter calls, addressed through the SDK.
@@ -277,6 +304,13 @@ function judgePolicies(policies) {
         kind: 'secret',
         policy: `${domain}:${entity}`,
         detail: 'credential-bearing entity',
+      });
+    }
+    if (EXECUTION_ENTITIES.has(entity)) {
+      violations.push({
+        kind: 'caller-data',
+        policy: `${domain}:${entity}`,
+        detail: 'exposes interaction execution data, not configuration',
       });
     }
   }
