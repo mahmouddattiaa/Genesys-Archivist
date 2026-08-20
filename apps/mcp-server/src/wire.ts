@@ -11,21 +11,18 @@
 // defaults for the clock/id generator `createArchivistPort` otherwise
 // defaults itself).
 //
-// `genesys_flow_diff` remains an explicit, named injection point rather
-// than a real implementation: `packages/analysis/src/diff.ts` now exports
-// `diffSnapshots`, but wiring it into `ArchivistPort.diffFlow` means
-// resolving both requested flow versions through a provider, normalizing
-// each into a `FlowSnapshot`, and mapping `diffSnapshots`'s result into the
-// `FlowDiff` DTO -- real, undone work, not a missing dependency. Faking a
-// working diff here would violate the same rule this whole codebase is
-// built around (never claim an operation completed when it did not); the
-// fixed, content-free rejection below matches the house style
-// `apps/cli/src/bin.ts`'s `notYetAvailable` already established for exactly
-// this situation.
+// `genesys_flow_diff` is wired to the real implementation:
+// `@genesys-archivist/composition`'s `createDiffFlow` resolves both
+// requested flow versions through the same `providerFor` closure
+// `createArchivistPort` uses, normalizes each into a `FlowSnapshot`, and
+// maps `diffSnapshots`'s result into the `FlowDiff` DTO. See
+// `packages/composition/src/diff-flow.ts`'s header comment for the
+// tenant-text policy every field of that mapping follows.
 import { join } from 'node:path';
 import type { ProfileId } from '@genesys-archivist/domain';
 import {
   createArchivistPort,
+  createDiffFlow,
   createGenesysProvider,
   createRunStore,
   defaultConfigRoot,
@@ -72,19 +69,6 @@ function createLazySecretStore(): SecretStoreShape {
   };
 }
 
-/** A fixed, content-free message: matches the house style in
- * apps/cli/src/bin.ts's `notYetAvailable`. Faking a successful diff here
- * would violate the same rule this whole codebase is built around -- never
- * claim an operation completed when it did not. */
-const diffFlow: ArchivistPort['diffFlow'] = () =>
-  Promise.reject(
-    new Error(
-      'genesys_flow_diff is not wired to a real implementation yet: packages/analysis/src/diff.ts ' +
-        'exports diffSnapshots, but nothing yet loads both requested flow versions, normalizes ' +
-        'them, and maps the result into the FlowDiff DTO. See wire.ts.',
-    ),
-  );
-
 /**
  * Builds the port `bin.ts` wires into the real server.
  *
@@ -104,13 +88,17 @@ export function buildRealPort(): ArchivistPort {
   const profileStore = openProfileStore({ configRoot });
   const secretStore = createLazySecretStore();
   const runStore = createRunStore({ root: join(configRoot, 'runs') });
+  // Shared by both createArchivistPort and createDiffFlow below, so a
+  // profile's provider is resolved the same way (same secret store, same
+  // config root) regardless of which of the two constructs it.
+  const providerFor = (profileId: ProfileId) =>
+    createGenesysProvider({ profileId, configRoot, secretStore });
 
   return createArchivistPort({
     profileStore,
     secretStore,
     runStore,
-    providerFor: (profileId: ProfileId) =>
-      createGenesysProvider({ profileId, configRoot, secretStore }),
-    diffFlow,
+    providerFor,
+    diffFlow: createDiffFlow({ providerFor }),
   });
 }

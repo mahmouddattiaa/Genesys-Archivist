@@ -69,6 +69,15 @@ export type { CreateGenesysProviderOptions } from './genesys-provider.js';
 export { createArchivistPort } from './archivist-port.js';
 export type { ArchivistPortDeps } from './archivist-port.js';
 
+// The real ArchivistPort['diffFlow']: loads both requested versions through
+// a GenesysSourceProvider, normalizes and diffs them
+// (@genesys-archivist/analysis), and maps the result onto the FlowDiff DTO.
+// Kept separate from archivist-port.ts and injected into it as
+// `deps.diffFlow` -- see that file's header comment for why -- rather than
+// implemented inline there.
+export { createDiffFlow } from './diff-flow.js';
+export type { DiffFlowDeps } from './diff-flow.js';
+
 // Durable per-run manifest persistence archivist-port.ts's createArchivistPort
 // builds by default; surfaced here so a caller that wants to share one
 // RunStore across ports (or point it at a specific root) can construct one
