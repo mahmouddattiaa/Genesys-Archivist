@@ -84,4 +84,122 @@ describe('normalizeFlow', () => {
     for (const d of s.dependencies)
       for (const n of d.referencedByNodeIds) expect(ids.has(asNodeId(n))).toBe(true);
   });
+
+  describe('warnings (gap 2 regression)', () => {
+    // Direct proof of the gap: pre-fix, `normalize.ts` hardcodes
+    // `warnings: []` regardless of input. Any assertion that a config known
+    // to contain something worth reporting actually produces a non-empty
+    // `warnings` array fails against that hardcoded value, with no need to
+    // touch any extractor's shape first.
+
+    it('is a real, computed empty array for the clean 47-node fixture — not a vacuous pass', () => {
+      // Confirms the hardcoded `[]` and a genuinely-computed `[]` are not
+      // accidentally indistinguishable: paired with the next test, which
+      // proves the same pipeline produces a *non-empty* array for a
+      // different input, this rules out a warnings implementation that
+      // always returns `[]` no matter what.
+      expect(normalizeFlow(input()).warnings).toEqual([]);
+    });
+
+    it('surfaces an unsupported node type as a warning finding', () => {
+      const withUnsupported = {
+        ...input(),
+        config: {
+          name: 'x',
+          type: 'inboundcall',
+          variables: [],
+          flowSequenceItemList: [
+            {
+              __type: 'Task',
+              trackingId: 1,
+              id: 'g1',
+              name: 'T',
+              actionList: [{ __type: 'SomeFutureAction', trackingId: 2, id: 'g2', name: 'A' }],
+            },
+          ],
+        },
+      };
+      const s = normalizeFlow(withUnsupported);
+      expect(s.warnings.length).toBeGreaterThan(0);
+      const finding = s.warnings.find((w) => w.code === 'UNSUPPORTED_NODE_TYPE');
+      expect(finding).toBeDefined();
+      expect(finding?.severity).toBe('warning');
+      expect(finding?.evidenceIds).toEqual([]);
+    });
+
+    it('every warning finding validates against the published finding schema shape', () => {
+      const withUnsupported = {
+        ...input(),
+        config: {
+          name: 'x',
+          type: 'inboundcall',
+          variables: [],
+          flowSequenceItemList: [
+            { __type: 'Task', name: 'T', actionList: [{ __type: 'SomeFutureAction', name: 'A' }] },
+          ],
+        },
+      };
+      const s = normalizeFlow(withUnsupported);
+      expect(s.warnings.length).toBeGreaterThan(0);
+      const valid = validate(s);
+      if (!valid) console.error(validate.errors);
+      expect(valid).toBe(true);
+      for (const w of s.warnings) {
+        expect(w.code).toMatch(/^[A-Z0-9_]{3,100}$/);
+        expect(['info', 'warning', 'error', 'critical']).toContain(w.severity);
+      }
+    });
+
+    it('orders warnings deterministically across runs', () => {
+      const withUnsupported = {
+        ...input(),
+        config: {
+          name: 'x',
+          type: 'inboundcall',
+          variables: [],
+          flowSequenceItemList: [
+            { __type: 'Task', name: 'T', actionList: [{ __type: 'SomeFutureAction', name: 'A' }] },
+          ],
+        },
+      };
+      expect(JSON.stringify(normalizeFlow(withUnsupported).warnings)).toBe(
+        JSON.stringify(normalizeFlow(withUnsupported).warnings),
+      );
+    });
+
+    it('never lets a tenant-authored flow or prompt name reach a warning message', () => {
+      // Canary per the task brief: CANARY-TENANT-TEXT-9c2e names the flow,
+      // CANARY-PROMPT-1a7d names a node. Both are prompt-injection vectors
+      // per AGENTS.md/CLAUDE.md and must never appear in any warning —
+      // only structural identifiers (node ids, field paths, type names) may.
+      const withCanaries = {
+        config: {
+          name: 'CANARY-TENANT-TEXT-9c2e',
+          type: 'inboundcall',
+          variables: [],
+          flowSequenceItemList: [
+            {
+              __type: 'Task',
+              name: 'CANARY-PROMPT-1a7d',
+              actionList: [
+                {
+                  __type: 'SomeFutureAction',
+                  name: 'CANARY-PROMPT-1a7d',
+                  menuReference: '77777777-7777-7777-7777-777777777777',
+                  weirdUnknownField: '66666666-6666-6666-6666-666666666666',
+                },
+              ],
+            },
+          ],
+        },
+        source: input().source,
+        flow: { ...input().flow, name: 'CANARY-TENANT-TEXT-9c2e' },
+      };
+      const s = normalizeFlow(withCanaries);
+      expect(s.warnings.length).toBeGreaterThan(0);
+      const serialized = JSON.stringify(s.warnings);
+      expect(serialized).not.toContain('CANARY-TENANT-TEXT-9c2e');
+      expect(serialized).not.toContain('CANARY-PROMPT-1a7d');
+    });
+  });
 });

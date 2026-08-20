@@ -153,7 +153,10 @@ describe('OsSecretStore.remove', () => {
       .then(() => null)
       .catch((e: unknown) => e);
 
-    const serialized = `${String((error as Error).message)}${String((error as Error).stack)}`;
+    // `stack` is optional on Error, so it is coerced; `message` is already a
+    // string and coercing it would be a no-op the linter rightly rejects.
+    const thrown = error as Error;
+    const serialized = `${thrown.message}${String(thrown.stack)}`;
     expect(serialized).not.toContain('CANARY-SECRET-9f24bd');
   });
 });

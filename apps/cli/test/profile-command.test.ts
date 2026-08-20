@@ -229,6 +229,7 @@ describe('runProfileAdd', () => {
         get: () => Promise.resolve(null),
         set: () => Promise.reject(new Error('keyring locked')),
         has: () => Promise.resolve(false),
+        remove: () => Promise.resolve(false),
       },
     });
     const exitCode = await runProfileAdd(deps, {

@@ -2,6 +2,7 @@
 import { collectVariableReads, parseValueRef, type NodeId } from '@genesys-archivist/domain';
 import type { RawFlowConfig } from './config-schema.js';
 import type { ExtractedNode } from './extract-nodes.js';
+import type { NormalizationWarning } from './warnings.js';
 
 /** Where a variable is declared: the flow's own `config.variables[]`, or a
  * single Task container's `variables[]`. */
@@ -75,18 +76,44 @@ function buildVariable(
   };
 }
 
+export interface ExtractVariablesResult {
+  readonly variables: readonly ExtractedVariable[];
+  readonly warnings: readonly NormalizationWarning[];
+}
+
+function schemaDeviation(path: string): NormalizationWarning {
+  return {
+    code: 'SCHEMA_DEVIATION',
+    severity: 'warning',
+    message: 'Expected an object at this variable-declaration position but found something else.',
+    path,
+    nodeIds: [],
+  };
+}
+
 /**
  * Declared variables from every scope: the flow's own `config.variables[]`,
  * plus each Task container's `variables[]`. Identity is the GUID `id`
  * Architect assigns — the same id `ref.val` carries at every use site, so no
  * name-to-id join is ever needed to resolve a reference.
+ *
+ * A malformed entry — anything that is not itself an object — cannot become
+ * a variable: there is no `__type`, `id`, or `name` to read. It is skipped,
+ * but per AGENTS.md the skip is never silent; a `SCHEMA_DEVIATION` warning
+ * records exactly where it happened, at the same flow- or task-scoped
+ * pointer a well-formed sibling entry would have used.
  */
-export function extractVariables(cfg: RawFlowConfig): readonly ExtractedVariable[] {
+export function extractVariables(cfg: RawFlowConfig): ExtractVariablesResult {
   const variables: ExtractedVariable[] = [];
+  const warnings: NormalizationWarning[] = [];
 
   cfg.variables.forEach((rawVariable: unknown, index) => {
-    if (!isRecord(rawVariable)) return;
-    variables.push(buildVariable(rawVariable, 'flow', `/variables/${String(index)}`));
+    const pointer = `/variables/${String(index)}`;
+    if (!isRecord(rawVariable)) {
+      warnings.push(schemaDeviation(pointer));
+      return;
+    }
+    variables.push(buildVariable(rawVariable, 'flow', pointer));
   });
 
   cfg.flowSequenceItemList.forEach((rawItem: unknown, itemIndex) => {
@@ -94,13 +121,16 @@ export function extractVariables(cfg: RawFlowConfig): readonly ExtractedVariable
     const taskVariables = rawItem['variables'];
     if (!Array.isArray(taskVariables)) return;
     taskVariables.forEach((rawVariable: unknown, varIndex) => {
-      if (!isRecord(rawVariable)) return;
       const pointer = `/flowSequenceItemList/${String(itemIndex)}/variables/${String(varIndex)}`;
+      if (!isRecord(rawVariable)) {
+        warnings.push(schemaDeviation(pointer));
+        return;
+      }
       variables.push(buildVariable(rawVariable, 'task', pointer));
     });
   });
 
-  return variables;
+  return { variables, warnings };
 }
 
 /**

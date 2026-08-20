@@ -18,6 +18,7 @@ import {
   type VariableUsageIndex,
 } from './extract-variables.js';
 import { buildEvidence, type Evidence } from './evidence.js';
+import { finalizeWarnings, type NormalizationWarning } from './warnings.js';
 
 /**
  * Everything a caller must already know before a raw configuration can be
@@ -129,9 +130,20 @@ export interface FlowSnapshotDependency {
   readonly evidenceIds: readonly string[];
 }
 
-/** Mirrors `$defs.finding`. Always empty for this task — graph analysis
- * (reachability, dead branches, cycles) is `packages/analysis`, a later
- * task; this normalizer only reports a faithful `FlowSnapshot`. */
+/**
+ * Mirrors `$defs.finding`. Populated from every extractor's
+ * `NormalizationWarning`s: an uncatalogued node type, a reference field the
+ * generic walk had never seen before, a dangling reference, a derived node
+ * identity, or a structural deviation from the expected shape — each a
+ * fact this normalizer itself established while building the snapshot.
+ *
+ * This is *not* where graph analysis (reachability, dead branches, cycles)
+ * lands — that is a different `Finding` type, produced by
+ * `packages/analysis` from the snapshot this module returns, and is a later
+ * pipeline stage entirely. The two are easy to conflate because both end up
+ * called "findings" in prose; only this module's own extraction-time
+ * warnings are represented here.
+ */
 export interface FlowSnapshotFinding {
   readonly code: string;
   readonly severity: 'info' | 'warning' | 'error' | 'critical';
@@ -381,6 +393,27 @@ function toSnapshotDependency(
   };
 }
 
+/**
+ * Converts a `NormalizationWarning` into the schema's `$defs.finding` shape.
+ * `finding` has no room for `path` or `nodeIds` (`additionalProperties:
+ * false`), so both are folded into `message` — still built entirely from
+ * structural identifiers the warning itself already restricted itself to,
+ * never tenant-authored text, so folding them in adds no new prompt-injection
+ * surface. `evidenceIds` is always `[]`: no extractor attaches an evidence
+ * record to a warning today, and the schema does not require one.
+ */
+function toSnapshotFinding(warning: NormalizationWarning): FlowSnapshotFinding {
+  const parts = [warning.message];
+  if (warning.path !== null) parts.push(`path: ${warning.path}`);
+  if (warning.nodeIds.length > 0) parts.push(`nodes: ${warning.nodeIds.join(', ')}`);
+  return {
+    code: warning.code,
+    severity: warning.severity,
+    message: parts.join(' | '),
+    evidenceIds: [],
+  };
+}
+
 function computeCompleteness(
   nodes: readonly ExtractedNode[],
   edges: readonly ExtractedEdge[],
@@ -414,12 +447,18 @@ function computeCompleteness(
 export function normalizeFlow(input: NormalizeInput): FlowSnapshot {
   const cfg = parseFlowConfig(input.config);
 
-  const nodes = extractNodes(cfg);
-  const dependencies = extractDependencies(cfg, nodes);
-  const edges = extractEdges(cfg, nodes);
-  const variables = extractVariables(cfg);
+  const { nodes, warnings: nodeWarnings } = extractNodes(cfg);
+  const { dependencies, warnings: dependencyWarnings } = extractDependencies(cfg, nodes);
+  const { edges, warnings: edgeWarnings } = extractEdges(cfg, nodes, dependencies);
+  const { variables, warnings: variableWarnings } = extractVariables(cfg);
   const usage = indexVariableUsage(cfg, nodes);
   const evidence = buildEvidence(cfg, nodes, variables, dependencies);
+  const warnings = finalizeWarnings([
+    ...nodeWarnings,
+    ...edgeWarnings,
+    ...dependencyWarnings,
+    ...variableWarnings,
+  ]);
 
   const evidenceByPointer = groupEvidenceByPointer(evidence);
   const { reads: variableReadsByNode, writes: variableWritesByNode } = invertVariableUsage(usage);
@@ -452,7 +491,7 @@ export function normalizeFlow(input: NormalizeInput): FlowSnapshot {
       toSnapshotDependency(dependency, depEvidenceIds[index]),
     ),
     evidence,
-    warnings: [],
+    warnings: warnings.map(toSnapshotFinding),
     completeness: computeCompleteness(nodes, edges, dependencies),
     hashes: {
       canonicalizerVersion: CANONICALIZER_VERSION,

@@ -17,7 +17,14 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
+    "@genesys-archivist/analysis": "*",
     "@genesys-archivist/domain": "*",
-    "@genesys-archivist/security": "*"
+    "@genesys-archivist/security": "*",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@genesys-archivist/normalization": "*",
+    "@genesys-archivist/testing": "*",
+    "fast-check": "^4.9.0"
   }
 }

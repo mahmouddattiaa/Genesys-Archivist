@@ -9,20 +9,21 @@ import { buildEvidence } from '../src/evidence.js';
 
 let parts: {
   cfg: ReturnType<typeof parseFlowConfig>;
-  nodes: ReturnType<typeof extractNodes>;
-  vars: ReturnType<typeof extractVariables>;
-  deps: ReturnType<typeof extractDependencies>;
+  nodes: ReturnType<typeof extractNodes>['nodes'];
+  vars: ReturnType<typeof extractVariables>['variables'];
+  deps: ReturnType<typeof extractDependencies>['dependencies'];
 };
 beforeAll(async () => {
   const raw: unknown = JSON.parse(
     await readFile('fixtures/flow-config/inboundcall-47-nodes.json', 'utf8'),
   );
   const cfg = parseFlowConfig(raw);
+  const { nodes } = extractNodes(cfg);
   parts = {
     cfg,
-    nodes: extractNodes(cfg),
-    vars: extractVariables(cfg),
-    deps: extractDependencies(cfg),
+    nodes,
+    vars: extractVariables(cfg).variables,
+    deps: extractDependencies(cfg, nodes).dependencies,
   };
 });
 

@@ -6,6 +6,9 @@
   "description": "The genesys-archivist MCP STDIO server. Contains no Genesys logic and no secrets.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "genesys-archivist-mcp": "./dist/bin.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -17,8 +20,10 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@genesys-archivist/domain": "*",
     "@genesys-archivist/application": "*",
-    "@genesys-archivist/composition": "*"
+    "@genesys-archivist/composition": "*",
+    "@genesys-archivist/domain": "*",
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "zod": "^4.0.0"
   }
 }

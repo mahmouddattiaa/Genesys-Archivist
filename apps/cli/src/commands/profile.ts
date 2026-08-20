@@ -440,7 +440,7 @@ export async function runProfileRemove(
   // profile that refused to delete, because nothing afterwards can find it.
   let secretRemoved: boolean;
   try {
-    secretRemoved = await deps.secretStore.remove(profileId);
+    secretRemoved = await deps.secretStore.remove(asProfileId(profileId));
   } catch (error) {
     // The message is the store's own, which is written never to contain the
     // secret. Nothing further is appended from the error object.

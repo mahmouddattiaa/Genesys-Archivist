@@ -18,7 +18,13 @@
   },
   "dependencies": {
     "@genesys-archivist/domain": "*",
+    "@genesys-archivist/genesys-platform": "*",
+    "@genesys-archivist/observability": "*",
     "@genesys-archivist/security": "*",
-    "@genesys-archivist/observability": "*"
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@genesys-archivist/testing": "*",
+    "fast-check": "^4.9.0"
   }
 }
