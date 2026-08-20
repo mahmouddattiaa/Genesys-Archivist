@@ -20,6 +20,15 @@ documentation/
 *.capture-bundle/
 spike-evidence/
 
+# Raw Architect exports. These are customer configuration: flow logic, queue
+# names, prompt text, data-action endpoints. Sanitized derivatives belong in
+# fixtures/; the raw export never gets committed.
+*.i3flow
+/*.yaml
+/*.yml
+!/.github/**/*.yml
+architect-exports/
+
 # Credentials
 .env
 .env.*
