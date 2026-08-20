@@ -137,6 +137,10 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
+      // Tests routinely hand JSON.parse output straight to a helper. The other
+      // no-unsafe-* rules were already off here; omitting this one was an
+      // oversight that forced test code to be contorted for no safety gain.
+      '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-unused-vars': [
