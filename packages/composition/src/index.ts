@@ -11,6 +11,15 @@
 export { runDocument } from './document-flow.js';
 export type { DocumentDeps, DocumentResult } from './document-flow.js';
 
+// Profile persistence and secret resolution. Surfaced here -- rather than
+// having apps/cli reach into @genesys-archivist/storage and
+// @genesys-archivist/security directly to wire this up itself -- because
+// *which* SecretStore backs a real run (OS keyring vs. the CI-only
+// env-var fallback) is exactly the kind of adapter-selection decision this
+// package exists to own in one place, per ADR-017.
+export { openProfileStore, resolveSecretStore } from './profiles.js';
+export type { OpenProfileStoreOptions, ResolveSecretStoreOptions } from './profiles.js';
+
 export { documentBundle } from './document-bundle.js';
 export type { DocumentBundleOptions, DocumentBundleResult } from './document-bundle.js';
 

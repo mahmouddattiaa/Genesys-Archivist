@@ -4,3 +4,4 @@
 export * from './atomic.js';
 export * from './lock.js';
 export * from './asset-store.js';
+export * from './profile-store.js';

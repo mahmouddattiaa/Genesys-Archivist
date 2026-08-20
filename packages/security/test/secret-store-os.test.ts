@@ -103,3 +103,57 @@ describe('OsSecretStore', () => {
     expect(seen).not.toContain('CANARY-ENUM-LEAK');
   });
 });
+
+describe('OsSecretStore.remove', () => {
+  it('deletes a stored secret and reports that one was present', async () => {
+    const keyring = fakeKeyring();
+    const store = new OsSecretStore(keyring);
+    await store.set(asProfileId('acme'), 'shhh');
+
+    expect(await store.remove(asProfileId('acme'))).toBe(true);
+    expect(await store.get(asProfileId('acme'))).toBeNull();
+    expect(keyring.store.size).toBe(0);
+  });
+
+  it('is idempotent: removing an absent secret succeeds and reports false', async () => {
+    // "Already gone" is the state the caller asked for. Throwing here would
+    // make `profile remove` fail on a profile whose secret was cleared by hand.
+    const store = new OsSecretStore(fakeKeyring());
+    expect(await store.remove(asProfileId('never-existed'))).toBe(false);
+  });
+
+  it('leaves other profiles untouched', async () => {
+    const store = new OsSecretStore(fakeKeyring());
+    await store.set(asProfileId('a'), 'secret-a');
+    await store.set(asProfileId('b'), 'secret-b');
+
+    await store.remove(asProfileId('a'));
+    expect(await store.get(asProfileId('b'))).toBe('secret-b');
+  });
+
+  it('throws rather than reporting false when the keyring fails', async () => {
+    // The dangerous failure is a delete that did not happen being reported as
+    // "nothing was there": the caller would then delete the profile metadata
+    // and leave a live credential nothing references.
+    const keyring = fakeKeyring();
+    keyring.deletePassword = () => Promise.reject(new Error('keyring is locked'));
+    await expect(new OsSecretStore(keyring).remove(asProfileId('acme'))).rejects.toThrow(
+      /credential store failed during delete/i,
+    );
+  });
+
+  it('never echoes the secret or the underlying error when a delete fails', async () => {
+    const keyring = fakeKeyring();
+    await new OsSecretStore(keyring).set(asProfileId('acme'), 'CANARY-SECRET-9f24bd');
+    keyring.deletePassword = () =>
+      Promise.reject(new Error('failed to delete entry holding CANARY-SECRET-9f24bd'));
+
+    const error = await new OsSecretStore(keyring)
+      .remove(asProfileId('acme'))
+      .then(() => null)
+      .catch((e: unknown) => e);
+
+    const serialized = `${String((error as Error).message)}${String((error as Error).stack)}`;
+    expect(serialized).not.toContain('CANARY-SECRET-9f24bd');
+  });
+});

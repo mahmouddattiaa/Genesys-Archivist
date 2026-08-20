@@ -10,13 +10,27 @@
 // importing this module (as the tests do, for `buildProgram`) never
 // triggers it.
 import { createRequire } from 'node:module';
+import { access, constants as fsConstants, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import commanderPkg from 'commander';
 import { createOsSecretStore, type SecretStore } from '@genesys-archivist/security';
 import { asProfileId } from '@genesys-archivist/domain';
+import { openProfileStore, resolveSecretStore } from '@genesys-archivist/composition';
 import { parseCaptureArgs, type CaptureCommand, type CaptureOutcome } from './commands/capture.js';
 import { runDoctor, type DoctorReport } from './commands/doctor.js';
+import {
+  confirmFromStdin,
+  parseProfileArgs,
+  readSecretFromStdin,
+  runProfileAdd,
+  runProfileList,
+  runProfileRemove,
+  runProfileSetSecret,
+  runProfileShow,
+  runProfileValidate,
+  type ProfileCommandDeps,
+} from './commands/profile.js';
 
 // commander v7's typings model a CJS `export = commander` namespace rather
 // than true ESM named exports (see node_modules/commander/typings/index.d.ts).
@@ -53,6 +67,15 @@ export interface CliDeps {
   readonly capture: (command: CaptureCommand) => Promise<CaptureOutcome>;
   readonly verifyBundle: (bundleDir: string) => Promise<VerificationOutcome>;
   readonly documentBundle: (bundleDir: string) => Promise<DocumentBundleOutcome>;
+  /**
+   * Optional so every existing `CliDeps` fake in this codebase's own test
+   * suite -- none of which exercise `profile` -- keeps type-checking
+   * unchanged. `buildRealDeps` always supplies it; `profile`'s own action
+   * handler below fails loudly, not silently, on the one path where it could
+   * ever be missing (a fake in a future test that adds a `profile` case
+   * without wiring this field).
+   */
+  readonly profile?: ProfileCommandDeps;
 }
 
 export type { CaptureCommand, CaptureOutcome } from './commands/capture.js';
@@ -110,6 +133,34 @@ const CAPTURE_HELP_DETAIL = [
   'Omit --flow to capture every flow in the organization (optionally narrowed',
   'by --flow-type). Give one or more --flow to capture only those flows —',
   '--flow and --flow-type cannot be combined.',
+].join('\n');
+
+// ---------------------------------------------------------------------------
+// profile --help text
+// ---------------------------------------------------------------------------
+
+const PROFILE_HELP_DETAIL = [
+  '',
+  'Subcommands:',
+  '',
+  '  add --id <id> --display-name <name> --region <region> --org <organizationId>',
+  '      --client-id <clientId> --output-root <path>',
+  '                            Register a new profile. The client secret is read',
+  '                            from stdin (a single line) or, on a TTY, an',
+  '                            interactive prompt with the input hidden — never a',
+  '                            flag, never an environment variable read here.',
+  '  list                      List stored profiles: safe fields only.',
+  '  show <id>                 Show one profile: safe fields only.',
+  '  remove <id> [--yes]       Remove a profile. Confirms unless --yes is given.',
+  '  set-secret <id>           Rotate the stored secret for a profile. Same',
+  '                            stdin rule as add.',
+  '  validate <id>             Check the profile parses, a secret is stored, and',
+  '                            the output root is writable. Never contacts',
+  '                            Genesys — use `archivist doctor` for that.',
+  '',
+  'The client secret is never accepted as a flag: --client-secret (or anything',
+  'matching --secret/--password/--token/--credential) is refused with an',
+  'explanation, on every subcommand.',
 ].join('\n');
 
 function toCaptureArgv(opts: {
@@ -276,7 +327,58 @@ export function buildProgram(deps: CliDeps): Command {
       deps.exit(result.ok ? EXIT_OK : EXIT_FAILURE);
     });
 
+  program
+    .command('profile')
+    .description(
+      'Manage stored Genesys profiles: metadata (archivist profile add/list/show/remove) ' +
+        'and credential-store secrets (archivist profile add/set-secret).',
+    )
+    .addHelpText('after', PROFILE_HELP_DETAIL)
+    // Not further declared options: `profile`'s own subcommand and flags are
+    // parsed by hand in parseProfileArgs -- see commands/profile.ts's file
+    // header for why. allowUnknownOption keeps commander from rejecting (or
+    // trying to interpret) anything past `profile` itself, including
+    // `--client-secret`, which parseProfileArgs is what actually refuses.
+    .allowUnknownOption(true)
+    .action(async (_opts: unknown, command: Command) => {
+      const parsed = parseProfileArgs(command.args);
+      if (parsed.kind === 'error') {
+        deps.write(`error: ${parsed.message}`);
+        deps.exit(EXIT_FAILURE);
+        return;
+      }
+      if (deps.profile === undefined) {
+        deps.write('error: archivist profile is not configured for this invocation.');
+        deps.exit(EXIT_FAILURE);
+        return;
+      }
+      deps.exit(await runProfileCommand(deps.profile, parsed));
+    });
+
   return program;
+}
+
+// A ParsedProfileCommand's non-error variants only -- narrowed inline below
+// rather than re-exported, since bin.ts is the only caller that needs to
+// dispatch on it.
+async function runProfileCommand(
+  profileDeps: ProfileCommandDeps,
+  parsed: Exclude<ReturnType<typeof parseProfileArgs>, { readonly kind: 'error' }>,
+): Promise<number> {
+  switch (parsed.kind) {
+    case 'add':
+      return runProfileAdd(profileDeps, parsed.args);
+    case 'list':
+      return runProfileList(profileDeps);
+    case 'show':
+      return runProfileShow(profileDeps, parsed.profileId);
+    case 'remove':
+      return runProfileRemove(profileDeps, parsed.profileId, { yes: parsed.yes });
+    case 'set-secret':
+      return runProfileSetSecret(profileDeps, parsed.profileId);
+    case 'validate':
+      return runProfileValidate(profileDeps, parsed.profileId);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -326,6 +428,12 @@ async function probeSecretStore(store: SecretStore): Promise<boolean> {
 
 async function realDoctorReport(): Promise<DoctorReport> {
   const secretStoreAvailable = await probeSecretStore(createOsSecretStore());
+  // Profiles are real now (this task): report what is actually configured,
+  // rather than the permanent-looking `[]` this returned before profile
+  // persistence existed. `list()`'s unreadable entries are deliberately not
+  // surfaced here -- doctor reports counts and health, not per-file parse
+  // errors; `archivist profile list` is where those are visible.
+  const { profiles } = await openProfileStore().list();
   return runDoctor({
     nodeVersion: process.version,
     outputRoot: process.cwd(),
@@ -334,16 +442,30 @@ async function realDoctorReport(): Promise<DoctorReport> {
     // be a fabricated pass; this is deliberately conservative until a real
     // configured output root exists to check.
     outputRootWritable: false,
-    profiles: [],
+    profiles,
     secretStoreAvailable,
   });
 }
 
-function buildRealDeps(): CliDeps {
+async function checkOutputRootWritable(root: string): Promise<boolean> {
+  try {
+    await mkdir(root, { recursive: true });
+    await access(root, fsConstants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function buildRealDeps(): Promise<CliDeps> {
+  const write = (line: string): void => {
+    process.stdout.write(`${line}\n`);
+  };
+  const profileStore = openProfileStore();
+  const secretStore = await resolveSecretStore();
+
   return {
-    write: (line) => {
-      process.stdout.write(`${line}\n`);
-    },
+    write,
     exit: (code) => {
       process.exitCode = code;
     },
@@ -373,6 +495,14 @@ function buildRealDeps(): CliDeps {
             '(composition) once per flow.',
         ),
       ),
+    profile: {
+      write,
+      profileStore,
+      secretStore,
+      readSecret: () => readSecretFromStdin(process.stdin, process.stdout, process.stdin.isTTY),
+      confirm: (message) => confirmFromStdin(process.stdin, process.stdout, message),
+      checkOutputRootWritable,
+    },
   };
 }
 
@@ -392,7 +522,7 @@ function isMainModule(): boolean {
 }
 
 async function main(): Promise<void> {
-  const deps = buildRealDeps();
+  const deps = await buildRealDeps();
   const program = buildProgram(deps);
   try {
     await program.parseAsync(process.argv);

@@ -44,6 +44,20 @@ export class EnvSecretStore implements SecretStore {
     return (await this.get(profileId)) !== null;
   }
 
+  /**
+   * Rejects, like `set`. This store reads a CI-provisioned environment and
+   * cannot unset it.
+   *
+   * Returning `false` would be worse than failing: the caller would be told no
+   * secret was present when in fact one is still there, and would go on to
+   * delete the profile metadata that pointed at it.
+   */
+  remove(): Promise<boolean> {
+    return Promise.reject(
+      new Error('EnvSecretStore is read-only. Remove the secret through CI, not here.'),
+    );
+  }
+
   // Guarantees no secret escapes through an accidental log of the store itself.
   toJSON(): Record<string, string> {
     return { type: 'EnvSecretStore' };

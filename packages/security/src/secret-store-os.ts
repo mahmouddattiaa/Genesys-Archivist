@@ -46,6 +46,17 @@ export class OsSecretStore implements SecretStore {
     return (await this.get(profileId)) !== null;
   }
 
+  async remove(profileId: ProfileId): Promise<boolean> {
+    try {
+      return await this.#backend.deletePassword(this.#service, profileId);
+    } catch {
+      // Deliberately not swallowed into `false`. A failed delete leaves a live
+      // credential behind, and reporting that as "nothing was there" would be
+      // the one lie that matters here.
+      throw new CredentialStoreError('delete');
+    }
+  }
+
   // Guarantees no secret escapes through an accidental log or console.log of
   // the store itself. Non-enumerable would be redundant here: the backend
   // and service name are the only fields, and neither ever holds a secret,
