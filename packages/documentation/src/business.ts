@@ -18,6 +18,11 @@
 
 import { escapeMarkdown, escapeTableCell } from './escape.js';
 import { EvidenceRegistry } from './evidence-marks.js';
+import {
+  findInlineAudioContent,
+  resolvePromptReferences,
+  type PromptLibraryDependency,
+} from './caller-content.js';
 import type { RenderContext } from './render-context.js';
 
 /** Structural minimum this module needs from a graph node. */
@@ -26,6 +31,14 @@ export interface BusinessGraphNode {
   readonly sourceType: string;
   readonly name: string;
   readonly evidenceIds: readonly string[];
+  /** The prompt-library resources this node references (normalize.ts). Used
+   * only to answer "what does the caller hear at this step" (§4) -- see
+   * `renderCallerAudioSubsection`. */
+  readonly promptRefs: readonly string[];
+  /** This node's own bounded configuration (extract-settings.ts). Read only
+   * for its inline playable content -- see `caller-content.ts` -- never
+   * dumped wholesale into a business-facing document. */
+  readonly settings: Readonly<Record<string, unknown>>;
 }
 
 /** Structural minimum this module needs from a graph edge. */
@@ -455,6 +468,96 @@ function renderJourneysSection(
     }
   }
 
+  lines.push('');
+  lines.push(...renderCallerAudioSubsection(snapshot, evidence));
+
+  return lines;
+}
+
+/**
+ * "What does the caller hear at this step" -- the first question a business
+ * reader asks of an IVR, and (per the task that added this subsection) one
+ * the deterministic layer could not previously answer even though the
+ * snapshot has always been able to prove it structurally. Two facts, kept
+ * visibly distinct because they are different claims about the
+ * configuration:
+ *
+ *  - A node that references a prompt-library asset (`promptRefs`) plays
+ *    that asset -- named here by its dependency's own display name, never
+ *    its id (a business reader does not want a GUID).
+ *  - A node with no prompt-library reference but inline TTS/communication
+ *    content in `settings` plays that inline text instead -- labelled as
+ *    such so it is never mistaken for a managed prompt asset.
+ *
+ * Per AGENTS.md, neither fact is guessed at: an unresolvable `promptRefs`
+ * entry is reported as unresolved (see `caller-content.ts`), and inline
+ * content this module cannot fully recover as literal text says so rather
+ * than presenting a partial fragment as the complete spoken content.
+ */
+function renderCallerAudioSubsection(
+  snapshot: BusinessSnapshot,
+  evidence: EvidenceRegistry,
+): string[] {
+  const lines: string[] = ['### What callers hear, step by step', ''];
+  const dependenciesById = new Map<string, PromptLibraryDependency>(
+    snapshot.dependencies.map((d) => [d.dependencyId, d] as const),
+  );
+
+  const rows: { readonly name: string; readonly text: string; readonly evidenceIds: string[] }[] =
+    [];
+
+  for (const node of snapshot.graph.nodes) {
+    if (node.promptRefs.length > 0) {
+      const evidenceIds = [...node.evidenceIds];
+      const references = resolvePromptReferences(node.promptRefs, dependenciesById);
+      const parts = references.map((reference) => {
+        if (!reference.resolved) {
+          return 'a prompt-library reference recorded on this step that does not resolve to any known prompt in this capture';
+        }
+        evidenceIds.push(...reference.evidenceIds);
+        return reference.displayName !== null
+          ? `the "${escapeMarkdown(reference.displayName)}" prompt`
+          : 'a prompt-library entry with no recorded display name';
+      });
+      rows.push({ name: node.name, text: parts.join(', then '), evidenceIds });
+      continue;
+    }
+
+    const inline = findInlineAudioContent(node.settings);
+    if (inline === null) continue;
+
+    if (inline.fragments.length > 0) {
+      const joined = inline.fragments.map((fragment) => `"${escapeMarkdown(fragment)}"`).join(' ');
+      const suffix = inline.partial
+        ? ' (part of what plays here is filled in from a variable at runtime and is not shown)'
+        : '';
+      rows.push({
+        name: node.name,
+        text: `${joined}${suffix} -- recorded inline in this step's own configuration, not a prompt-library asset`,
+        evidenceIds: [...node.evidenceIds],
+      });
+    } else {
+      rows.push({
+        name: node.name,
+        text: 'plays content determined entirely at runtime by a variable or an unrecognised construct; the exact wording is not recorded in this capture',
+        evidenceIds: [...node.evidenceIds],
+      });
+    }
+  }
+
+  if (rows.length === 0) {
+    lines.push(
+      'No step in this flow was found to reference a prompt-library asset or carry recorded inline spoken text.',
+    );
+    return lines;
+  }
+
+  const sorted = [...rows].sort((a, b) => compareStrings(a.name, b.name));
+  for (const row of sorted) {
+    lines.push(
+      `- "${escapeMarkdown(row.name)}" plays ${row.text}${evidence.cite(row.evidenceIds)}.`,
+    );
+  }
   return lines;
 }
 

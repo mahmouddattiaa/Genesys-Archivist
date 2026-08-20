@@ -1,115 +1,116 @@
 // apps/mcp-server/src/wire.ts
 //
-// Shows how a real `ArchivistPort` would be constructed from
-// `@genesys-archivist/composition` -- and documents exactly why it cannot be
-// built for real yet. `packages/composition/src/index.ts` is owned by
-// another agent this wave and currently re-exports only the Stage 2
-// document pipeline (`runDocument`, `documentBundle`) and Stage 1 capture
-// (`runCapture`, `resumeCapture`, `verifyBundle`). None of that is an
-// `ArchivistPort`: there is no profile store, no connection check, no flow
-// discovery/inspection, no plan/run state machine, and no resource reader
-// behind a Genesys-facing adapter anywhere in this repository yet (see
-// CLAUDE.md's Status section -- `packages/genesys-source` and
-// `packages/genesys-platform` are still empty).
+// Builds the real `ArchivistPort` from `@genesys-archivist/composition` --
+// the composition root apps/mcp-server may depend on (apps import
+// `application` and `composition` only; see eslint.config.mjs's `apps/**`
+// rule). Every concrete adapter below is composition's own: a file-backed
+// profile store, the OS/env secret store, the Platform API source-provider
+// factory, and durable run persistence -- this file's only job is wiring
+// them together and supplying the two things that genuinely have nowhere
+// else to come from in this process (a config root, and process-wide
+// defaults for the clock/id generator `createArchivistPort` otherwise
+// defaults itself).
 //
-// TODO(wave-2): once `packages/application` grows the use cases this port
-// needs (list profiles, check a connection, list/inspect flows, plan/start/
-// get/cancel a run, diff two versions, read a resource) and composition
-// re-exports them, replace every method body below with a real call through
-// those exports. Nothing in `server.ts`, any `tools/*.ts` file, or any test
-// should need to change -- they depend on `ArchivistPort` (port.ts), not on
-// this file.
-import type { FlowId, ProfileId } from '@genesys-archivist/domain';
-import type {
-  ArchivistPort,
-  ConnectionCheckResult,
-  FlowInspection,
-  FlowListPage,
-  FlowListQuery,
-  FlowDiff,
-  PlanInput,
-  PlanResult,
-  ProfileSummary,
-  ResourceDocument,
-  ResourceLocator,
-  RunStatus,
-} from './port.js';
+// `genesys_flow_diff` remains an explicit, named injection point rather
+// than a real implementation: `packages/analysis/src/diff.ts` now exports
+// `diffSnapshots`, but wiring it into `ArchivistPort.diffFlow` means
+// resolving both requested flow versions through a provider, normalizing
+// each into a `FlowSnapshot`, and mapping `diffSnapshots`'s result into the
+// `FlowDiff` DTO -- real, undone work, not a missing dependency. Faking a
+// working diff here would violate the same rule this whole codebase is
+// built around (never claim an operation completed when it did not); the
+// fixed, content-free rejection below matches the house style
+// `apps/cli/src/bin.ts`'s `notYetAvailable` already established for exactly
+// this situation.
+import { join } from 'node:path';
+import type { ProfileId } from '@genesys-archivist/domain';
+import {
+  createArchivistPort,
+  createGenesysProvider,
+  createRunStore,
+  defaultConfigRoot,
+  openProfileStore,
+  resolveSecretStore,
+  type ArchivistPortDeps,
+} from '@genesys-archivist/composition';
+import type { ArchivistPort } from './port.js';
 
-/** A fixed, content-free message: matches the house style in
- * apps/cli/src/bin.ts's `notYetAvailable`, which exists for the identical
- * reason -- faking a successful result here would violate the same rule
- * this whole codebase is built around (never claim an operation completed
- * when it did not). */
-function notWiredYet(operation: string): Error {
-  return new Error(
-    `genesys-archivist-mcp's ${operation} is not wired to a real implementation yet: ` +
-      'packages/application does not yet expose the use case this operation needs, and ' +
-      'packages/composition does not yet re-export it. See wire.ts TODO(wave-2).',
-  );
-}
-
-// Every parameter below is required by `ArchivistPort`'s shape but genuinely
-// unused: each method only rejects. Keeping the full, correctly-typed
-// parameter list (rather than `(...args: unknown[])`) is deliberate --
-// wave-2 fills in one real implementation at a time, and a parameter that is
-// already named and typed is one fewer thing to get right under a
-// signature that TypeScript would otherwise let drift.
-/* eslint-disable @typescript-eslint/no-unused-vars */
-class UnwiredArchivistPort implements ArchivistPort {
-  listProfiles(): Promise<readonly ProfileSummary[]> {
-    return Promise.reject(notWiredYet('genesys_profiles_list'));
-  }
-
-  checkConnection(_profileId: ProfileId): Promise<ConnectionCheckResult> {
-    return Promise.reject(notWiredYet('genesys_connection_check'));
-  }
-
-  listFlows(_profileId: ProfileId, _query: FlowListQuery): Promise<FlowListPage> {
-    return Promise.reject(notWiredYet('genesys_flows_list'));
-  }
-
-  inspectFlow(_profileId: ProfileId, _flowId: FlowId, _version?: string): Promise<FlowInspection> {
-    return Promise.reject(notWiredYet('genesys_flow_inspect'));
-  }
-
-  createPlan(_input: PlanInput): Promise<PlanResult> {
-    return Promise.reject(notWiredYet('genesys_docs_plan'));
-  }
-
-  startRun(_planId: string, _planHash: string): Promise<RunStatus> {
-    return Promise.reject(notWiredYet('genesys_docs_run_start'));
-  }
-
-  getRun(_runId: string): Promise<RunStatus> {
-    return Promise.reject(notWiredYet('genesys_docs_run_get'));
-  }
-
-  cancelRun(_runId: string): Promise<RunStatus> {
-    return Promise.reject(notWiredYet('genesys_docs_run_cancel'));
-  }
-
-  diffFlow(
-    _profileId: ProfileId,
-    _flowId: FlowId,
-    _fromVersion: string,
-    _toVersion: string,
-  ): Promise<FlowDiff> {
-    return Promise.reject(notWiredYet('genesys_flow_diff'));
-  }
-
-  readResource(_locator: ResourceLocator): Promise<ResourceDocument | null> {
-    return Promise.reject(notWiredYet('a genesys-docs:// resource read'));
-  }
-}
+/** The exact shape `ArchivistPortDeps.secretStore` requires, recovered by
+ * indexed access rather than importing `SecretStore` from
+ * `@genesys-archivist/security` directly -- apps/* may not depend on
+ * security (only application and composition), and this is the one place
+ * that boundary would otherwise be tempting to cross. */
+type SecretStoreShape = ArchivistPortDeps['secretStore'];
 
 /**
- * Builds the port `bin.ts` wires into the real server. Every method rejects
- * with a specific, actionable error today; the server still starts and
- * completes MCP initialization, because nothing about the `initialize`
- * handshake calls into the port -- only an actual tool call reaches
- * `UnwiredArchivistPort`, the same "safe to start, honest on first real use"
- * shape `archivist doctor` uses in apps/cli.
+ * Defers the real secret-store resolution (`resolveSecretStore`, which
+ * probes the OS keyring) until the first secret operation actually runs,
+ * memoizing the result -- so `buildRealPort` itself can stay synchronous,
+ * matching `bin.ts`'s existing `const port = buildRealPort();` call site,
+ * without ever needing to touch the keyring before a tool call that
+ * actually requires it does.
+ */
+function createLazySecretStore(): SecretStoreShape {
+  let resolved: Promise<SecretStoreShape> | undefined;
+  const resolve = (): Promise<SecretStoreShape> => {
+    resolved ??= resolveSecretStore();
+    return resolved;
+  };
+  return {
+    async get(profileId) {
+      return (await resolve()).get(profileId);
+    },
+    async set(profileId, secret) {
+      return (await resolve()).set(profileId, secret);
+    },
+    async has(profileId) {
+      return (await resolve()).has(profileId);
+    },
+    async remove(profileId) {
+      return (await resolve()).remove(profileId);
+    },
+  };
+}
+
+/** A fixed, content-free message: matches the house style in
+ * apps/cli/src/bin.ts's `notYetAvailable`. Faking a successful diff here
+ * would violate the same rule this whole codebase is built around -- never
+ * claim an operation completed when it did not. */
+const diffFlow: ArchivistPort['diffFlow'] = () =>
+  Promise.reject(
+    new Error(
+      'genesys_flow_diff is not wired to a real implementation yet: packages/analysis/src/diff.ts ' +
+        'exports diffSnapshots, but nothing yet loads both requested flow versions, normalizes ' +
+        'them, and maps the result into the FlowDiff DTO. See wire.ts.',
+    ),
+  );
+
+/**
+ * Builds the port `bin.ts` wires into the real server.
+ *
+ * Every profile-scoped output (capture bundles, promoted documents) lands
+ * under that profile's own `outputRoot`, per `createArchivistPort`'s
+ * `executeRun`. Run *tracking* is deliberately rooted somewhere
+ * profile-independent instead (`<configRoot>/runs`, alongside
+ * `<configRoot>/profiles`): `genesys_docs_run_get`/`genesys_docs_run_cancel`
+ * take a bare `runId` with no `profileId`, so this process needs exactly
+ * one place to find any run's manifest regardless of which profile started
+ * it -- see `ArchivistPortDeps.outputRoot`'s own doc comment in
+ * archivist-port.ts for the longer version of why a profile's own
+ * `outputRoot` would be the wrong root to use here.
  */
 export function buildRealPort(): ArchivistPort {
-  return new UnwiredArchivistPort();
+  const configRoot = defaultConfigRoot();
+  const profileStore = openProfileStore({ configRoot });
+  const secretStore = createLazySecretStore();
+  const runStore = createRunStore({ root: join(configRoot, 'runs') });
+
+  return createArchivistPort({
+    profileStore,
+    secretStore,
+    runStore,
+    providerFor: (profileId: ProfileId) =>
+      createGenesysProvider({ profileId, configRoot, secretStore }),
+    diffFlow,
+  });
 }

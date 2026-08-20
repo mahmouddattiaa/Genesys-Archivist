@@ -48,3 +48,40 @@ describe('escapeMermaidLabel', () => {
     expect(escapeMermaidLabel('x'.repeat(500)).length).toBeLessThanOrEqual(80);
   });
 });
+
+describe('escapeTableCell: raw HTML', () => {
+  // Table cells carry the majority of tenant text in these documents -- every
+  // dependency display name, queue name and prompt name -- and the documents
+  // are rendered to PDF through headless Chromium. Raw markup in a cell
+  // therefore reaches a real browser.
+  it('neutralises a script tag in a display name', () => {
+    const cell = escapeTableCell('<script>alert(1)</script>');
+    expect(cell).not.toContain('<script>');
+    expect(cell).not.toContain('</script>');
+    expect(cell).toContain('&lt;script&gt;');
+  });
+
+  it('neutralises an img onerror payload', () => {
+    expect(escapeTableCell('<img src=x onerror=alert(1)>')).not.toMatch(/<img/i);
+  });
+
+  it('neutralises an HTML comment, which could swallow the rest of the table', () => {
+    const cell = escapeTableCell('<!-- everything after this vanishes');
+    expect(cell).not.toContain('<!--');
+  });
+
+  it('encodes ampersands first so a literal entity cannot round-trip into a tag', () => {
+    // Without encoding `&` first, a tenant writing `&lt;script&gt;` would be
+    // rendered by the browser as a real `<script>` tag.
+    expect(escapeTableCell('&lt;script&gt;')).toBe('&amp;lt;script&amp;gt;');
+  });
+
+  it('still prevents column injection and row termination', () => {
+    expect(escapeTableCell('a|b')).toBe(String.raw`a\|b`);
+    expect(escapeTableCell('a\nb')).toBe('a b');
+  });
+
+  it('leaves ordinary text alone', () => {
+    expect(escapeTableCell('Main Menu (English)')).toBe('Main Menu (English)');
+  });
+});

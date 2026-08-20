@@ -50,6 +50,22 @@ The menu choices available to a caller, by menu, are:
 - "Lima oscar": 1: Alpha alpha bravo bravo, 2: Delta india juliet
 - "November papa papa": 1: Delta juliet, 2: Alpha foxtrot, 3: Lima, 4: Delta alpha, 5: Lima hotel hotel golf, 6: Kilo india kilo
 
+### What callers hear, step by step
+
+- "Alpha india lima" plays "Alpha mike lima juliet november lima" -- recorded inline in this step's own configuration, not a prompt-library asset[e5][e6].
+- "Bravo delta" plays "Bravo mike foxtrot mike bravo golf" -- recorded inline in this step's own configuration, not a prompt-library asset[e7][e8].
+- "Foxtrot golf" plays "Echo echo lima juliet november hotel" -- recorded inline in this step's own configuration, not a prompt-library asset[e9][e10].
+- "Golf golf lima" plays "Lima oscar foxtrot india mike papa" -- recorded inline in this step's own configuration, not a prompt-library asset[e11][e12].
+- "Hotel foxtrot papa" plays "Papa alpha golf kilo india india" -- recorded inline in this step's own configuration, not a prompt-library asset[e13][e14].
+- "India echo" plays "Lima india oscar india hotel kilo" -- recorded inline in this step's own configuration, not a prompt-library asset[e15][e16].
+- "Juliet kilo alpha" plays "Hotel kilo lima juliet foxtrot golf" -- recorded inline in this step's own configuration, not a prompt-library asset[e17][e18].
+- "Juliet kilo echo" plays "Alpha oscar india alpha golf oscar" "India lima india papa mike charlie" (part of what plays here is filled in from a variable at runtime and is not shown) -- recorded inline in this step's own configuration, not a prompt-library asset[e19][e20].
+- "Juliet mike papa" plays "Bravo alpha alpha kilo juliet mike" -- recorded inline in this step's own configuration, not a prompt-library asset[e21][e22].
+- "Lima golf juliet" plays "Golf juliet kilo hotel bravo alpha" -- recorded inline in this step's own configuration, not a prompt-library asset[e23][e24].
+- "Lima oscar" plays "Oscar kilo delta kilo echo echo" -- recorded inline in this step's own configuration, not a prompt-library asset[e25][e26].
+- "Mike foxtrot" plays "India delta delta delta echo charlie" -- recorded inline in this step's own configuration, not a prompt-library asset[e27][e28].
+- "November papa papa" plays "Juliet juliet bravo bravo mike mike" -- recorded inline in this step's own configuration, not a prompt-library asset[e29][e30].
+
 ## 5. Business rules
 
 This flow contains 3 decision points that branch the caller down different paths, and 14 of the caller journeys extracted above return to an earlier menu rather than proceeding — the structural shape of a retry or "let me try again" pattern. Architect captures that these branches and returns exist; it does not capture the business criteria (eligibility rules, VIP handling, promotional offers) that a decision is meant to enforce, and this document does not guess at them.
@@ -62,12 +78,12 @@ This flow relies on the following external services and shared resources. Only t
 
 | Type         | Name                                   | Status   | Evidence |
 | ------------ | -------------------------------------- | -------- | -------- |
-| dataAction   | Bravo golf delta lima november charlie | resolved | [e5]     |
+| dataAction   | Bravo golf delta lima november charlie | resolved | [e31]    |
 | language     | en-US                                  | resolved | [e1]     |
 | queue        | Delta                                  | resolved | [e4]     |
-| systemPrompt | Hotel                                  | resolved | [e6]     |
-| ttsEngine    | Bravo alpha                            | resolved | [e7]     |
-| ttsVoice     | Echo                                   | resolved | [e8]     |
+| systemPrompt | Hotel                                  | resolved | [e32]    |
+| ttsEngine    | Bravo alpha                            | resolved | [e33]    |
+| ttsVoice     | Echo                                   | resolved | [e34]    |
 
 ## 7. Failure and customer-experience behaviour
 
@@ -98,15 +114,41 @@ No previous documented version of this flow was supplied for comparison. This is
 
 This capture recorded 109 evidence records in total. Every factual claim above that cites a mark below resolves to one of them; the full snapshot carries the rest, including facts this document did not need to state.
 
-| Mark | Evidence ID                                                             |
-| ---- | ----------------------------------------------------------------------- |
-| [e1] | sha256:1a103e54a89c3ea552cfe6e07c8807fb85675219dff1b66c5c490752d8d03a8f |
-| [e2] | sha256:c66688380fbbfbdc94d97fc1618568f286a4fed2816f298ad8f1b67ff4b7280d |
-| [e3] | sha256:f79426995a93a623914ee950995570b04325f402c68148a01e462528c0e9a1f1 |
-| [e4] | sha256:28baef4f9419dd816d451303568a353b0d3b06ef0db7a48e19c91c624849a9ff |
-| [e5] | sha256:04fab4a6f9019e08988a62b8647de81d2953da6b95c5092ee16a54bf5109ecd2 |
-| [e6] | sha256:301106b9a9978dcd05df0a3584be3ce128dc4a6fc0d3d0ac3b9a53aa1a9c7bed |
-| [e7] | sha256:90940efb1f638080bb22fb20435fcabdac057cccc762a2c9655533ad030ded29 |
-| [e8] | sha256:846f034f1ad96f267558c5015d30cdd1fd3751d86ff9913be4fcf7ac1de23d48 |
+| Mark  | Evidence ID                                                             |
+| ----- | ----------------------------------------------------------------------- |
+| [e1]  | sha256:1a103e54a89c3ea552cfe6e07c8807fb85675219dff1b66c5c490752d8d03a8f |
+| [e2]  | sha256:c66688380fbbfbdc94d97fc1618568f286a4fed2816f298ad8f1b67ff4b7280d |
+| [e3]  | sha256:f79426995a93a623914ee950995570b04325f402c68148a01e462528c0e9a1f1 |
+| [e4]  | sha256:28baef4f9419dd816d451303568a353b0d3b06ef0db7a48e19c91c624849a9ff |
+| [e5]  | sha256:91e422bbca93d4f9fc310285e1bbb732021fb4f248afd5813baf5ddeeff5837a |
+| [e6]  | sha256:b9fee45d0e4601926fa817b8fd400bb7ffbcfa48bf0bbcac17d8b3b6b80398a7 |
+| [e7]  | sha256:325f5f47720e89e9928071456b755f75e0fb88118c4af9124d80ee495b324df3 |
+| [e8]  | sha256:da7e4ff65f3b6097c550fba1774924ccae519f942093c40768e47a54e704bbff |
+| [e9]  | sha256:0eea8f3cad9c68938ebcaead329e09f5407b1feaa10352f1423352bbc22bd608 |
+| [e10] | sha256:4289235a2892110d3a2e7d3beb8ca71ffc00d27f144237dd774634711fe15ba7 |
+| [e11] | sha256:9740d1b19116a45c951e2d2482e76f63d77208e19d495909d3f4473430aa60d2 |
+| [e12] | sha256:a81c38a5bd3b3fbd5fc57cfc9ac72b06d424e32640a7cbecd2d2b0cd10dda3c9 |
+| [e13] | sha256:d0e8e1b2707c1c80682f2c917c20dbffc94a41b7fcea6c07e0faf585f53b6f08 |
+| [e14] | sha256:ed0681ec32adc292db3c042b50a30948899ea5def1967ababb385211cb03d620 |
+| [e15] | sha256:05f2b15975a3637a1102013d160bee9dd7ce57b5b59f322e6b4b5c708845aba4 |
+| [e16] | sha256:a6dd3804190760e642f1f346e42a0b8fc795989a6fcfb2bd6008371e2a32bd1a |
+| [e17] | sha256:69d358fbe7c0f705a359705d962ea338a193c760b13c8eb30d8c1f16d30a69a1 |
+| [e18] | sha256:d6e526e8764924c78cb3fa2dfd4ba56e7b0cbf810ecb76dcd3119d0f4393c48a |
+| [e19] | sha256:d1192351b33181e854ee64feade14cc8b83dfd9dea871aa5d0750944bd968f84 |
+| [e20] | sha256:e0f97013302d2206e6f1fb5f81e8dc27977c7fbc32b2c567aaa9bbd2d5f6eed3 |
+| [e21] | sha256:8d748819cc72e945a78822d6cbe75b06632efdac3bc30aac7152e1dbdfdfb033 |
+| [e22] | sha256:c626e65ff801dcd0a78806c5fc187dff9bfdc5dc5658f042165468b364d8074b |
+| [e23] | sha256:237cce33e5b6f038dc61883fe911b71d12a21c8bcad9f6faec80f7cbb1d02824 |
+| [e24] | sha256:2fd6ba0a2c2fd46e8734624779a04ee59f8a9376f5200a9f90f166b361ac4995 |
+| [e25] | sha256:554afd76c79065415ce3a8da4d563418f9a33afe1a3861efb51f96a23b1f7b95 |
+| [e26] | sha256:60130b77f0193db153cbe4469c0f6a943e314610ea0ea67a6f5bcb03018bb212 |
+| [e27] | sha256:8a4fc10c0b309722c90324f839b055afc3570bf8a359808da780a6303e5001fc |
+| [e28] | sha256:f7eb248cffae59cdee45fa1a331ea5196bbff344fa54f1e6a46490b837c5640f |
+| [e29] | sha256:512dc2ec0f1cc3ec86d8274d316501033ff8cc3997da7ac1798009878428794e |
+| [e30] | sha256:c45171af68f815ce1995bdf8e6220b6d03b3c56929e30e5800b18bc3c751378c |
+| [e31] | sha256:04fab4a6f9019e08988a62b8647de81d2953da6b95c5092ee16a54bf5109ecd2 |
+| [e32] | sha256:301106b9a9978dcd05df0a3584be3ce128dc4a6fc0d3d0ac3b9a53aa1a9c7bed |
+| [e33] | sha256:90940efb1f638080bb22fb20435fcabdac057cccc762a2c9655533ad030ded29 |
+| [e34] | sha256:846f034f1ad96f267558c5015d30cdd1fd3751d86ff9913be4fcf7ac1de23d48 |
 
 This document has not yet been reviewed by a human. Review status: `generated`.

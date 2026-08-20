@@ -9,14 +9,23 @@
 // dependencies and calls `program.parseAsync(process.argv)`, guarded so that
 // importing this module (as the tests do, for `buildProgram`) never
 // triggers it.
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { access, constants as fsConstants, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import commanderPkg from 'commander';
 import { createOsSecretStore, type SecretStore } from '@genesys-archivist/security';
-import { asProfileId } from '@genesys-archivist/domain';
-import { openProfileStore, resolveSecretStore } from '@genesys-archivist/composition';
+import { asFlowId, asOrganizationId, asProfileId } from '@genesys-archivist/domain';
+import {
+  createGenesysProvider,
+  documentBundleToDisk,
+  openProfileStore,
+  resolveSecretStore,
+  runCapture,
+  verifyBundle,
+  type CaptureRunOptions,
+} from '@genesys-archivist/composition';
 import { parseCaptureArgs, type CaptureCommand, type CaptureOutcome } from './commands/capture.js';
 import { runDoctor, type DoctorReport } from './commands/doctor.js';
 import {
@@ -384,30 +393,35 @@ async function runProfileCommand(
 // ---------------------------------------------------------------------------
 // Real dependency wiring.
 //
-// Only what is genuinely available today is wired for real:
+// Every command is now wired to a real implementation. `capture`, `verify`
+// and `document` used to reject with a "not wired yet" message naming what
+// was missing; each of those things now exists, and the messages had gone
+// stale enough to be misleading — they claimed composition did not re-export
+// `runCapture`/`verifyBundle` when it already did, and that no production
+// provider existed when one does.
 //
-//   - doctor is fully real: Node version, output root writability, and a
-//     live (never secret-reading) probe of the OS credential store.
-//   - capture, verify, and document are NOT yet wired to real
-//     implementations. `runCapture`/`resumeCapture`/`verifyBundle` live in
-//     `@genesys-archivist/capture`, which apps/** may not import directly
-//     (eslint.config.mjs) — they must be re-exported through
-//     `@genesys-archivist/composition`, which does not yet do so.
-//     `document --bundle <dir>` additionally needs something that does not
-//     exist yet at all: an orchestrator that reads every flow out of a
-//     bundle directory and calls `runDocument` (composition, single-flow)
-//     once per flow. Faking success here would violate the same rule this
-//     whole codebase is built around — never claim a run completed when it
-//     did not — so each of the three fails loudly with a specific,
-//     actionable message instead of silently doing nothing.
+// Everything reaches Genesys through `@genesys-archivist/composition`.
+// `apps/**` may not import `@genesys-archivist/capture` or
+// `@genesys-archivist/genesys-*` directly (eslint.config.mjs), which is the
+// rule that keeps this file thin: composition is where adapters get wired,
+// and this file only decides which of them to ask for.
 // ---------------------------------------------------------------------------
 
-function notYetAvailable(command: string, need: string): Error {
-  return new Error(
-    `archivist ${command} is not wired to a real implementation yet: ${need} ` +
-      'This command is fully implemented and tested against injected dependencies; ' +
-      'only the production wiring is pending.',
-  );
+/**
+ * Narrows the CLI's own scope shape into capture's.
+ *
+ * The two are structurally identical except that capture keys flow ids as the
+ * branded `FlowId`. The CLI parses argv into plain strings and deliberately
+ * does not import capture's types (see the dependency rule above), so this is
+ * where an untrusted argv string becomes a domain identifier.
+ */
+function toCaptureScope(scope: CaptureCommand['scope']): NonNullable<CaptureRunOptions['scope']> {
+  if (scope.kind === 'flows') {
+    return { kind: 'flows', flowIds: scope.flowIds.map((id) => asFlowId(id)) };
+  }
+  return scope.flowTypes === undefined
+    ? { kind: 'all' }
+    : { kind: 'all', flowTypes: scope.flowTypes };
 }
 
 const DOCTOR_PROBE_PROFILE = asProfileId('archivist-doctor-probe');
@@ -457,6 +471,75 @@ async function checkOutputRootWritable(root: string): Promise<boolean> {
   }
 }
 
+/**
+ * Runs a real capture against a real Genesys organization.
+ *
+ * A profile is required, and not merely for convenience. Three of
+ * `runCapture`'s inputs can only come from stored profile metadata:
+ *
+ *   - `expectedOrganizationId` is the **tenant guard**. `runCapture` compares
+ *     the organization it actually reaches against this value and refuses to
+ *     proceed on a mismatch, so a mistyped or swapped credential cannot
+ *     silently capture the wrong customer's configuration. Passing the
+ *     `--org` argument for both sides would disable the guard by making it
+ *     compare a value against itself.
+ *   - `root` is the profile's approved output root, which is what keeps a
+ *     capture from writing wherever the process happens to be running.
+ *   - the credential itself, which `createGenesysProvider` resolves from the
+ *     secret store at the moment of use and never accepts as an argument.
+ */
+async function realCapture(
+  command: CaptureCommand,
+  profileStore: ReturnType<typeof openProfileStore>,
+): Promise<CaptureOutcome> {
+  const profileId = command.profileId;
+  if (profileId === undefined) {
+    throw new Error(
+      'archivist capture requires --profile. The profile supplies the approved output root ' +
+        'and the expected organization id that guards against capturing the wrong tenant. ' +
+        'Create one with: archivist profile add',
+    );
+  }
+
+  const profile = await profileStore.get(profileId);
+  if (profile === null) {
+    throw new Error(
+      `No profile named "${profileId}". List what exists with: archivist profile list`,
+    );
+  }
+
+  const provider = await createGenesysProvider({ profileId: asProfileId(profileId) });
+
+  // The plan hash pins what this run was asked to do. `runCapture` records it
+  // in the run manifest so a resumed run can refuse to continue under a
+  // different plan than the one it started under.
+  const planHash = createHash('sha256')
+    .update(
+      JSON.stringify({
+        mode: command.mode,
+        organizationId: command.organizationId,
+        scope: command.scope,
+        profileId,
+      }),
+    )
+    .digest('hex');
+
+  const startedAt = new Date();
+  const runId = `${startedAt.toISOString().replace(/[:.]/g, '-')}_${planHash.slice(0, 6)}`;
+
+  return runCapture({
+    root: profile.outputRoot,
+    runId,
+    planHash: `sha256:${planHash}`,
+    organizationId: asOrganizationId(command.organizationId),
+    expectedOrganizationId: asOrganizationId(profile.expectedOrganizationId),
+    provider,
+    mode: command.mode,
+    scope: toCaptureScope(command.scope),
+    profileId,
+  });
+}
+
 async function buildRealDeps(): Promise<CliDeps> {
   const write = (line: string): void => {
     process.stdout.write(`${line}\n`);
@@ -470,31 +553,29 @@ async function buildRealDeps(): Promise<CliDeps> {
       process.exitCode = code;
     },
     doctor: realDoctorReport,
-    capture: () =>
-      Promise.reject(
-        notYetAvailable(
-          'capture',
-          'packages/composition must re-export runCapture/resumeCapture from ' +
-            '@genesys-archivist/capture, and a production GenesysSourceProvider must exist ' +
-            '(pending Phase 0).',
+    capture: (command) => realCapture(command, profileStore),
+    verifyBundle: async (bundleDir) => verifyBundle(resolve(bundleDir)),
+    documentBundle: async (bundleDir) => {
+      const dir = resolve(bundleDir);
+      const result = await documentBundleToDisk({
+        bundleDir: dir,
+        // Documentation lands beside the bundle it was generated from rather
+        // than in the profile's output root. A bundle is self-describing and
+        // portable; a reader who is handed one should get its documents with
+        // it, not have to know which profile produced it.
+        outputRoot: dir,
+        generatedAt: new Date().toISOString(),
+      });
+      return {
+        ok: result.skipped.length === 0,
+        documentsWritten: result.documentsWritten,
+        // Reported, never omitted: a documentation set that silently covers
+        // four of five flows is worse than one that covers four and says so.
+        warnings: result.skipped.map(
+          (s) => `flow ${s.flowId} version ${s.versionId} was not documented: ${s.reason}`,
         ),
-      ),
-    verifyBundle: () =>
-      Promise.reject(
-        notYetAvailable(
-          'verify',
-          'packages/composition must re-export verifyBundle from @genesys-archivist/capture.',
-        ),
-      ),
-    documentBundle: () =>
-      Promise.reject(
-        notYetAvailable(
-          'document',
-          'a bundle-level document orchestrator does not exist yet: something that reads every ' +
-            'flow out of a bundle directory and calls the existing single-flow runDocument ' +
-            '(composition) once per flow.',
-        ),
-      ),
+      };
+    },
     profile: {
       write,
       profileStore,

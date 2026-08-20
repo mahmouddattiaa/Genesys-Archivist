@@ -15,6 +15,7 @@ export type { RenderContext } from './render-context.js';
 
 export * from './escape.js';
 export * from './evidence-marks.js';
+export * from './caller-content.js';
 export * from './diagrams.js';
 export * from './technical.js';
 export * from './business.js';

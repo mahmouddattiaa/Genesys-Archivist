@@ -46,6 +46,11 @@ import type {
 } from '@genesys-archivist/analysis';
 import { escapeMarkdown, escapeTableCell } from './escape.js';
 import { EvidenceRegistry } from './evidence-marks.js';
+import {
+  findInlineAudioContent,
+  resolvePromptReferences,
+  type PromptLibraryDependency,
+} from './caller-content.js';
 import type { RenderContext } from './render-context.js';
 
 export type { RenderContext };
@@ -88,6 +93,16 @@ export interface TechnicalFlowIdentity {
 export interface TechnicalGraphNode extends FindingsGraphNode {
   readonly kind: string;
   readonly containerPath: readonly string[];
+  /** The prompt-library resources this node references (normalize.ts).
+   * Read only to render §6's prompt content column -- see
+   * `caller-content.ts`. */
+  readonly promptRefs: readonly string[];
+  /** This node's own bounded configuration (extract-settings.ts). Never
+   * dumped wholesale (per the task that added this field to this module) --
+   * only specific, bounded facts are rendered from it: a decision/switch
+   * node's `expression` (§8) and a prompt-playing node's inline content
+   * (§6). */
+  readonly settings: Readonly<Record<string, unknown>>;
 }
 
 export type TechnicalGraphEdge = FindingsGraphEdge;
@@ -528,13 +543,72 @@ function renderVariablesSection(snapshot: TechnicalSnapshot, evidence: EvidenceR
 // Section 6: prompt and language inventory
 // ---------------------------------------------------------------------------
 
-const PROMPT_NODE_TYPES: ReadonlySet<string> = new Set(['PlayAudioAction']);
+// `Menu` is included alongside `PlayAudioAction` because both carry a
+// caller-playable `prompts.defaultAudio` (extract-settings.ts, measured
+// against the corpus) -- a menu's own opening prompt is exactly as
+// "prompt-playing" as a dedicated play-audio step, and omitting it here
+// would leave this inventory silently incomplete for the flow this
+// project's own goldens are built from (inboundcall-47, whose 47 nodes
+// include both types).
+const PROMPT_NODE_TYPES: ReadonlySet<string> = new Set(['PlayAudioAction', 'Menu']);
 const PROMPT_DEPENDENCY_TYPES: ReadonlySet<string> = new Set([
   'ttsEngine',
   'ttsVoice',
   'language',
   'systemPrompt',
 ]);
+
+/**
+ * Renders what a prompt-playing node plays, as a single bounded table cell:
+ * a resolved prompt-library reference's display name (or, defensively, its
+ * id if unresolved -- an engineer audience wants the id, unlike
+ * `business.md`), or the inline TTS/communication text this node carries
+ * instead (see `caller-content.ts`). Never dumps `settings` wholesale --
+ * only the specific fields `findInlineAudioContent` recognises as
+ * caller-playable content, and only their recovered literal text.
+ */
+function callerContentCell(
+  node: TechnicalGraphNode,
+  dependenciesById: ReadonlyMap<string, PromptLibraryDependency>,
+): string {
+  if (node.promptRefs.length > 0) {
+    const parts = resolvePromptReferences(node.promptRefs, dependenciesById).map((reference) => {
+      if (!reference.resolved) return `prompt ${reference.promptId} (unresolved in this capture)`;
+      return reference.displayName !== null
+        ? reference.displayName
+        : `${reference.promptId} (no display name recorded)`;
+    });
+    return escapeTableCell(parts.join('; '));
+  }
+
+  const inline = findInlineAudioContent(node.settings);
+  if (inline === null) return '—';
+  if (inline.fragments.length === 0) {
+    return escapeTableCell(
+      inline.partial
+        ? 'inline content, determined entirely at runtime (no literal text recorded)'
+        : 'inline content carrying no recognised literal text',
+    );
+  }
+  const joined = inline.fragments.join(' ');
+  const suffix = inline.partial ? ' [+ runtime-substituted content]' : '';
+  return escapeTableCell(`inline TTS: "${joined}"${suffix}`);
+}
+
+/** Evidence ids for a prompt-playing node's content: the node's own
+ * evidence plus, for a resolved prompt-library reference, that
+ * dependency's evidence too -- so the citation resolves back to whichever
+ * fact (or facts) actually established the display name shown. */
+function callerContentEvidenceIds(
+  node: TechnicalGraphNode,
+  dependenciesById: ReadonlyMap<string, PromptLibraryDependency>,
+): readonly string[] {
+  const ids = [...node.evidenceIds];
+  for (const reference of resolvePromptReferences(node.promptRefs, dependenciesById)) {
+    if (reference.resolved) ids.push(...reference.evidenceIds);
+  }
+  return ids;
+}
 
 /** Architect records language two different ways, and this snapshot may
  * populate either, both, or neither: `flow.languages` is a flow-level
@@ -602,6 +676,9 @@ function renderPromptAndLanguageSection(
   evidence: EvidenceRegistry,
 ): string {
   const { graph, dependencies } = snapshot;
+  const dependenciesById = new Map<string, PromptLibraryDependency>(
+    dependencies.map((d) => [d.dependencyId, d] as const),
+  );
 
   const promptNodes = sortByKey(
     graph.nodes.filter((n) => PROMPT_NODE_TYPES.has(n.sourceType)),
@@ -611,7 +688,8 @@ function renderPromptAndLanguageSection(
     code(n.nodeId),
     escapeTableCell(n.name),
     containerPathCell(n.containerPath),
-    evidence.cite(n.evidenceIds),
+    callerContentCell(n, dependenciesById),
+    evidence.cite(callerContentEvidenceIds(n, dependenciesById)),
   ]);
 
   const promptDependencies = sortByKey(
@@ -634,7 +712,13 @@ function renderPromptAndLanguageSection(
   if (promptRows.length === 0) {
     lines.push('This flow contains no prompt-playing nodes.');
   } else {
-    lines.push(table(['Node id', 'Name', 'Container', 'Evidence'], promptRows));
+    lines.push(
+      'The Content column names a resolved prompt-library reference by its display name, or ' +
+        "(when no such reference exists) this node's own inline TTS/communication text -- see " +
+        'docs/05 for why the two are shown distinctly.',
+    );
+    lines.push('');
+    lines.push(table(['Node id', 'Name', 'Container', 'Content', 'Evidence'], promptRows));
   }
   lines.push('');
 
@@ -718,6 +802,63 @@ function renderDependenciesSection(
 // Section 8: error, retry, and loop handling
 // ---------------------------------------------------------------------------
 
+const MAX_EXPRESSION_SUMMARY_LENGTH = 200;
+const MAX_EXPRESSION_SUMMARY_DEPTH = 6;
+
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
+
+/** Renders a `describeValueRef`-shaped value (extract-settings.ts) as a
+ * short, structural, single-line summary -- `operator(operand, operand)`,
+ * a quoted literal, `<variable:type>` for a variable read, or
+ * `<unrecognised:name>` for an opaque construct. This is intentionally
+ * closer to a debugger's expression printer than to prose: a technical
+ * reader wants to see the shape of the condition, not a narrated
+ * explanation of it, and this module does not invent one. */
+function renderDescribedValue(value: unknown, depth: number): string {
+  if (depth > MAX_EXPRESSION_SUMMARY_DEPTH || !isRecord(value)) return '?';
+  const kind = value['kind'];
+  if (kind === 'literal') {
+    const dataType = typeof value['dataType'] === 'string' ? value['dataType'] : '';
+    const text = typeof value['text'] === 'string' ? value['text'] : '';
+    return dataType === 'str' ? `"${text}"` : text;
+  }
+  if (kind === 'null') return 'null';
+  if (kind === 'variableRef') {
+    const dataType = typeof value['dataType'] === 'string' ? value['dataType'] : '';
+    return `<variable:${dataType}>`;
+  }
+  if (kind === 'expression' && Array.isArray(value['operands'])) {
+    const operator = typeof value['operator'] === 'string' ? value['operator'] : '?';
+    const rendered = value['operands']
+      .map((operand: unknown) => renderDescribedValue(operand, depth + 1))
+      .join(', ');
+    return `${operator}(${rendered})`;
+  }
+  if (kind === 'opaque') {
+    const discriminator = typeof value['discriminator'] === 'string' ? value['discriminator'] : '?';
+    return `<unrecognised:${discriminator}>`;
+  }
+  return '?';
+}
+
+/** A `DecisionAction`/`SwitchAction` node's own `expression` settings
+ * field, rendered and bounded for a table cell -- the specific, chosen
+ * fact `technical.md` shows out of `settings` for a decision point, per
+ * the task's "do not dump settings wholesale" instruction. Escaped once,
+ * over the whole assembled string, the same as every other table cell in
+ * this module. */
+function expressionSummaryCell(settings: Readonly<Record<string, unknown>>): string {
+  const expression = settings['expression'];
+  if (expression === undefined) return '—';
+  const rendered = renderDescribedValue(expression, 0);
+  const bounded =
+    rendered.length > MAX_EXPRESSION_SUMMARY_LENGTH
+      ? `${rendered.slice(0, MAX_EXPRESSION_SUMMARY_LENGTH - 1)}…`
+      : rendered;
+  return escapeTableCell(bounded);
+}
+
 function renderErrorAndRetrySection(
   snapshot: TechnicalSnapshot,
   analysis: TechnicalAnalysis,
@@ -732,6 +873,7 @@ function renderErrorAndRetrySection(
     code(n.nodeId),
     escapeTableCell(n.name),
     containerPathCell(n.containerPath),
+    expressionSummaryCell(n.settings),
     evidence.cite(n.evidenceIds),
   ]);
 
@@ -755,10 +897,11 @@ function renderErrorAndRetrySection(
     lines.push(
       `${count(decisionNodes.length, '`DecisionAction` node', '`DecisionAction` nodes')} ` +
         "implement this flow's yes/no branching; see the branch table (§4) for each one's " +
-        'outgoing edges.',
+        "outgoing edges. Expression is this node's own condition, rendered structurally and " +
+        'bounded -- never a narrated explanation of what it means.',
     );
     lines.push('');
-    lines.push(table(['Node id', 'Name', 'Container', 'Evidence'], decisionRows));
+    lines.push(table(['Node id', 'Name', 'Container', 'Expression', 'Evidence'], decisionRows));
   }
   lines.push('');
 

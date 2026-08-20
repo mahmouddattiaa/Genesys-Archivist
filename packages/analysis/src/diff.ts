@@ -65,6 +65,13 @@ export interface DiffNode {
   readonly variableWrites: readonly string[];
   readonly dependencyRefs: readonly string[];
   readonly promptRefs: readonly string[];
+  /** A node's own bounded configuration (extract-settings.ts): literals,
+   * expression shapes, and one level of nested playable content. Tenant-
+   * authored content lives inside this, same as everywhere else in this
+   * file -- so it is compared only through `sameSettings` below and never
+   * copied into a `SemanticChange`, matching the rule this module already
+   * enforces for `name`, `label`, `condition`, and `displayName`. */
+  readonly settings: Readonly<Record<string, unknown>>;
   readonly evidenceIds: readonly string[];
 }
 
@@ -248,6 +255,76 @@ function sameArray(a: readonly string[], b: readonly string[]): boolean {
   return a.every((v, i) => v === b[i]);
 }
 
+/**
+ * Recursively sorts every plain object's own keys (never an array's
+ * elements) so that two structurally identical values serialize to the
+ * same string regardless of the source's own key order. This is
+ * deliberately narrower than `@genesys-archivist/domain`'s `canonicalize`,
+ * which also sorts array elements -- correct for `FlowSnapshot`'s own
+ * node/edge/dependency-id lists, which are sets in substance, but wrong
+ * for `settings`: an expression's `operands` array (extract-settings.ts's
+ * `describeValueRef`) preserves Architect's own left-to-right operand
+ * order, which is semantically meaningful (`A > B` is not `B > A`).
+ * Sorting that array away would make a genuine operand-order change --
+ * a real behavioural change -- invisible to `sameSettings` below.
+ */
+function sortObjectKeysDeep(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortObjectKeysDeep);
+  if (value !== null && typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .map(([key, item]) => [key, sortObjectKeysDeep(item)] as const)
+      .sort(([a], [b]) => compareStrings(a, b));
+    return Object.fromEntries(entries);
+  }
+  return value;
+}
+
+/** A canonical string form of a `settings` value (or any sub-value of one),
+ * for equality comparison only -- never persisted, never hashed for
+ * cross-run identity. See `sortObjectKeysDeep` for why this does not reuse
+ * `@genesys-archivist/domain`'s `canonicalize`. */
+function canonicalSettingsString(value: unknown): string {
+  return JSON.stringify(sortObjectKeysDeep(value));
+}
+
+/** Structural, order-independent-by-key equality for two nodes' `settings`.
+ * Determinism requirement: this must depend only on the two values' own
+ * content, never on `Object.keys` enumeration order, so that a settings
+ * object built from a reordered source configuration (extract-settings.ts
+ * is itself proven deterministic under key reordering) never appears
+ * changed here either. */
+function sameSettings(
+  before: Readonly<Record<string, unknown>>,
+  after: Readonly<Record<string, unknown>>,
+): boolean {
+  return canonicalSettingsString(before) === canonicalSettingsString(after);
+}
+
+/**
+ * The top-level `settings` keys that actually differ between a matched
+ * node's before/after settings -- added, removed, or changed value alike.
+ * Used only to decide *how* a settings change routes (see
+ * `classifySettingsChange`); the keys themselves are structural (Architect's
+ * own field names, e.g. `expression`, `communication`), never tenant free
+ * text, so returning them here does not reintroduce the tenant-text leak
+ * this module otherwise guards against.
+ */
+function changedTopLevelSettingsKeys(
+  before: Readonly<Record<string, unknown>>,
+  after: Readonly<Record<string, unknown>>,
+): readonly string[] {
+  const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+  const changed: string[] = [];
+  for (const key of keys) {
+    const beforeValue = key in before ? before[key] : undefined;
+    const afterValue = key in after ? after[key] : undefined;
+    if (canonicalSettingsString(beforeValue) !== canonicalSettingsString(afterValue)) {
+      changed.push(key);
+    }
+  }
+  return changed.sort(compareStrings);
+}
+
 // ---------------------------------------------------------------------------
 // Diff sets: added / removed / changed, each entry citable both ways.
 // ---------------------------------------------------------------------------
@@ -283,6 +360,7 @@ const NODE_FIELD_COMPARISONS: readonly {
   { field: 'variableWrites', same: (b, a) => sameSet(b.variableWrites, a.variableWrites) },
   { field: 'dependencyRefs', same: (b, a) => sameSet(b.dependencyRefs, a.dependencyRefs) },
   { field: 'promptRefs', same: (b, a) => sameSet(b.promptRefs, a.promptRefs) },
+  { field: 'settings', same: (b, a) => sameSettings(b.settings, a.settings) },
 ];
 
 function computeNodeChangedFields(before: DiffNode, after: DiffNode): readonly string[] {
@@ -1204,6 +1282,52 @@ function classifyNodeReconfigured(entry: NodeDiffEntry): SemanticChange {
   return { category: 'action-changed', nodeId, basis: entry.basis, aspect, ...common };
 }
 
+/**
+ * Routes a node's `settings` change into one of two docs/07 categories, per
+ * the task that added this: "action materially reconfigured" for a general
+ * settings change, and the expression-content case into "condition/
+ * expression changed" where the changed value is an expression.
+ *
+ * `expression` is the exact top-level settings key `DecisionAction` and
+ * `SwitchAction` use for the condition they evaluate (measured across the
+ * corpus alongside every other node-type field name; extract-settings.ts's
+ * own container-recursion comment names it the same way). Its presence
+ * among `changedTopLevelSettingsKeys` is a structural fact -- Architect's
+ * own field name, never tenant free text -- so routing on it does not
+ * reopen the tenant-text leak this module otherwise guards against.
+ *
+ * A node whose `expression` key changed alongside other settings still
+ * routes here rather than being split: the expression is the more
+ * behaviourally significant fact of the two, and docs/07 asks for the
+ * *less* confident category only when this module genuinely cannot tell
+ * what changed -- here it can tell, precisely, so burying that signal
+ * inside the generic "reconfigured" bucket would be a confident guess in
+ * the wrong direction, not honesty.
+ */
+function classifySettingsChange(
+  entry: NodeDiffEntry,
+  beforeSettings: Readonly<Record<string, unknown>>,
+  afterSettings: Readonly<Record<string, unknown>>,
+): SemanticChange {
+  const common = {
+    operation: 'changed' as const,
+    evidenceIdsBefore: entry.evidenceIdsBefore,
+    evidenceIdsAfter: entry.evidenceIdsAfter,
+  };
+  const nodeId = entry.afterNodeId ?? entry.beforeNodeId ?? '';
+  const changedKeys = changedTopLevelSettingsKeys(beforeSettings, afterSettings);
+  if (changedKeys.includes('expression')) {
+    return { category: 'condition-expression-changed', fromNodeId: nodeId, ...common };
+  }
+  return {
+    category: 'action-changed',
+    nodeId,
+    basis: entry.basis,
+    aspect: 'reconfigured',
+    ...common,
+  };
+}
+
 function makeVariableChange(
   entry: VariableDiffEntry,
   operation: ChangeOperation,
@@ -1357,7 +1481,9 @@ function buildChanges(
   ];
 
   for (const entry of nodes.changed) {
-    if (entry.changedFields.includes('supportLevel')) {
+    let remainingFields = entry.changedFields;
+
+    if (remainingFields.includes('supportLevel')) {
       const b = entry.beforeNodeId !== null ? beforeNodesById.get(entry.beforeNodeId) : undefined;
       const a = entry.afterNodeId !== null ? afterNodesById.get(entry.afterNodeId) : undefined;
       const coverage =
@@ -1365,12 +1491,25 @@ function buildChanges(
           ? classifyCoverageWithLevels(entry, b.supportLevel, a.supportLevel)
           : null;
       if (coverage !== null) changes.push(coverage);
-      const remainingFields = entry.changedFields.filter((f) => f !== 'supportLevel');
-      if (remainingFields.length > 0) {
-        changes.push(classifyNodeReconfigured({ ...entry, changedFields: remainingFields }));
+      remainingFields = remainingFields.filter((f) => f !== 'supportLevel');
+    }
+
+    // `settings` needs the real before/after node objects (`changedFields`
+    // only records the field *name*, never its value), the same reason
+    // `supportLevel` above does -- so this is classified here, against
+    // `beforeNodesById`/`afterNodesById`, rather than inside
+    // `classifyNodeReconfigured`, which only ever sees a `NodeDiffEntry`.
+    if (remainingFields.includes('settings')) {
+      const b = entry.beforeNodeId !== null ? beforeNodesById.get(entry.beforeNodeId) : undefined;
+      const a = entry.afterNodeId !== null ? afterNodesById.get(entry.afterNodeId) : undefined;
+      if (b !== undefined && a !== undefined) {
+        changes.push(classifySettingsChange(entry, b.settings, a.settings));
       }
-    } else {
-      changes.push(classifyNodeReconfigured(entry));
+      remainingFields = remainingFields.filter((f) => f !== 'settings');
+    }
+
+    if (remainingFields.length > 0) {
+      changes.push(classifyNodeReconfigured({ ...entry, changedFields: remainingFields }));
     }
   }
 

@@ -34,6 +34,7 @@ function node(overrides: Partial<DiffNode> & { readonly nodeId: string }): DiffN
     variableWrites: [],
     dependencyRefs: [],
     promptRefs: [],
+    settings: {},
     evidenceIds: [],
     ...overrides,
   };
@@ -442,6 +443,200 @@ describe('the eleven docs/07 semantic-diff categories', () => {
     const improvedDiff = diffSnapshots(after, before);
     const improved = improvedDiff.changes.find((c) => c.category === 'coverage-changed');
     expect(improved?.category === 'coverage-changed' && improved.direction).toBe('improved');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// `settings` comparison. `promptRefs` already had a comparison and a
+// classification route before this task; `settings` did not -- this is the
+// new field this task wires up end to end.
+// ---------------------------------------------------------------------------
+
+describe('settings comparison', () => {
+  it('a settings-only change produces exactly one action-changed/reconfigured change', () => {
+    const before = snapshot({
+      nodes: [node({ nodeId: 'n1', trackingId: 't1', settings: { volume: 5 } })],
+    });
+    const after = snapshot({
+      nodes: [node({ nodeId: 'n1', trackingId: 't1', settings: { volume: 9 } })],
+    });
+    const diff = diffSnapshots(before, after);
+    expect(diff.nodes.changed).toHaveLength(1);
+    expect(diff.nodes.changed[0]?.changedFields).toEqual(['settings']);
+
+    const actionChanges = diff.changes.filter((c) => c.category === 'action-changed');
+    expect(actionChanges).toHaveLength(1);
+    expect(actionChanges[0]?.category === 'action-changed' && actionChanges[0].aspect).toBe(
+      'reconfigured',
+    );
+    expect(actionChanges[0]?.category === 'action-changed' && actionChanges[0].nodeId).toBe('n1');
+  });
+
+  it('an identical settings pair produces no settings-related change', () => {
+    const before = snapshot({
+      nodes: [node({ nodeId: 'n1', trackingId: 't1', settings: { a: 1, b: 'x' } })],
+    });
+    const after = snapshot({
+      nodes: [node({ nodeId: 'n1', trackingId: 't1', settings: { a: 1, b: 'x' } })],
+    });
+    const diff = diffSnapshots(before, after);
+    expect(diff.nodes.changed).toHaveLength(0);
+    expect(diff.changes).toHaveLength(0);
+  });
+
+  it('shuffled settings key order produces a byte-identical diff', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 1_000_000 }), () => {
+        const before = snapshot({
+          nodes: [
+            node({
+              nodeId: 'n1',
+              trackingId: 't1',
+              settings: { alpha: 1, beta: 'two', gamma: { nested: true, other: 3 } },
+            }),
+          ],
+        });
+        const afterShuffled = snapshot({
+          nodes: [
+            node({
+              nodeId: 'n1',
+              trackingId: 't1',
+              settings: { gamma: { other: 3, nested: true }, alpha: 1, beta: 'two' },
+            }),
+          ],
+        });
+        // The shuffled settings are structurally identical (only key order
+        // differs) to `before`'s own settings, so this must diff as
+        // "nothing changed" -- not merely "the same output twice".
+        expect(JSON.stringify(diffSnapshots(before, afterShuffled))).toBe(
+          JSON.stringify(diffSnapshots(before, before)),
+        );
+      }),
+      { numRuns: 20 },
+    );
+  });
+
+  it('reordering an expression operand array IS a real change, never masked as equal', () => {
+    // Operand order is semantically meaningful (see diff.ts's own comment on
+    // `sortObjectKeysDeep`): a canonical form that sorted array elements
+    // the way it sorts object keys would wrongly treat this as unchanged.
+    const before = snapshot({
+      nodes: [
+        node({
+          nodeId: 'n1',
+          trackingId: 't1',
+          sourceType: 'DecisionAction',
+          settings: {
+            expression: {
+              kind: 'expression',
+              operator: '>',
+              operands: [
+                { kind: 'literal', dataType: 'int', text: '1' },
+                { kind: 'literal', dataType: 'int', text: '2' },
+              ],
+            },
+          },
+        }),
+      ],
+    });
+    const after = snapshot({
+      nodes: [
+        node({
+          nodeId: 'n1',
+          trackingId: 't1',
+          sourceType: 'DecisionAction',
+          settings: {
+            expression: {
+              kind: 'expression',
+              operator: '>',
+              operands: [
+                { kind: 'literal', dataType: 'int', text: '2' },
+                { kind: 'literal', dataType: 'int', text: '1' },
+              ],
+            },
+          },
+        }),
+      ],
+    });
+    const diff = diffSnapshots(before, after);
+    expect(diff.nodes.changed).toHaveLength(1);
+    const change = diff.changes.find((c) => c.category === 'condition-expression-changed');
+    expect(change).toBeDefined();
+  });
+
+  it('a settings change touching the `expression` key routes to condition-expression-changed', () => {
+    const before = snapshot({
+      nodes: [
+        node({
+          nodeId: 'n1',
+          trackingId: 't1',
+          sourceType: 'DecisionAction',
+          settings: { expression: { kind: 'literal', dataType: 'bln', text: 'true' } },
+        }),
+      ],
+    });
+    const after = snapshot({
+      nodes: [
+        node({
+          nodeId: 'n1',
+          trackingId: 't1',
+          sourceType: 'DecisionAction',
+          settings: { expression: { kind: 'literal', dataType: 'bln', text: 'false' } },
+        }),
+      ],
+    });
+    const diff = diffSnapshots(before, after);
+    const change = diff.changes.find((c) => c.category === 'condition-expression-changed');
+    expect(change).toBeDefined();
+    expect(change?.category === 'condition-expression-changed' && change.fromNodeId).toBe('n1');
+    // Not also double-reported as a generic reconfiguration.
+    expect(diff.changes.filter((c) => c.category === 'action-changed')).toHaveLength(0);
+  });
+
+  it('a settings change NOT touching `expression` routes to action-changed/reconfigured, never condition-expression-changed', () => {
+    const before = snapshot({
+      nodes: [node({ nodeId: 'n1', trackingId: 't1', settings: { timeout: 5 } })],
+    });
+    const after = snapshot({
+      nodes: [node({ nodeId: 'n1', trackingId: 't1', settings: { timeout: 30 } })],
+    });
+    const diff = diffSnapshots(before, after);
+    expect(diff.changes.some((c) => c.category === 'condition-expression-changed')).toBe(false);
+    const change = diff.changes.find((c) => c.category === 'action-changed');
+    expect(change?.category === 'action-changed' && change.aspect).toBe('reconfigured');
+  });
+
+  it('a settings change carrying tenant text never puts that text in a structural field', () => {
+    const CANARY = 'CANARY-TENANT-TEXT-5d84';
+    const before = snapshot({
+      nodes: [
+        node({
+          nodeId: 'n1',
+          trackingId: 't1',
+          settings: {
+            prompts: { defaultAudio: { kind: 'literal', dataType: 'str', text: 'Old' } },
+          },
+        }),
+      ],
+    });
+    const after = snapshot({
+      nodes: [
+        node({
+          nodeId: 'n1',
+          trackingId: 't1',
+          settings: {
+            prompts: { defaultAudio: { kind: 'literal', dataType: 'str', text: CANARY } },
+          },
+        }),
+      ],
+    });
+    const diff = diffSnapshots(before, after);
+    // The canary must genuinely be present in the input somewhere reachable
+    // -- proven via the raw node settings this test built -- but `changes`
+    // is the classified, tenant-text-free layer this task's brief calls
+    // out explicitly, and it alone must never contain it.
+    expect(JSON.stringify(after)).toContain(CANARY);
+    expect(JSON.stringify(diff.changes)).not.toContain(CANARY);
   });
 });
 
@@ -890,6 +1085,60 @@ describe('real fixtures', () => {
       );
       expect(renamed).toBeDefined();
     }
+  });
+
+  it('prompt-reference-changed fires for real against a live capture (voicesurvey-16), not only the hand-built category test above', () => {
+    // `promptRefs` was already wired into `NODE_FIELD_COMPARISONS` and
+    // `buildSemanticChanges` before this task (see diff.ts's own comment on
+    // section 7). This is the verification the task asked for: proof it
+    // fires end to end through `normalizeFlow`, against a fixture measured
+    // (packages/normalization/test/extract-prompts.test.ts) to carry real
+    // prompt-library references, not only against a hand-built `DiffNode`.
+    //
+    // The mutation adds a manifest `context` entry pointing a userPrompt
+    // dependency at a node that carries no prompt reference at all today
+    // (measured directly against this fixture -- see the node-id survey
+    // this test's own id constant is drawn from). Removing an *existing*
+    // context entry instead would not reliably change anything:
+    // extract-prompts.ts unions the manifest-context source with an
+    // independent inline-reference scan (its own comment explains why --
+    // never silently dropping a reference the manifest omits), so a node
+    // whose inline configuration still points at that prompt keeps the
+    // reference regardless of what the manifest's context array says.
+    const config = loadFixture('voicesurvey-16-nodes.json') as Record<string, unknown>;
+    const before = normalizeFixture(config, 'f-voicesurvey');
+    expect(before.graph.nodes.some((n) => n.promptRefs.length > 0)).toBe(true);
+
+    // A real EndTaskAction node in this fixture with zero manifest or inline
+    // prompt reference today.
+    const targetNodeGuid = '98575f6f-7d53-4329-a3be-3db821ec62ec';
+
+    const manifest = config['manifest'] as Record<string, unknown[]>;
+    const userPrompts = [...(manifest['userPrompt'] ?? [])] as Array<{
+      readonly context: readonly unknown[];
+    }>;
+    const first = userPrompts[0];
+    expect(first).toBeDefined();
+    const mutatedFirst = {
+      ...first,
+      context: [
+        ...first!.context,
+        { id: targetNodeGuid, name: 'Injected', actionName: 'Injected Action' },
+      ],
+    };
+    const mutatedUserPrompts = [mutatedFirst, ...userPrompts.slice(1)];
+
+    const mutatedConfig = {
+      ...config,
+      manifest: { ...manifest, userPrompt: mutatedUserPrompts },
+    };
+    const after = normalizeFixture(mutatedConfig, 'f-voicesurvey');
+
+    const diff = diffSnapshots(before, after);
+    const change = diff.changes.find(
+      (c) => c.category === 'prompt-reference-changed' && c.subject.kind === 'node',
+    );
+    expect(change).toBeDefined();
   });
 
   it('node matching holds up against a 187-node bot flow whose construct vocabulary shares almost nothing with an IVR', () => {

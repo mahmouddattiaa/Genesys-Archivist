@@ -368,6 +368,7 @@ describe('classifyChanges composed with diffSnapshots end to end', () => {
             variableWrites: [],
             dependencyRefs: [],
             promptRefs: [],
+            settings: {},
             evidenceIds: [],
           },
         ],

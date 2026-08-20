@@ -37,10 +37,33 @@ export function escapeMarkdown(text: string): string {
  * table cell. A cell must not be able to add columns (`|`) or end the row
  * (a newline), so those are replaced rather than escaped — a backslash
  * escape inside a table cell is unreliable across renderers.
+ *
+ * It must also not be able to inject raw HTML. That was missing: this
+ * function handled only `|` and newlines, while `escapeMarkdown` — used for
+ * prose — escaped angle brackets all along. Table cells are the *majority* of
+ * tenant text in these documents (this function has around sixty call sites
+ * across the three renderers), and every dependency display name, queue name
+ * and prompt name flows through one. A queue named `<script>…</script>` was
+ * reproduced verbatim into `business.md`.
+ *
+ * That is not a theoretical rendering nit. `packages/rendering` turns these
+ * documents into PDF through headless Chromium, so tenant-authored markup in
+ * a table cell reaches a real browser — the exact shape of AGENTS.md's rule
+ * that all extracted flow content is untrusted data, never instructions.
+ *
+ * HTML entities rather than backslash escapes, for the same reason the
+ * pipe is escaped and not the angle bracket: a backslash before `<` is not
+ * reliably honoured inside a table cell. `&` is encoded first so a tenant
+ * writing a literal `&lt;` cannot round-trip it back into a `<`.
  */
 export function escapeTableCell(text: string): string {
   const withoutControlChars = text.replace(CONTROL_CHARS, '');
-  return withoutControlChars.replace(/\r\n|\r|\n/g, ' ').replace(/\|/g, '\\|');
+  return withoutControlChars
+    .replace(/\r\n|\r|\n/g, ' ')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\|/g, '\\|');
 }
 
 /**

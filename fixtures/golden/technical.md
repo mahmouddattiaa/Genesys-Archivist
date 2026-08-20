@@ -239,18 +239,23 @@ No language was declared at the flow level. The capture records 1 language-relat
 
 ### Prompt-playing nodes
 
-| Node id  | Name               | Container                   | Evidence   |
-| -------- | ------------------ | --------------------------- | ---------- |
-| `trk_33` | Bravo delta        | India juliet                | [e49][e50] |
-| `trk_36` | Foxtrot golf       | India juliet                | [e55][e56] |
-| `trk_40` | Juliet kilo echo   | Papa juliet                 | [e63][e64] |
-| `trk_42` | Juliet kilo alpha  | Papa juliet                 | [e67][e68] |
-| `trk_45` | Hotel foxtrot papa | Lima alpha november india   | [e73][e74] |
-| `trk_46` | Mike foxtrot       | Lima alpha november india   | [e75][e76] |
-| `trk_48` | Lima golf juliet   | Golf mike lima hotel        | [e79][e80] |
-| `trk_50` | Juliet mike papa   | Lima echo echo india        | [e83][e84] |
-| `trk_52` | Alpha india lima   | Foxtrot foxtrot alpha lima  | [e87][e88] |
-| `trk_54` | Golf golf lima     | November kilo echo november | [e91][e92] |
+The Content column names a resolved prompt-library reference by its display name, or (when no such reference exists) this node's own inline TTS/communication text -- see docs/05 for why the two are shown distinctly.
+
+| Node id  | Name               | Container                   | Content                                                                                                             | Evidence   |
+| -------- | ------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `trk_17` | November papa papa | —                           | inline TTS: "Juliet juliet bravo bravo mike mike"                                                                   | [e17][e18] |
+| `trk_19` | India echo         | —                           | inline TTS: "Lima india oscar india hotel kilo"                                                                     | [e21][e22] |
+| `trk_27` | Lima oscar         | —                           | inline TTS: "Oscar kilo delta kilo echo echo"                                                                       | [e37][e38] |
+| `trk_33` | Bravo delta        | India juliet                | inline TTS: "Bravo mike foxtrot mike bravo golf"                                                                    | [e49][e50] |
+| `trk_36` | Foxtrot golf       | India juliet                | inline TTS: "Echo echo lima juliet november hotel"                                                                  | [e55][e56] |
+| `trk_40` | Juliet kilo echo   | Papa juliet                 | inline TTS: "Alpha oscar india alpha golf oscar India lima india papa mike charlie" [+ runtime-substituted content] | [e63][e64] |
+| `trk_42` | Juliet kilo alpha  | Papa juliet                 | inline TTS: "Hotel kilo lima juliet foxtrot golf"                                                                   | [e67][e68] |
+| `trk_45` | Hotel foxtrot papa | Lima alpha november india   | inline TTS: "Papa alpha golf kilo india india"                                                                      | [e73][e74] |
+| `trk_46` | Mike foxtrot       | Lima alpha november india   | inline TTS: "India delta delta delta echo charlie"                                                                  | [e75][e76] |
+| `trk_48` | Lima golf juliet   | Golf mike lima hotel        | inline TTS: "Golf juliet kilo hotel bravo alpha"                                                                    | [e79][e80] |
+| `trk_50` | Juliet mike papa   | Lima echo echo india        | inline TTS: "Bravo alpha alpha kilo juliet mike"                                                                    | [e83][e84] |
+| `trk_52` | Alpha india lima   | Foxtrot foxtrot alpha lima  | inline TTS: "Alpha mike lima juliet november lima"                                                                  | [e87][e88] |
+| `trk_54` | Golf golf lima     | November kilo echo november | inline TTS: "Lima oscar foxtrot india mike papa"                                                                    | [e91][e92] |
 
 ### Text-to-speech and prompt-related dependencies
 
@@ -287,13 +292,13 @@ This section records what the graph itself proves about branching and retry stru
 
 ### Decision points
 
-3 `DecisionAction` nodes implement this flow's yes/no branching; see the branch table (§4) for each one's outgoing edges.
+3 `DecisionAction` nodes implement this flow's yes/no branching; see the branch table (§4) for each one's outgoing edges. Expression is this node's own condition, rendered structurally and bounded -- never a narrated explanation of what it means.
 
-| Node id  | Name                    | Container    | Evidence   |
-| -------- | ----------------------- | ------------ | ---------- |
-| `trk_32` | Echo kilo hotel charlie | India juliet | [e47][e48] |
-| `trk_35` | Hotel echo echo         | India juliet | [e53][e54] |
-| `trk_39` | Juliet mike hotel       | Papa juliet  | [e61][e62] |
+| Node id  | Name                    | Container    | Expression                                             | Evidence   |
+| -------- | ----------------------- | ------------ | ------------------------------------------------------ | ---------- |
+| `trk_32` | Echo kilo hotel charlie | India juliet | ==(GetAt(&lt;variable:str_coll&gt;, November), "Golf") | [e47][e48] |
+| `trk_35` | Hotel echo echo         | India juliet | ==(GetAt(&lt;variable:str_coll&gt;, Delta), "Echo")    | [e53][e54] |
+| `trk_39` | Juliet mike hotel       | Papa juliet  | ==(&lt;variable:bln&gt;, true)                         | [e61][e62] |
 
 ### Loops and retries
 
