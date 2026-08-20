@@ -17,6 +17,8 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@genesys-archivist/domain": "*"
+    "@genesys-archivist/domain": "*",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
   }
 }

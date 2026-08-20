@@ -44,8 +44,16 @@ const opts = (dir: string) => ({
 /** A bundle with enough in it that tampering has somewhere to hide. */
 async function buildBundle(dir: string): Promise<void> {
   const writer = new BundleWriter(opts(dir));
-  await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', { id: 'f1', type: 'inboundcall' });
-  await writer.writeFlow('f2', '2.0', 'name: After Hours\n', { id: 'f2', type: 'inboundcall' });
+  await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', {
+    id: 'f1',
+    type: 'inboundcall',
+    format: 'yaml',
+  });
+  await writer.writeFlow('f2', '2.0', 'name: After Hours\n', {
+    id: 'f2',
+    type: 'inboundcall',
+    format: 'yaml',
+  });
   await writer.writeResource('queues', 'q1', { id: 'q1', name: 'Support' });
   await writer.seal();
 }
@@ -181,8 +189,16 @@ describe('a context bundle can never be mistaken for a migration bundle', () => 
     const writer = new BundleWriter(contextOpts(dir));
     // A migration bundle with these same flows WOULD be importable, so this
     // cannot be passing merely because the bundle is empty.
-    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', { id: 'f1', type: 'inboundcall' });
-    await writer.writeFlow('f2', '2.0', 'name: After Hours\n', { id: 'f2', type: 'inboundcall' });
+    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', {
+      id: 'f1',
+      type: 'inboundcall',
+      format: 'yaml',
+    });
+    await writer.writeFlow('f2', '2.0', 'name: After Hours\n', {
+      id: 'f2',
+      type: 'inboundcall',
+      format: 'yaml',
+    });
     const sealed = await writer.seal();
 
     expect(sealed.manifest.policy.mode).toBe('context');
@@ -193,7 +209,11 @@ describe('a context bundle can never be mistaken for a migration bundle', () => 
   it('says why, in words, not just in a boolean', async () => {
     const dir = await freshRoot();
     const writer = new BundleWriter(contextOpts(dir));
-    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', { id: 'f1', type: 'inboundcall' });
+    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', {
+      id: 'f1',
+      type: 'inboundcall',
+      format: 'yaml',
+    });
     const sealed = await writer.seal();
 
     const caveats = sealed.manifest.migrationReadiness?.caveats ?? [];
@@ -206,7 +226,11 @@ describe('a context bundle can never be mistaken for a migration bundle', () => 
     // that reports nothing as importable, ever.
     const dir = await freshRoot();
     const writer = new BundleWriter(opts(dir));
-    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', { id: 'f1', type: 'inboundcall' });
+    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', {
+      id: 'f1',
+      type: 'inboundcall',
+      format: 'yaml',
+    });
     const sealed = await writer.seal();
 
     expect(sealed.manifest.policy.mode).toBe('migration');
@@ -216,7 +240,11 @@ describe('a context bundle can never be mistaken for a migration bundle', () => 
   it('still seals and verifies as a valid bundle', async () => {
     const dir = await freshRoot();
     const writer = new BundleWriter(contextOpts(dir));
-    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', { id: 'f1', type: 'inboundcall' });
+    await writer.writeFlow('f1', '4.0', 'name: Main Menu\n', {
+      id: 'f1',
+      type: 'inboundcall',
+      format: 'yaml',
+    });
     await writer.seal();
     const result = await verifyBundle(dir);
     expect(result.ok, JSON.stringify(result.findings)).toBe(true);

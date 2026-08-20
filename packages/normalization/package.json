@@ -20,5 +20,8 @@
     "@genesys-archivist/domain": "*",
     "@genesys-archivist/security": "*",
     "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@genesys-archivist/testing": "*"
   }
 }

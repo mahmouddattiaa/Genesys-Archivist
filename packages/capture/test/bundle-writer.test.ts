@@ -3,7 +3,9 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { createSchemaValidator } from '@genesys-archivist/testing';
 import { BundleWriter } from '../src/bundle-writer.js';
+import { verifyBundle } from '../src/bundle-verifier.js';
 import type { ResourceGraphResult } from '../src/resource-graph.js';
 
 let root = '';
@@ -44,17 +46,15 @@ afterEach(async () => {
 
 describe('BundleWriter', () => {
   it('produces a manifest that validates against the published schema', async () => {
-    const { default: Ajv2020 } = await import('ajv/dist/2020.js');
-    const { default: addFormats } = await import('ajv-formats');
-    const schema: unknown = JSON.parse(
-      await readFile('schemas/capture-bundle.schema.json', 'utf8'),
-    );
-    const ajv = new Ajv2020({ strict: true });
-    addFormats(ajv);
+    const validate = await createSchemaValidator('schemas/capture-bundle.schema.json');
     const writer = new BundleWriter(opts());
-    await writer.writeFlow('f1', '1', 'name: Main\n', { id: 'f1', type: 'inboundcall' });
+    await writer.writeFlow('f1', '1', 'name: Main\n', {
+      id: 'f1',
+      type: 'inboundcall',
+      format: 'yaml',
+    });
     const sealed = await writer.seal();
-    expect(ajv.compile(schema)(sealed.manifest)).toBe(true);
+    expect(validate(sealed.manifest)).toBe(true);
   });
 
   it('classifies every bundle as restricted', async () => {
@@ -66,15 +66,23 @@ describe('BundleWriter', () => {
     const a = new BundleWriter({ ...opts(), root: await extraRoot('a-') });
     const b = new BundleWriter({ ...opts(), root: await extraRoot('b-') });
     for (const w of [a, b])
-      await w.writeFlow('f1', '1', 'name: Main\n', { id: 'f1', type: 'inboundcall' });
+      await w.writeFlow('f1', '1', 'name: Main\n', {
+        id: 'f1',
+        type: 'inboundcall',
+        format: 'yaml',
+      });
     expect((await a.seal()).contentHash).toBe((await b.seal()).contentHash);
   });
 
   it('produces a different content hash when a flow definition changes', async () => {
     const a = new BundleWriter({ ...opts(), root: await extraRoot('a-') });
     const b = new BundleWriter({ ...opts(), root: await extraRoot('b-') });
-    await a.writeFlow('f1', '1', 'name: Main\n', { id: 'f1', type: 'inboundcall' });
-    await b.writeFlow('f1', '1', 'name: Changed\n', { id: 'f1', type: 'inboundcall' });
+    await a.writeFlow('f1', '1', 'name: Main\n', { id: 'f1', type: 'inboundcall', format: 'yaml' });
+    await b.writeFlow('f1', '1', 'name: Changed\n', {
+      id: 'f1',
+      type: 'inboundcall',
+      format: 'yaml',
+    });
     expect((await a.seal()).contentHash).not.toBe((await b.seal()).contentHash);
   });
 
@@ -96,7 +104,7 @@ describe('BundleWriter', () => {
 
   it('counts what it captured', async () => {
     const writer = new BundleWriter(opts());
-    await writer.writeFlow('f1', '1', 'x', { id: 'f1', type: 'inboundcall' });
+    await writer.writeFlow('f1', '1', 'x', { id: 'f1', type: 'inboundcall', format: 'yaml' });
     await writer.writeResource('queues', 'q1', { id: 'q1' });
     const sealed = await writer.seal();
     expect(sealed.manifest.counts.flows).toBe(1);
@@ -114,10 +122,39 @@ describe('BundleWriter', () => {
 
   it('writes definition.yaml where a migration tool expects it', async () => {
     const writer = new BundleWriter(opts());
-    await writer.writeFlow('f1', '1', 'name: Main\n', { id: 'f1', type: 'inboundcall' });
+    await writer.writeFlow('f1', '1', 'name: Main\n', {
+      id: 'f1',
+      type: 'inboundcall',
+      format: 'yaml',
+    });
     await writer.seal();
     const path = join(root, 'flows', 'f1', 'versions', '1', 'definition.yaml');
     expect(await readFile(path, 'utf8')).toBe('name: Main\n');
+  });
+
+  it('writes definition.json — not definition.yaml — for a flow captured as JSON, and verifyBundle accepts it', async () => {
+    // FlowMeta.format records the serialization the source actually returned
+    // (see packages/capture/src/bundle-writer.ts): the Platform API
+    // configuration endpoint returns JSON, an Architect export returns YAML.
+    // definitionFileName follows that field rather than a fixed extension, so
+    // this proves the format survives the round trip through BundleWriter and
+    // that verifyBundle (which re-derives the same filename from flow.json to
+    // reconstruct the hashed content) accepts the result.
+    const writer = new BundleWriter(opts());
+    await writer.writeFlow('f1', '1', '{"name":"Main"}', {
+      id: 'f1',
+      type: 'inboundcall',
+      format: 'json',
+    });
+    await writer.seal();
+
+    const jsonPath = join(root, 'flows', 'f1', 'versions', '1', 'definition.json');
+    const yamlPath = join(root, 'flows', 'f1', 'versions', '1', 'definition.yaml');
+    expect(await readFile(jsonPath, 'utf8')).toBe('{"name":"Main"}');
+    await expect(readFile(yamlPath, 'utf8')).rejects.toThrow();
+
+    const result = await verifyBundle(root);
+    expect(result.ok, JSON.stringify(result.findings)).toBe(true);
   });
 
   it('stores an asset once and counts it', async () => {

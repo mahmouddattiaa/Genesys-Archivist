@@ -1,6 +1,7 @@
 // packages/normalization/test/extract-dependencies.test.ts
 import { readFile } from 'node:fs/promises';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { asNodeId } from '@genesys-archivist/domain';
 import { parseFlowConfig } from '../src/config-schema.js';
 import { extractNodes } from '../src/extract-nodes.js';
 import { extractDependencies } from '../src/extract-dependencies.js';
@@ -46,7 +47,7 @@ describe('extractDependencies', () => {
     const deps = extractDependencies(cfg, nodes);
     const refs = deps.flatMap((d) => d.referencedByNodeIds);
     expect(refs.length).toBeGreaterThan(0);
-    expect(refs.every((r) => nodeIds.has(r))).toBe(true);
+    expect(refs.every((r) => nodeIds.has(asNodeId(r)))).toBe(true);
   });
 
   it('keeps non-node contexts rather than discarding them', () => {

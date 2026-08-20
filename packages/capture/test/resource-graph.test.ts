@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
 import type { DependencyRef, DependencyResolution } from '@genesys-archivist/domain';
+import { createSchemaValidator } from '@genesys-archivist/testing';
 import { buildResourceGraph, type ResourceResolver } from '../src/resource-graph.js';
 
 /** Resolver over a static adjacency map. Anything absent resolves not_found. */
@@ -163,12 +164,7 @@ describe('buildResourceGraph', () => {
   });
 
   it('produces output that validates against the published schema', async () => {
-    const { default: Ajv2020 } = await import('ajv/dist/2020.js');
-    const { readFile } = await import('node:fs/promises');
-    const schema: unknown = JSON.parse(
-      await readFile('schemas/resource-graph.schema.json', 'utf8'),
-    );
-    const validate = new Ajv2020({ strict: true }).compile(schema);
+    const validate = await createSchemaValidator('schemas/resource-graph.schema.json');
     const { graph } = await buildResourceGraph([seed('flow:f1')], resolverFrom({ 'flow:f1': [] }));
     // The graph itself must conform without alteration once schemaVersion and
     // captureId (owned by the bundle writer, not the walker) are attached --
@@ -203,16 +199,10 @@ describe('a truncated walk is distinguishable from a complete one', () => {
   });
 
   it('the artifact itself still validates, carrying no extra field', async () => {
-    const { default: Ajv2020 } = await import('ajv/dist/2020.js');
-    const { readFile } = await import('node:fs/promises');
-    const schema: unknown = JSON.parse(
-      await readFile('schemas/resource-graph.schema.json', 'utf8'),
-    );
+    const validate = await createSchemaValidator('schemas/resource-graph.schema.json');
     const result = await buildResourceGraph([seed('flow:f0')], resolverFrom(chain), {
       maxRequests: 10,
     });
-    const ajv = new Ajv2020({ strict: true });
-    const validate = ajv.compile(schema);
     // The truncation flag lives on the result, never on the document, so a
     // truncated graph is still a schema-valid artifact.
     expect(

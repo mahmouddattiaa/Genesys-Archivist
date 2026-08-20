@@ -1,17 +1,14 @@
 // packages/domain/test/resource-graph-schema.test.ts
-import { readFile } from 'node:fs/promises';
 import { describe, expect, it, beforeAll } from 'vitest';
-import Ajv2020 from 'ajv/dist/2020.js';
-import addFormats from 'ajv-formats';
 import type { ValidateFunction } from 'ajv';
+import { createSchemaValidator } from '@genesys-archivist/testing';
 
 let validate: ValidateFunction;
 
 beforeAll(async () => {
-  const schema: unknown = JSON.parse(await readFile('schemas/resource-graph.schema.json', 'utf8'));
-  const ajv = new Ajv2020({ strict: true, allErrors: true });
-  addFormats(ajv);
-  validate = ajv.compile(schema);
+  validate = await createSchemaValidator('schemas/resource-graph.schema.json', {
+    allErrors: true,
+  });
 });
 
 const minimal = (): Record<string, unknown> => ({

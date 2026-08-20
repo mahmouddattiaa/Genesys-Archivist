@@ -1,12 +1,13 @@
 // packages/normalization/test/normalize.test.ts
 import { readFile } from 'node:fs/promises';
-import Ajv2020 from 'ajv/dist/2020.js';
-import addFormats from 'ajv-formats';
+import type { ValidateFunction } from 'ajv';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { asNodeId } from '@genesys-archivist/domain';
+import { createSchemaValidator } from '@genesys-archivist/testing';
 import { normalizeFlow } from '../src/normalize.js';
 
 let raw: unknown;
-let validate: ReturnType<Ajv2020['compile']>;
+let validate: ValidateFunction;
 
 const input = () => ({
   config: raw,
@@ -30,15 +31,15 @@ const input = () => ({
 
 beforeAll(async () => {
   raw = JSON.parse(await readFile('fixtures/flow-config/inboundcall-47-nodes.json', 'utf8'));
-  const schema: unknown = JSON.parse(await readFile('schemas/flow-snapshot.schema.json', 'utf8'));
   // allowUnionTypes matches scripts/validate-schemas.mjs's own Ajv setup —
   // the schema deliberately uses `type: [...]` unions (nullable ids,
   // integer-or-string version numbers), and strict mode refuses to compile
   // any schema keyword under a type union without this flag. Every other
   // option is exactly as the plan specifies: strict:true, allErrors:true.
-  const ajv = new Ajv2020({ strict: true, allErrors: true, allowUnionTypes: true });
-  addFormats(ajv);
-  validate = ajv.compile(schema);
+  validate = await createSchemaValidator('schemas/flow-snapshot.schema.json', {
+    allErrors: true,
+    allowUnionTypes: true,
+  });
 });
 
 describe('normalizeFlow', () => {
@@ -81,6 +82,6 @@ describe('normalizeFlow', () => {
     const s = normalizeFlow(input());
     const ids = new Set(s.graph.nodes.map((n) => n.nodeId));
     for (const d of s.dependencies)
-      for (const n of d.referencedByNodeIds) expect(ids.has(n)).toBe(true);
+      for (const n of d.referencedByNodeIds) expect(ids.has(asNodeId(n))).toBe(true);
   });
 });

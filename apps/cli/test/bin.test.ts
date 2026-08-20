@@ -52,15 +52,30 @@ describe('archivist CLI', () => {
 
   it('has no flag anywhere in the command tree that accepts a client secret', () => {
     const { deps } = fakeDeps();
-    const flags = buildProgram(deps)
-      .commands.flatMap((c) => c.options.map((o) => o.flags))
+    const program = buildProgram(deps);
+    // Command#createHelp() and Help#visibleOptions() are the public,
+    // documented way to enumerate a command's options (each an `Option` with
+    // a public `flags` string) -- unlike reaching into Command#options
+    // directly, which commander's own typings don't expose. This checks flag
+    // syntax specifically, not prose: a command description is free to
+    // mention "credential store" as a feature without tripping this check.
+    const help = program.createHelp();
+    const flags = [program, ...program.commands]
+      .flatMap((c) => help.visibleOptions(c).map((o) => o.flags))
       .join(' ');
     expect(flags).not.toMatch(/secret|password|token|credential/i);
   });
 
-  it('prints a version', () => {
-    const { deps } = fakeDeps();
-    expect(buildProgram(deps).version()).toBeTruthy();
+  it('prints a version', async () => {
+    // Command#version() is a getter/setter pair at runtime, but commander's
+    // typings only declare the setter overload (a required string argument),
+    // so calling it with zero arguments to read the value back does not
+    // type-check. --version is the same information through the public,
+    // documented CLI surface instead: exitOverride turns it into a rejected
+    // parseAsync() carrying the printed version text as deps.write output.
+    const { deps, out } = fakeDeps();
+    await expect(run(deps, ['--version'])).rejects.toThrow();
+    expect(out.some((l) => l.trim().length > 0)).toBe(true);
   });
 
   it('capture --help distinguishes context from migration so a reader can choose without running anything', () => {

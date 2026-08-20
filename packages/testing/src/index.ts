@@ -3,3 +3,4 @@
 // Implemented by the tasks in docs/superpowers/plans/.
 export * from './fake-source-provider.js';
 export * from './canaries.js';
+export * from './schema-validator.js';

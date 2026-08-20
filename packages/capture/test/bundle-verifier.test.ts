@@ -22,7 +22,11 @@ async function seededBundle(dir: string): Promise<void> {
     versions: { application: '0.1.0', adapter: '0.1.0', sourceProvider: 'fixture' },
     now: () => new Date('2026-08-20T14:31:00Z'),
   });
-  await writer.writeFlow('f1', '1', 'name: Main\n', { id: 'f1', type: 'inboundcall' });
+  await writer.writeFlow('f1', '1', 'name: Main\n', {
+    id: 'f1',
+    type: 'inboundcall',
+    format: 'yaml',
+  });
   await writer.seal();
 }
 

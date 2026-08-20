@@ -16,7 +16,7 @@ import {
   type GenesysSourceProvider,
   type RawFlowSource,
 } from '@genesys-archivist/domain';
-import { CANARIES, FakeSourceProvider } from '@genesys-archivist/testing';
+import { CANARIES, FakeSourceProvider, createSchemaValidator } from '@genesys-archivist/testing';
 import { acquireLock } from '@genesys-archivist/storage';
 import { verifyBundle } from '../src/bundle-verifier.js';
 import { runCapture, resumeCapture, type CaptureRunOptions } from '../src/capture-run.js';
@@ -207,15 +207,12 @@ describe('runCapture', () => {
   });
 
   it('persists a run manifest that satisfies the published schema', async () => {
-    const { default: Ajv2020 } = await import('ajv/dist/2020.js');
-    const { default: addFormats } = await import('ajv-formats');
-    const schema: unknown = JSON.parse(await readFile('schemas/run-manifest.schema.json', 'utf8'));
     // allowUnionTypes: the schema legitimately declares `selectedVersion` as
     // `["integer", "string"]`; ajv's strict mode otherwise treats a plain
     // (non-"error") union type declaration as suspicious and throws.
-    const ajv = new Ajv2020({ strict: true, allowUnionTypes: true });
-    addFormats(ajv);
-    const validate = ajv.compile(schema);
+    const validate = await createSchemaValidator('schemas/run-manifest.schema.json', {
+      allowUnionTypes: true,
+    });
 
     await runCapture(opts());
     const manifest: unknown = JSON.parse(

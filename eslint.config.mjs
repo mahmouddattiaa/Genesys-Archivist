@@ -36,6 +36,18 @@ export default tseslint.config(
   },
 
   {
+    // vitest.config.ts is deliberately excluded from tsconfig.eslint.json's
+    // `include` (see the comment there): it is ESM under a CJS-by-default
+    // root package.json, which is a hard tsc error under verbatimModuleSyntax,
+    // not a lint concern. Type-aware linting therefore cannot run on this one
+    // file -- `disableTypeChecked` drops the `parserOptions.project`
+    // requirement and the typed rules for it, while still linting the rest of
+    // the file with the plain (non-type-checked) rules above.
+    files: ['vitest.config.ts'],
+    extends: [tseslint.configs.disableTypeChecked],
+  },
+
+  {
     files: ['packages/domain/**/*.ts'],
     rules: {
       'no-restricted-imports': [

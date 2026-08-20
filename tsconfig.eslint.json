@@ -11,7 +11,16 @@
     "packages/*/src/**/*.ts",
     "packages/*/test/**/*.ts",
     "apps/*/src/**/*.ts",
-    "apps/*/test/**/*.ts",
-    "vitest.config.ts"
+    "apps/*/test/**/*.ts"
   ]
+  // vitest.config.ts is deliberately NOT included here. It is written as ESM
+  // (`import`, `import.meta`) but the root package.json has no `"type":
+  // "module"`, so TypeScript treats a bare .ts file at the repo root as CJS
+  // under NodeNext -- and under verbatimModuleSyntax that combination is a
+  // hard error (TS1295/TS1470), not a lint nit. Adding `"type": "module"` to
+  // the root package.json would fix it, but that changes module resolution
+  // for the whole workspace to fix one config file, which is out of
+  // proportion to the problem. ESLint still lints this file fine (its
+  // type-aware rules don't run the same emit-format check tsc's compile does)
+  // -- only tsc's own noEmit pass needs this carve-out.
 }
