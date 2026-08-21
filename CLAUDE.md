@@ -65,7 +65,7 @@ TDD. Write the failing test, watch it fail, write the minimal implementation, wa
 
 ## Status
 
-Plans 1–5 are built. **Both stages work end to end against a real Genesys organization.** ~1,166 tests; no package is a stub any more. Every `archivist` command and eight of the nine MCP tools are wired to real implementations.
+Plans 1–5 are built. **Both stages work end to end against a real Genesys organization.** 1,271 tests; no package is a stub any more. Every `archivist` command and eight of the nine MCP tools are wired to real implementations. AI narration is wired and opt-in: `--narrate` with a key stored by `archivist profile set-narration-key`.
 
 Capture has two modes, `context` and `migration` — see ADR-018. A `context` bundle must never be mistakable for a migration-ready one.
 
@@ -88,5 +88,12 @@ catalogue with `scripts/spike/list-permissions.mjs`.
 
 - **Migration mode holds every asset in memory at once.** It resolves the whole graph before writing, and cached resolutions carry asset bytes: peak memory is every asset in the organization simultaneously (~110 MB measured on the sandbox, unbounded in org size). Three ranked fixes are in Plan 5. **Do not run migration mode against a large real organization until this is fixed.** `context` mode is unaffected.
 - **`genesys_flow_diff`** is the one MCP tool still returning an explicit rejection rather than a result.
-- **`packages/composition/test/archivist-port.test.ts` flakes roughly 1 run in 6** on Windows. Documented in its own header; a test-lifecycle race, not a product defect.
-- Change detection exists as a pure decision function; its I/O is not wired, so every run reprocesses.
+- **A run that promoted correctly is still occasionally reported `failed`** —
+  roughly one full-suite run in a dozen, surfacing through
+  `archivist-port.test.ts`. Two proven causes were found and fixed (see
+  `packages/storage/src/atomic.ts` and its two regression test files); an
+  instrumented hunt over eight further full runs did not reproduce a third.
+  **Do not write this off as a flaky test.** It was diagnosed as one twice, and
+  both times it was a real defect on the platform this project is developed on.
+  The `catch {}` in `executeRun` discards the exception by design, so the only
+  way to diagnose it is to let it print once.

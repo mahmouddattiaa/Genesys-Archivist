@@ -13,11 +13,15 @@ Archivist does not build that migration server. It guarantees the data contract 
 
 ## Status
 
-**Both stages work end to end against a real Genesys organization.** ~1,166 tests, with format, lint, production and test typechecking, and schema validation in `npm run verify`.
+**Both stages work end to end against a real Genesys organization.** 1,271 tests, with format, lint, production and test typechecking, and schema validation in `npm run verify`.
 
-Plans 1–5 are built. Every `archivist` command is wired: `profile`, `doctor`, `capture`, `document`, `verify`. The MCP server exposes nine tools, eight of them backed by real implementations. The source path was settled by measurement rather than assumption — the Platform API configuration endpoint ([ADR-015](docs/adr/README.md)) — and the adapter reaches it over a transport that exposes only `GET`, so read-only is a property of the type rather than a matter of reviewer attention ([ADR-019](docs/adr/ADR-019-http-transport.md)).
+Plans 1–5 are built. Every `archivist` command is wired: `profile`, `doctor`, `capture`, `document`, `render`, `verify`, and `update`. The MCP server exposes nine tools, eight of them backed by real implementations. The source path was settled by measurement rather than assumption — the Platform API configuration endpoint ([ADR-015](docs/adr/README.md)) — and the adapter reaches it over a transport that exposes only `GET`, so read-only is a property of the type rather than a matter of reviewer attention ([ADR-019](docs/adr/ADR-019-http-transport.md)).
 
-Measured against the pilot sandbox: **511 flows across 15 types, 401 published**. A whole-organization `context` capture is about 400 requests, **~95 seconds**, ~10 MB ([S6](docs/spikes/S6-scale-budgets.md)).
+Measured against the pilot sandbox: **511 flows across 15 types, 401 published**.
+A whole-organization `context` capture reached **502 flows in ~361 seconds**; re-running
+it with `--since-last` carried 394 unchanged flows forward and finished in **~110 seconds**,
+producing a byte-identical content hash. Per-request budgets are in
+[S6](docs/spikes/S6-scale-budgets.md).
 
 ### The permission gate is closed
 
@@ -31,8 +35,12 @@ found that reading could not, are in [S4](docs/spikes/S4-permission-matrix.md).
 
 - **Migration mode holds every asset in memory at once** — ~110 MB on the sandbox, unbounded in organization size. Do not run it against a large real organization yet; `context` mode is unaffected. Three ranked fixes are in [Plan 5](docs/superpowers/plans/2026-08-20-05-production-adapter-and-server.md).
 - `genesys_flow_diff` still returns an explicit rejection rather than a result.
-- Change detection exists as a pure decision function, but its I/O is unwired, so every run reprocesses every flow.
-- One test file flakes roughly 1 run in 6 on Windows, documented in its own header.
+- **An intermittent, unexplained run status.** Roughly once in a dozen full-suite
+  runs, a run that promoted its documents correctly is still reported `failed`.
+  Two proven causes of exactly this were found and fixed — see the note below —
+  but an instrumented hunt over eight further full runs did not reproduce a third,
+  so it is recorded as open rather than closed. It has not been observed against a
+  real organization; it costs a misleading status, never output.
 
 ## Two capture modes
 
@@ -113,6 +121,49 @@ profile supplies the approved output root and the `expectedOrganizationId` that
 guards against a mistyped credential capturing the wrong customer's
 configuration.
 
+### Pictures, on request
+
+`document` writes Mermaid `.mmd` sources in seconds. Drawing them launches a
+headless browser and costs roughly eleven renders per flow, so a 502-flow
+organization is ~5,500 renders and tens of minutes. Bundling the two would mean
+nobody could have the fast one, and a reader who only wants `business.md` would
+pay for pictures they never open. So it is a separate step:
+
+```bash
+archivist render --bundle <bundleDir>          # draw every .mmd as .svg
+archivist render --bundle <bundleDir> --force  # redraw ones already drawn
+```
+
+Diagrams that cannot be drawn are **reported, never omitted** — a documentation
+set where three diagrams silently failed looks identical to one where they
+succeeded, and the reader has no way to tell.
+
+### Narration, opt-in and grounded
+
+Narration is off by default, and a test asserts that a run without it opens no
+socket at all. The API key is a credential, so it follows the same rule as the
+Genesys secret: CLI-only, stored under a key derived from the profile so it can
+never collide with that profile's client secret.
+
+```bash
+archivist profile set-narration-key acme      # paste at the prompt, or pipe stdin
+archivist document --bundle <bundleDir> --narrate --profile acme
+```
+
+Every claim the model produces is re-validated against the evidence pack before
+it can reach a document. A claim citing an evidence id that does not exist is
+**rejected outright** — never rendered in a weaker form — and the rejection is
+counted by reason code in `narrative.md`, because silently dropping it would be
+its own kind of dishonesty. Prompt wording is not the control here; the
+validator is.
+
+### Keep it current
+
+```bash
+archivist update            # pull the latest server from the configured git remote
+archivist update --check    # report what would change, without touching anything
+```
+
 ### Drive it from an AI client
 
 Register the server with your MCP client. Verified working against a real
@@ -174,7 +225,7 @@ Four source paths were in contention — Platform API, the Archy CLI, the Archit
 
 Spike S1 measured the Platform API configuration endpoint at 100% structural fidelity against a manually exported Architect YAML baseline: 47 nodes, 10 construct types, zero unexplained differences. It additionally supplies a stable `trackingId` on every node and a manifest of referenced resources with ids and per-node provenance. The Architect Scripting SDK was dropped entirely ([ADR-015](docs/adr/README.md)); it would have supplied a strict subset at a much higher dependency cost.
 
-The permission-matrix spike has since run and **failed** — see [S4](docs/spikes/S4-permission-matrix.md) and the Status section above. Prompt audio downloads read-only, clearing kill criterion 11 ([S5](docs/spikes/S5-prompt-audio.md)), and scale budgets are measured ([S6](docs/spikes/S6-scale-budgets.md)). Note that two spike-numbering schemes disagree from S3 onward; cite spikes by filename, not number.
+The permission-matrix spike has since run and **passed** — see [S4](docs/spikes/S4-permission-matrix.md) and the Status section above. Prompt audio downloads read-only, clearing kill criterion 11 ([S5](docs/spikes/S5-prompt-audio.md)), and scale budgets are measured ([S6](docs/spikes/S6-scale-budgets.md)). Note that two spike-numbering schemes disagree from S3 onward; cite spikes by filename, not number.
 
 ## Repository layout
 
