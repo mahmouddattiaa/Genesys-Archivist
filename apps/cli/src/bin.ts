@@ -24,6 +24,7 @@ import {
   openProfileStore,
   resolveSecretStore,
   runCapture,
+  runIncrementalCapture,
   verifyBundle,
   type CaptureRunOptions,
 } from '@genesys-archivist/composition';
@@ -216,6 +217,7 @@ function toCaptureArgv(opts: {
   readonly flow?: readonly string[];
   readonly flowType?: readonly string[];
   readonly profile?: string;
+  readonly sinceLast?: boolean;
 }): string[] {
   const argv: string[] = [];
   if (opts.mode !== undefined) argv.push('--mode', opts.mode);
@@ -223,6 +225,12 @@ function toCaptureArgv(opts: {
   for (const flowId of opts.flow ?? []) argv.push('--flow', flowId);
   for (const flowType of opts.flowType ?? []) argv.push('--flow-type', flowType);
   if (opts.profile !== undefined) argv.push('--profile', opts.profile);
+  // Every flag commander accepts has to be re-emitted here, because this is
+  // what the real parser sees. A flag registered on the command but missing
+  // from this function is accepted silently and then does nothing at all --
+  // which is exactly how --since-last first appeared to work while changing
+  // nothing about the run.
+  if (opts.sinceLast === true) argv.push('--since-last');
   return argv;
 }
 
@@ -320,6 +328,11 @@ export function buildProgram(deps: CliDeps): Command {
       [],
     )
     .option('--profile <profileId>', 'stored profile supplying credentials and the output root')
+    .option(
+      '--since-last',
+      're-fetch only flows that changed since the last capture, carrying the rest forward ' +
+        'from the previous bundle (context mode only)',
+    )
     .allowUnknownOption(false)
     .action(
       async (opts: {
@@ -328,6 +341,7 @@ export function buildProgram(deps: CliDeps): Command {
         readonly flow?: readonly string[];
         readonly flowType?: readonly string[];
         readonly profile?: string;
+        readonly sinceLast?: boolean;
       }) => {
         const parsed = parseCaptureArgs(toCaptureArgv(opts));
         if (parsed.kind === 'error') {
@@ -612,6 +626,7 @@ async function checkOutputRootWritable(root: string): Promise<boolean> {
 async function realCapture(
   command: CaptureCommand,
   profileStore: ReturnType<typeof openProfileStore>,
+  write: (line: string) => void,
 ): Promise<CaptureOutcome> {
   const profileId = command.profileId;
   if (profileId === undefined) {
@@ -648,17 +663,40 @@ async function realCapture(
   const startedAt = new Date();
   const runId = `${startedAt.toISOString().replace(/[:.]/g, '-')}_${planHash.slice(0, 6)}`;
 
-  return runCapture({
+  const shared = {
     root: profile.outputRoot,
     runId,
     planHash: `sha256:${planHash}`,
     organizationId: asOrganizationId(command.organizationId),
     expectedOrganizationId: asOrganizationId(profile.expectedOrganizationId),
     provider,
-    mode: command.mode,
     scope: toCaptureScope(command.scope),
     profileId,
-  });
+  };
+
+  if (!command.sinceLast) return runCapture({ ...shared, mode: command.mode });
+
+  // Incremental. Reports what it did rather than leaving an operator to
+  // wonder why a run that took six minutes yesterday took four seconds today.
+  const result = await runIncrementalCapture(shared);
+  const { captured, carriedForward, retired, inaccessible } = result.counts;
+  write(
+    `  incremental: captured ${String(captured)}, carried forward ${String(carriedForward)}` +
+      (retired > 0 ? `, ${String(retired)} retire-candidate(s)` : '') +
+      (inaccessible > 0 ? `, ${String(inaccessible)} inaccessible` : ''),
+  );
+  // Named individually, not just counted: a flow that vanished or became
+  // unreadable is something a person has to look at, and a number in a run
+  // manifest nobody opens is not a report.
+  for (const entry of result.plan.retireCandidates) {
+    write(
+      `  retire-candidate: ${entry.flowId} is no longer discoverable (never deleted automatically)`,
+    );
+  }
+  for (const entry of result.plan.inaccessible) {
+    write(`  inaccessible: ${entry.flowId} could not be read with this profile's permissions`);
+  }
+  return result;
 }
 
 async function buildRealDeps(): Promise<CliDeps> {
@@ -674,7 +712,7 @@ async function buildRealDeps(): Promise<CliDeps> {
       process.exitCode = code;
     },
     doctor: realDoctorReport,
-    capture: (command) => realCapture(command, profileStore),
+    capture: (command) => realCapture(command, profileStore, write),
     verifyBundle: async (bundleDir) => verifyBundle(resolve(bundleDir)),
     documentBundle: async (bundleDir, options) => {
       const dir = resolve(bundleDir);

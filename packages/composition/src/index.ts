@@ -85,6 +85,28 @@ export type { DiffFlowDeps } from './diff-flow.js';
 export { createRunStore } from './run-store.js';
 export type { RunManifest, RunStore, RunStoreOptions, LoadRunResult } from './run-store.js';
 
+// Change-detection I/O: reads what a previous capture run left on disk,
+// discovers the current organization through an injected
+// GenesysSourceProvider, and calls @genesys-archivist/analysis's
+// decideFlowAction per flow -- the I/O that pure function was deliberately
+// left without. `runIncrementalCapture` is the `--since-last` primitive: a
+// capture that only fetches what changed, while still sealing a bundle that
+// describes the whole organization (see that file's own header comment for
+// how, and why it is context-mode only).
+export { planIncrementalCapture, runIncrementalCapture } from './change-detection-io.js';
+export type {
+  IncrementalCaptureCounts,
+  IncrementalCaptureOptions,
+  IncrementalCaptureResult,
+  IncrementalCapturePlan,
+  InaccessibleFlow,
+  OutOfScopeFlow,
+  PlanIncrementalCaptureOptions,
+  PlannedCapture,
+  RetireCandidateFlow,
+  SkippedFlow,
+} from './change-detection-io.js';
+
 // Drawing the Mermaid sources an already-written documents tree contains.
 // Deliberately separate from documenting: writing the sources takes seconds,
 // drawing them launches a browser and takes tens of minutes across an

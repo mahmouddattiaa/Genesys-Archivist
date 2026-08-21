@@ -590,11 +590,29 @@ async function execute({ options, alreadyPromoted }: ExecuteParams): Promise<Cap
     // explicitly set to undefined.
     const discoveryQuery = flowTypes === undefined ? {} : { flowTypes };
     const wantedIds = scope.kind === 'flows' ? new Set(scope.flowIds.map(String)) : null;
-    const selected: { readonly flowId: string; readonly type: string }[] = [];
+    // Carries the whole descriptor, not just id and type.
+    //
+    // Discovery already knows a flow's name, division and published version;
+    // this narrowed to two fields and dropped the rest, so the bundle recorded
+    // nothing a later run could compare against and incremental capture had to
+    // re-fetch everything. Free information, thrown away.
+    const selected: {
+      readonly flowId: string;
+      readonly type: string;
+      readonly name: string;
+      readonly divisionId: string | null;
+      readonly publishedVersion: string | null;
+    }[] = [];
     try {
       for await (const flow of options.provider.listFlows(discoveryQuery)) {
         if (wantedIds !== null && !wantedIds.has(flow.flowId)) continue;
-        selected.push({ flowId: flow.flowId, type: flow.type });
+        selected.push({
+          flowId: flow.flowId,
+          type: flow.type,
+          name: flow.name,
+          divisionId: flow.divisionId,
+          publishedVersion: flow.publishedVersion,
+        });
       }
     } catch {
       manifestState.phase = 'failed';
@@ -684,6 +702,11 @@ async function execute({ options, alreadyPromoted }: ExecuteParams): Promise<Cap
         await writer.writeFlow(source.flowId, source.versionId, source.body, {
           id: flow.flowId,
           type: flow.type,
+          // Carried from the descriptor discovery already produced, so the
+          // next run can decide whether this flow changed without fetching it.
+          name: flow.name,
+          divisionId: flow.divisionId,
+          publishedVersion: flow.publishedVersion,
           // The provider reports the serialization it returned; discarding it
           // here is what disconnected capture from documentation.
           format: source.format,

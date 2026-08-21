@@ -307,3 +307,25 @@ describe('parsePorcelain', () => {
     expect(parsePorcelain('\n')).toEqual([]);
   });
 });
+
+describe('parsePorcelain: survives a caller that trimmed the output', () => {
+  // The real bug, and it was not in the parser. The shared `git()` helper
+  // returned `stdout.trim()` -- correct for a commit hash, wrong for a format
+  // where a leading space is data. Trimming the whole output strips the space
+  // from the FIRST line only, so exactly one path came back a character short
+  // and every other line looked fine. Fixed at the source with `gitRaw`; the
+  // parser is hardened here so the same combination cannot silently return a
+  // wrong path again.
+  it('recovers the first path when the leading status space was trimmed away', () => {
+    const trimmed = ['M packages/composition/src/index.ts', '?? packages/other.ts'].join('\n');
+    expect(parsePorcelain(trimmed)).toEqual([
+      'packages/composition/src/index.ts',
+      'packages/other.ts',
+    ]);
+  });
+
+  it('gives the same answer trimmed or not', () => {
+    const raw = [' M apps/cli/src/bin.ts', '?? apps/cli/src/new.ts'].join('\n');
+    expect(parsePorcelain(raw.trim())).toEqual(parsePorcelain(raw));
+  });
+});

@@ -32,6 +32,16 @@ export type CaptureScope =
 export interface CaptureCommand {
   readonly kind: 'capture';
   readonly mode: CaptureMode;
+  /**
+   * Re-fetch only the flows that changed since the last capture, carrying the
+   * rest forward from the previous bundle.
+   *
+   * Off by default. A full capture of a real 502-flow organization took 361
+   * seconds, almost all of it re-reading flows nobody had touched -- but
+   * "faster" is never worth a bundle that quietly lost flows, so the safe
+   * behaviour stays the default and this is opt-in.
+   */
+  readonly sinceLast: boolean;
   readonly organizationId: string;
   readonly scope: CaptureScope;
   readonly profileId?: string;
@@ -63,6 +73,10 @@ const FLAG_ORG = '--org';
 const FLAG_FLOW = '--flow';
 const FLAG_FLOW_TYPE = '--flow-type';
 const FLAG_PROFILE = '--profile';
+const FLAG_SINCE_LAST = '--since-last';
+
+/** Flags that are switches: present or absent, never followed by a value. */
+const BOOLEAN_FLAGS: ReadonlySet<string> = new Set([FLAG_SINCE_LAST]);
 
 const KNOWN_FLAGS: ReadonlySet<string> = new Set([
   FLAG_MODE,
@@ -70,6 +84,7 @@ const KNOWN_FLAGS: ReadonlySet<string> = new Set([
   FLAG_FLOW,
   FLAG_FLOW_TYPE,
   FLAG_PROFILE,
+  FLAG_SINCE_LAST,
 ]);
 
 function isFlagToken(token: string): boolean {
@@ -99,6 +114,15 @@ function tokenize(argv: readonly string[]): ReadonlyMap<string, string[]> | Capt
     }
     if (!KNOWN_FLAGS.has(token)) {
       return { kind: 'error', message: `Unknown flag: ${token}` };
+    }
+    // Boolean flags take no value. Every flag here used to take one, so the
+    // tokenizer demanded a value unconditionally and rejected `--since-last`
+    // with "requires a value" -- correct for the flags that existed, wrong the
+    // moment a switch was added.
+    if (BOOLEAN_FLAGS.has(token)) {
+      values.set(token, []);
+      index += 1;
+      continue;
     }
     const value = argv[index + 1];
     if (value === undefined || isFlagToken(value)) {
@@ -188,12 +212,30 @@ export function parseCaptureArgs(argv: readonly string[]): CaptureParseResult {
   if (scope.kind === 'error') return scope;
 
   const profileId = tokenized.get(FLAG_PROFILE)?.[0];
+  const sinceLast = tokenized.has(FLAG_SINCE_LAST);
+
+  // Refused rather than ignored. Incremental capture carries unchanged flows
+  // forward from the previous bundle, and that merge is only safe for a
+  // context bundle -- a migration bundle's deep resource closure and assets
+  // cannot be partially merged without risking a bundle that claims more than
+  // it holds. Silently downgrading the mode, or silently dropping the flag,
+  // would both leave the operator believing something untrue about the result.
+  if (sinceLast && mode === 'migration') {
+    return {
+      kind: 'error',
+      message:
+        '--since-last cannot be combined with --mode migration. Incremental capture carries ' +
+        'unchanged flows forward from the previous bundle, which is only safe for context ' +
+        'bundles. Run a full migration capture instead.',
+    };
+  }
 
   return {
     kind: 'capture',
     mode,
     organizationId,
     scope,
+    sinceLast,
     ...(profileId !== undefined ? { profileId } : {}),
   };
 }

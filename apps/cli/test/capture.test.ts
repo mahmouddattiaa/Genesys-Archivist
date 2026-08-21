@@ -11,6 +11,9 @@ describe('parseCaptureArgs', () => {
       mode: 'context',
       organizationId: 'org_1',
       scope: { kind: 'all' },
+      // Incremental capture is opt-in: the safe, complete behaviour is what a
+      // caller gets by default.
+      sinceLast: false,
     });
   });
 
@@ -137,5 +140,30 @@ describe('parseCaptureArgs', () => {
     // possible from a test, so this documents intent rather than checks it;
     // the real guarantee is the module's own import list.
     expect(typeof parseCaptureArgs).toBe('function');
+  });
+});
+
+describe('parseCaptureArgs: --since-last', () => {
+  it('is off unless asked for', () => {
+    const result = parseCaptureArgs(['--mode', 'context', '--org', 'org_1']);
+    expect(result.kind === 'capture' && result.sinceLast).toBe(false);
+  });
+
+  it('is set when the flag is present', () => {
+    const result = parseCaptureArgs(['--mode', 'context', '--org', 'org_1', '--since-last']);
+    expect(result.kind === 'capture' && result.sinceLast).toBe(true);
+  });
+
+  it('is refused with --mode migration rather than ignored or downgraded', () => {
+    // Carrying unchanged flows forward is only safe for a context bundle: a
+    // migration bundle's deep resource closure and assets cannot be partially
+    // merged without the result claiming more than it holds. Silently dropping
+    // the flag, or silently changing the mode, would both leave the operator
+    // believing something untrue about what they have.
+    const result = parseCaptureArgs(['--mode', 'migration', '--org', 'org_1', '--since-last']);
+    expect(result.kind).toBe('error');
+    if (result.kind === 'error') {
+      expect(result.message).toMatch(/cannot be combined with --mode migration/i);
+    }
   });
 });

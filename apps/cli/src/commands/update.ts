@@ -225,6 +225,25 @@ async function git(args: readonly string[], cwd: string): Promise<string> {
   return stdout.trim();
 }
 
+/**
+ * Like `git`, but does not trim.
+ *
+ * `git status --porcelain` encodes meaning in leading whitespace: the first of
+ * the two status characters is a space for an unstaged change, so " M path".
+ * Trimming the whole output strips that space from the *first line only*, and
+ * the fixed-width `slice(3)` that follows then eats the first character of
+ * that one path -- "packages/..." came back as "ackages/...", while every
+ * later line was fine.
+ *
+ * Two reasonable behaviours combining into a wrong one, and only observable by
+ * running the command: trimming command output is right for a commit hash or a
+ * branch name, and wrong for a format where a leading space is data.
+ */
+async function gitRaw(args: readonly string[], cwd: string): Promise<string> {
+  const { stdout } = await execFile('git', [...args], { cwd, maxBuffer: MAX_BUFFER });
+  return stdout.replace(/\r?\n$/, '');
+}
+
 /** Reduces any of the URL forms `git remote get-url` can hand back --
  * `https://host/owner/repo(.git)`, `ssh://git@host/owner/repo(.git)`,
  * `git@host:owner/repo(.git)` -- to a bare, lowercased `host/owner/repo`, so
@@ -278,7 +297,8 @@ async function repoRoot(): Promise<string> {
 async function gatherRepoStatus(): Promise<RepoStatus> {
   const cwd = await repoRoot();
 
-  const porcelain = await git(['status', '--porcelain'], cwd);
+  // gitRaw, not git: leading whitespace is data here. See gitRaw's comment.
+  const porcelain = await gitRaw(['status', '--porcelain'], cwd);
   const dirtyPaths = parsePorcelain(porcelain);
 
   const currentCommit = await git(['rev-parse', '--short', 'HEAD'], cwd);
@@ -401,7 +421,11 @@ export function parsePorcelain(porcelain: string): readonly string[] {
       // Two status characters, a space, then the path -- see `git help status`.
       // A rename ("old -> new") passes through unsplit, which is still a path,
       // just a wider one.
-      .map((line) => line.slice(3).trim())
+      // Matched rather than sliced at a fixed column. Porcelain is two status
+      // characters then a space, but a caller that trimmed the output leaves the
+      // first line one character short, and a fixed slice silently eats a
+      // character of the path instead of failing. This shape survives both.
+      .map((line) => /^(?:\s?\S{1,2})\s(.*)$/.exec(line)?.[1]?.trim() ?? line.slice(3).trim())
       .filter((path) => path.length > 0)
   );
 }

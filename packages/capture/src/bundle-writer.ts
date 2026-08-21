@@ -90,6 +90,25 @@ export interface FlowMeta {
    * implementation detail of whoever wrote it.
    */
   readonly format: 'yaml' | 'json';
+  /**
+   * Discovery metadata, recorded so the *next* run can tell whether this flow
+   * changed without re-fetching it.
+   *
+   * All three come free: `FlowDescriptor` already carries them at discovery
+   * time and capture simply threw them away. Without them a bundle records
+   * only `{id, type, format}`, `decideFlowAction` has nothing to compare, and
+   * every flow reports "changed" -- which is exactly what happened on the
+   * first real incremental run: 502 captured, 0 carried forward, no faster
+   * than a full capture.
+   *
+   * Optional because a bundle written before this existed has none of them,
+   * and the comparison must read a missing value as "cannot tell, so
+   * re-capture" rather than as "unchanged". Erring toward re-fetching costs
+   * time; erring the other way publishes stale documentation as current.
+   */
+  readonly name?: string;
+  readonly divisionId?: string | null;
+  readonly publishedVersion?: string | null;
 }
 
 export interface BundleCounts {
