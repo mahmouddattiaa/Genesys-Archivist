@@ -23,7 +23,7 @@
 // that bug entirely and keeps every profile subcommand's argument handling
 // directly unit-testable without spawning commander at all.
 import { createInterface } from 'node:readline';
-import { asProfileId } from '@genesys-archivist/domain';
+import { asProfileId, type ProfileId } from '@genesys-archivist/domain';
 import {
   profileMetadataSchema,
   toSafeProfileSummary,
@@ -122,6 +122,7 @@ export type ParsedProfileCommand =
   | { readonly kind: 'show'; readonly profileId: string }
   | { readonly kind: 'remove'; readonly profileId: string; readonly yes: boolean }
   | { readonly kind: 'set-secret'; readonly profileId: string }
+  | { readonly kind: 'set-narration-key'; readonly profileId: string }
   | { readonly kind: 'validate'; readonly profileId: string };
 
 export type ProfileParseResult = ParsedProfileCommand | ProfileParseError;
@@ -223,7 +224,7 @@ function parseAdd(tokens: readonly string[]): ParsedProfileCommand | ProfilePars
 }
 
 function parseSingleId(
-  subcommand: 'show' | 'set-secret' | 'validate',
+  subcommand: 'show' | 'set-secret' | 'set-narration-key' | 'validate',
   tokens: readonly string[],
 ): ParsedProfileCommand | ProfileParseError {
   const secretRejection = rejectSecretLikeFlags(tokens);
@@ -274,7 +275,8 @@ export function parseProfileArgs(argv: readonly string[]): ProfileParseResult {
     return {
       kind: 'error',
       message:
-        'Missing subcommand. Usage: archivist profile <add|list|show|remove|set-secret|validate> ...',
+        'Missing subcommand. Usage: archivist profile ' +
+        '<add|list|show|remove|set-secret|set-narration-key|validate> ...',
     };
   }
   switch (action) {
@@ -290,6 +292,8 @@ export function parseProfileArgs(argv: readonly string[]): ProfileParseResult {
       return parseRemove(rest);
     case 'set-secret':
       return parseSingleId('set-secret', rest);
+    case 'set-narration-key':
+      return parseSingleId('set-narration-key', rest);
     case 'validate':
       return parseSingleId('validate', rest);
     default:
@@ -452,10 +456,30 @@ export async function runProfileRemove(
     return EXIT_FAILURE;
   }
 
+  // The narration API key (if one was ever stored via set-narration-key) is
+  // a second, independent credential under its own derived SecretStore key
+  // -- see narrationSecretProfileId below. Cleaned up here too, best-effort:
+  // it is optional and opt-in, unlike the Genesys secret above, so a
+  // failure to remove it must not undo an otherwise-successful profile
+  // removal (the profile itself, and its mandatory secret, are already
+  // gone at this point). Silently leaving it behind on failure would still
+  // be an orphaned credential, so the failure is reported, not swallowed.
+  let narrationKeyRemoved = false;
+  try {
+    narrationKeyRemoved = await deps.secretStore.remove(narrationSecretProfileId(profileId));
+  } catch (error) {
+    deps.write(
+      `warning: this profile's stored narration API key could not be deleted and may still be ` +
+        `present in the credential store. Reason: ` +
+        (error instanceof Error ? error.message : 'unknown credential store failure'),
+    );
+  }
+
   await deps.profileStore.remove(profileId);
   deps.write(
     `Profile "${profileId}" removed` +
-      (secretRemoved ? ' along with its stored secret.' : '; no stored secret was present.'),
+      (secretRemoved ? ' along with its stored secret' : '; no stored secret was present') +
+      (narrationKeyRemoved ? ', and its stored narration key.' : '.'),
   );
   return EXIT_OK;
 }
@@ -498,6 +522,70 @@ export async function runProfileSetSecret(
   }
 
   deps.write(`Secret rotated for profile "${existing.profileId}".`);
+  return EXIT_OK;
+}
+
+// ---------------------------------------------------------------------------
+// set-narration-key
+//
+// The AI narration provider's own credential (packages/composition/src/
+// narration-provider.ts's createAnthropicNarrationProvider) is a *second*,
+// independent secret from a profile's Genesys client secret -- `SecretStore`
+// holds exactly one value per key (security/src/secret-store.ts), and that
+// key is already spent on the Genesys credential for a given profile id.
+// `narrationSecretProfileId` derives a distinct key so the two credentials
+// never collide in the same keyring entry, while still being scoped to (and
+// cleaned up alongside) the profile that owns it -- see runProfileRemove's
+// own cleanup step above.
+// ---------------------------------------------------------------------------
+
+/** The SecretStore key a profile's narration API key is stored under.
+ * Deliberately not the profile's own id: that key already holds the
+ * Genesys client secret. Exported so `apps/cli/src/bin.ts` can resolve the
+ * same key when wiring `createAnthropicNarrationProvider` for a real
+ * `--narrate` run -- one derivation, not two copies free to drift. */
+export function narrationSecretProfileId(profileId: string): ProfileId {
+  return asProfileId(`${profileId}:narration-key`);
+}
+
+export async function runProfileSetNarrationKey(
+  deps: ProfileCommandDeps,
+  profileId: string,
+): Promise<number> {
+  let existing: ProfileMetadata | null;
+  try {
+    existing = await deps.profileStore.get(profileId);
+  } catch (error) {
+    deps.write(
+      `error: profile "${profileId}" could not be read: ${describeError(error, 'unknown error.')}`,
+    );
+    return EXIT_FAILURE;
+  }
+  if (existing === null) {
+    deps.write(`Profile "${profileId}" not found. Run: archivist profile add`);
+    return EXIT_FAILURE;
+  }
+
+  const key = await deps.readSecret();
+  if (key.trim().length === 0) {
+    deps.write('error: no narration API key was provided on stdin.');
+    return EXIT_FAILURE;
+  }
+
+  try {
+    await deps.secretStore.set(narrationSecretProfileId(existing.profileId), key);
+  } catch (error) {
+    deps.write(
+      `error: failed to store the narration API key: ${describeError(error, 'unknown error.')}`,
+    );
+    return EXIT_FAILURE;
+  }
+
+  deps.write(
+    `Narration API key stored for profile "${existing.profileId}". ` +
+      'Use it with: archivist document --bundle <dir> --narrate --profile ' +
+      existing.profileId,
+  );
   return EXIT_OK;
 }
 

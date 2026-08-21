@@ -18,6 +18,8 @@ import commanderPkg from 'commander';
 import { createOsSecretStore, type SecretStore } from '@genesys-archivist/security';
 import { asFlowId, asOrganizationId, asProfileId } from '@genesys-archivist/domain';
 import {
+  createAnthropicNarrationProvider,
+  createFileNarrationJournal,
   createGenesysProvider,
   documentBundleToDisk,
   renderDiagrams,
@@ -32,11 +34,13 @@ import { parseCaptureArgs, type CaptureCommand, type CaptureOutcome } from './co
 import { runDoctor, type DoctorReport } from './commands/doctor.js';
 import {
   confirmFromStdin,
+  narrationSecretProfileId,
   parseProfileArgs,
   readSecretFromStdin,
   runProfileAdd,
   runProfileList,
   runProfileRemove,
+  runProfileSetNarrationKey,
   runProfileSetSecret,
   runProfileShow,
   runProfileValidate,
@@ -78,6 +82,17 @@ export interface DocumentBundleOutcome {
   readonly ok: boolean;
   readonly documentsWritten: number;
   readonly warnings?: readonly string[];
+  /** Present only when `--narrate` was requested. A summary of what the AI
+   * narration step did across every flow in this bundle -- see
+   * `@genesys-archivist/composition`'s `NarrationBundleReport` for the full
+   * shape this is drawn from. */
+  readonly narration?: {
+    readonly narrated: number;
+    readonly skipped: number;
+    readonly failed: number;
+    readonly acceptedClaims: number;
+    readonly rejectedClaims: number;
+  };
 }
 
 export interface CliDeps {
@@ -88,7 +103,13 @@ export interface CliDeps {
   readonly verifyBundle: (bundleDir: string) => Promise<VerificationOutcome>;
   readonly documentBundle: (
     bundleDir: string,
-    options?: { readonly renderDiagrams?: boolean },
+    options?: {
+      readonly renderDiagrams?: boolean;
+      /** Requires `profileId` -- the profile supplying the stored
+       * narration API key (`archivist profile set-narration-key`). */
+      readonly narrate?: boolean;
+      readonly profileId?: string;
+    },
   ) => Promise<DocumentBundleOutcome>;
   readonly renderDiagrams?: (bundleDir: string, force: boolean) => Promise<RenderOutcome>;
   /**
@@ -185,13 +206,38 @@ const PROFILE_HELP_DETAIL = [
   '  remove <id> [--yes]       Remove a profile. Confirms unless --yes is given.',
   '  set-secret <id>           Rotate the stored secret for a profile. Same',
   '                            stdin rule as add.',
+  "  set-narration-key <id>    Store the AI narration provider's API key for a",
+  '                            profile, used by `archivist document --narrate',
+  '                            --profile <id>`. A distinct credential from the',
+  "                            profile's Genesys client secret; same stdin rule",
+  '                            as add. Removed automatically when the profile',
+  '                            is removed.',
   '  validate <id>             Check the profile parses, a secret is stored, and',
   '                            the output root is writable. Never contacts',
   '                            Genesys — use `archivist doctor` for that.',
   '',
-  'The client secret is never accepted as a flag: --client-secret (or anything',
+  'No credential is ever accepted as a flag: --client-secret (or anything',
   'matching --secret/--password/--token/--credential) is refused with an',
   'explanation, on every subcommand.',
+].join('\n');
+
+// ---------------------------------------------------------------------------
+// document --help text
+// ---------------------------------------------------------------------------
+
+const DOCUMENT_HELP_DETAIL = [
+  '',
+  "--narrate adds narrative.md alongside each flow's business.md/technical.md/",
+  'operations.md: AI-drafted business commentary, built from a bounded evidence',
+  'pack and run through grounding validation before any of it is written. A',
+  'claim the validator cannot ground in real evidence is discarded, not shown --',
+  'see docs/05-documentation-generation.md. Off by default: without it, this',
+  "command's output is unchanged.",
+  '',
+  'Requires --profile <profileId>, naming the profile whose stored narration',
+  'API key to use (archivist profile set-narration-key <profileId>). A model',
+  'that is unreachable never blocks or corrupts the deterministic documents --',
+  'this command still produces them, and reports the narration failure instead.',
 ].join('\n');
 
 // ---------------------------------------------------------------------------
@@ -382,24 +428,64 @@ export function buildProgram(deps: CliDeps): Command {
       'also draw each diagram as an .svg (slow: launches a browser, ~11 renders per flow). ' +
         'Omit this and run "archivist render" later if you decide you want pictures.',
     )
-    .action(async (opts: { readonly bundle: string; readonly svg?: boolean }) => {
-      const result = await deps.documentBundle(opts.bundle, { renderDiagrams: opts.svg === true });
-      deps.write(
-        result.ok
-          ? `Generated documentation for ${String(result.documentsWritten)} flow(s).`
-          : 'Documentation generation did not complete.',
-      );
-      for (const warning of result.warnings ?? []) deps.write(`  warning: ${warning}`);
-      if (opts.svg !== true) {
-        // Said once, here, rather than left for the reader to discover a
-        // folder full of .mmd files they cannot open.
+    .addHelpText('after', DOCUMENT_HELP_DETAIL)
+    .option(
+      '--narrate',
+      'also produce narrative.md for each flow: AI-drafted business commentary, subject to ' +
+        'grounding validation. Off by default -- business.md/technical.md/operations.md are the ' +
+        'same either way. Requires --profile with a stored narration key ' +
+        '(archivist profile set-narration-key).',
+    )
+    .option(
+      '--profile <profileId>',
+      'the profile supplying the stored narration API key. Required with --narrate.',
+    )
+    .allowUnknownOption(false)
+    .action(
+      async (opts: {
+        readonly bundle: string;
+        readonly svg?: boolean;
+        readonly narrate?: boolean;
+        readonly profile?: string;
+      }) => {
+        if (opts.narrate === true && opts.profile === undefined) {
+          deps.write(
+            'error: --narrate requires --profile <profileId> (the profile supplying the stored ' +
+              'narration API key -- see archivist profile set-narration-key).',
+          );
+          deps.exit(EXIT_FAILURE);
+          return;
+        }
+        const result = await deps.documentBundle(opts.bundle, {
+          renderDiagrams: opts.svg === true,
+          narrate: opts.narrate === true,
+          ...(opts.profile !== undefined ? { profileId: opts.profile } : {}),
+        });
         deps.write(
-          '  Diagrams were written as Mermaid source (.mmd). To draw them as ' +
-            'images: archivist render --bundle <dir>',
+          result.ok
+            ? `Generated documentation for ${String(result.documentsWritten)} flow(s).`
+            : 'Documentation generation did not complete.',
         );
-      }
-      deps.exit(result.ok ? EXIT_OK : EXIT_FAILURE);
-    });
+        for (const warning of result.warnings ?? []) deps.write(`  warning: ${warning}`);
+        if (opts.svg !== true) {
+          // Said once, here, rather than left for the reader to discover a
+          // folder full of .mmd files they cannot open.
+          deps.write(
+            '  Diagrams were written as Mermaid source (.mmd). To draw them as ' +
+              'images: archivist render --bundle <dir>',
+          );
+        }
+        if (result.narration !== undefined) {
+          const n = result.narration;
+          deps.write(
+            `  Narration: ${String(n.narrated)} flow(s) narrated, ${String(n.skipped)} unchanged ` +
+              `and skipped, ${String(n.failed)} failed. ${String(n.acceptedClaims)} claim(s) ` +
+              `accepted, ${String(n.rejectedClaims)} rejected by grounding validation.`,
+          );
+        }
+        deps.exit(result.ok ? EXIT_OK : EXIT_FAILURE);
+      },
+    );
 
   program
     .command('render')
@@ -520,6 +606,8 @@ async function runProfileCommand(
       return runProfileRemove(profileDeps, parsed.profileId, { yes: parsed.yes });
     case 'set-secret':
       return runProfileSetSecret(profileDeps, parsed.profileId);
+    case 'set-narration-key':
+      return runProfileSetNarrationKey(profileDeps, parsed.profileId);
     case 'validate':
       return runProfileValidate(profileDeps, parsed.profileId);
   }
@@ -716,6 +804,33 @@ async function buildRealDeps(): Promise<CliDeps> {
     verifyBundle: async (bundleDir) => verifyBundle(resolve(bundleDir)),
     documentBundle: async (bundleDir, options) => {
       const dir = resolve(bundleDir);
+      const narrate = options?.narrate === true;
+
+      // Both `document`'s own action handler (bin.ts) and documentBundleToDisk
+      // itself refuse narrate:true without a provider -- this is belt and
+      // braces, not the only guard. profileId is required by the CLI flag
+      // parsing above whenever --narrate is given, so this branch only ever
+      // builds a provider it actually needs.
+      let narrationProvider;
+      let narrationJournal;
+      if (narrate && options.profileId !== undefined) {
+        // The narration API key lives under a *derived* SecretStore key,
+        // never the profile's own id -- that id already holds the Genesys
+        // client secret, and SecretStore holds one value per key. See
+        // apps/cli/src/commands/profile.ts's narrationSecretProfileId for
+        // the single, shared derivation both this and `set-narration-key`
+        // use.
+        narrationProvider = createAnthropicNarrationProvider({
+          profileId: narrationSecretProfileId(options.profileId),
+          secretStore,
+        });
+        // Rooted beside the bundle, exactly like `outputRoot` below -- a
+        // bundle is self-describing and portable, and a re-run against the
+        // same bundle (from any machine) should still see what was already
+        // narrated.
+        narrationJournal = createFileNarrationJournal({ root: dir });
+      }
+
       const result = await documentBundleToDisk({
         bundleDir: dir,
         // Off unless asked for. Writing the .mmd sources takes seconds;
@@ -727,15 +842,35 @@ async function buildRealDeps(): Promise<CliDeps> {
         // it, not have to know which profile produced it.
         outputRoot: dir,
         generatedAt: new Date().toISOString(),
+        narrate,
+        ...(narrationProvider !== undefined ? { narrationProvider } : {}),
+        ...(narrationJournal !== undefined ? { narrationJournal } : {}),
       });
       return {
         ok: result.skipped.length === 0,
         documentsWritten: result.documentsWritten,
         // Reported, never omitted: a documentation set that silently covers
         // four of five flows is worse than one that covers four and says so.
-        warnings: result.skipped.map(
-          (s) => `flow ${s.flowId} version ${s.versionId} was not documented: ${s.reason}`,
-        ),
+        // A narration warning (a failed provider call, or previously
+        // narrated content this run could not locate) is exactly the same
+        // kind of fact and is reported the same way, in the same list.
+        warnings: [
+          ...result.skipped.map(
+            (s) => `flow ${s.flowId} version ${s.versionId} was not documented: ${s.reason}`,
+          ),
+          ...(result.narration?.warnings ?? []),
+        ],
+        ...(result.narration !== undefined
+          ? {
+              narration: {
+                narrated: result.narration.narrated,
+                skipped: result.narration.skipped,
+                failed: result.narration.failed,
+                acceptedClaims: result.narration.acceptedClaims,
+                rejectedClaims: result.narration.rejectedClaims,
+              },
+            }
+          : {}),
       };
     },
     renderDiagrams: async (bundleDir, force) =>

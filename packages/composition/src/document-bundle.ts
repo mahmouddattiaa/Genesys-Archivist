@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { safeSegment } from '@genesys-archivist/security';
 import { escapeMarkdown } from '@genesys-archivist/documentation';
+import type { FlowSnapshot } from '@genesys-archivist/normalization';
 import { runDocument, type DocumentResult } from './document-flow.js';
 
 /**
@@ -33,6 +34,19 @@ export interface DocumentedFlow {
   readonly versionId: string;
   /** Relative path to contents, already prefixed with this flow's directory. */
   readonly files: Readonly<Record<string, string>>;
+  /**
+   * The normalized snapshot this flow's documents were rendered from.
+   *
+   * `documentBundle` itself never calls a model and never will -- see this
+   * module's own header, "Opens no socket. Stage 2 never does." Carrying the
+   * snapshot here is what lets `documentBundleToDisk` (which already does
+   * I/O for staging and promotion, and is where the opt-in `--narrate` path
+   * is wired, exactly as diagram rendering is) build a narration evidence
+   * pack for this flow without documentBundle itself acquiring any network
+   * dependency, and without a second call into `document-flow.ts`'s
+   * normalize/analyze pipeline to recover data this call already computed.
+   */
+  readonly snapshot: FlowSnapshot;
 }
 
 /** A flow the bundle holds that could not be documented, and why. */
@@ -296,7 +310,12 @@ export async function documentBundle(
     const definitionFile = flow.format === 'json' ? 'definition.json' : 'definition.yaml';
     scoped[`${dir}/${definitionFile}`] = flow.definition;
     files[`${dir}/${definitionFile}`] = flow.definition;
-    documented.push({ flowId: flow.flowId, versionId: flow.versionId, files: scoped });
+    documented.push({
+      flowId: flow.flowId,
+      versionId: flow.versionId,
+      files: scoped,
+      snapshot: result.snapshot,
+    });
   }
 
   return { documented, skipped, files };

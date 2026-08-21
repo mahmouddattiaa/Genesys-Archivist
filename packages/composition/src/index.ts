@@ -33,12 +33,41 @@ export type { DocumentBundleOptions, DocumentBundleResult } from './document-bun
 // Writes a documentBundle() result to disk, atomically and mergingly (never
 // overwriting flows an in-flight call did not itself re-document). Shared by
 // archivist-port.ts's startRun and apps/cli's `archivist document` command,
-// so the write-and-promote path exists exactly once.
+// so the write-and-promote path exists exactly once. `narrate: true` wires
+// the opt-in AI narration step through the same call -- see that file's own
+// "Narration wiring" section for why it lives here rather than in
+// documentBundle itself.
 export { documentBundleToDisk } from './document-bundle-to-disk.js';
 export type {
   DocumentBundleToDiskOptions,
   DocumentBundleToDiskResult,
+  NarrationBundleReport,
 } from './document-bundle-to-disk.js';
+
+// The real, Anthropic-API-backed NarrationProvider. `@genesys-archivist/narrative`
+// opens no socket of its own (see that package's narration-provider.ts
+// header); this is the adapter composition wires in, per AGENTS.md's rule
+// that adapters live in composition. The API key is resolved from a
+// SecretStore at the moment of use, never accepted as an argument that could
+// be logged or serialized -- see this module's own header for the full
+// reasoning, which mirrors genesys-provider.ts's for the Genesys client
+// secret exactly.
+export { createAnthropicNarrationProvider } from './narration-provider.js';
+export type { CreateAnthropicNarrationProviderOptions } from './narration-provider.js';
+
+// The resumable narration queue's real, disk-backed persistence, plus the
+// in-memory fallback documentBundleToDisk uses when a caller asks for
+// narration without supplying one. See narration-journal.ts's own header for
+// why this also carries a sections side-store beyond what
+// @genesys-archivist/narrative's own NarrationJournal port requires.
+export { createFileNarrationJournal, createInMemoryNarrationJournal } from './narration-journal.js';
+export type { FileNarrationJournalOptions, NarrationContentJournal } from './narration-journal.js';
+
+// Renders one flow's validated narration sections into narrative.md.
+// Exported so a caller wiring documentBundleToDisk's narration step by hand
+// (rather than through documentBundleToDisk itself) can reuse the same
+// rendering this module's own narration wiring does.
+export { renderNarrative } from './render-narrative.js';
 
 // Stage 1. `runCapture` is the only thing in this repo that talks to Genesys,
 // and it does so through an injected `GenesysSourceProvider` — no production
