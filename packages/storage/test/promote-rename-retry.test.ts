@@ -87,7 +87,11 @@ describe('promote: transient rename failures', () => {
     expect(gate.consumed).toBe(2);
   });
 
-  it('still surfaces a rename failure that never clears', async () => {
+  // Exhausts the entire retry schedule on purpose, twice over -- `promote`
+  // makes two rename calls. The schedule is deliberately longer than vitest's
+  // 5s default, so an explicit timeout is required here: it should catch a
+  // hang, not stopwatch a backoff the product intends to spend.
+  it('still surfaces a rename failure that never clears', { timeout: 60_000 }, async () => {
     // Bounded, so a genuine permission problem is reported rather than spun on.
     const target = join(root, 'runs', 'run-1');
     const staging = await createStaging(root, 'run-a');
@@ -107,26 +111,31 @@ describe('promote: transient rename failures', () => {
     // promote makes two distinct rename calls -- moving any existing target
     // aside, then moving staging in -- so two consumed attempts means each was
     // tried exactly once and neither retried. A retried EINVAL would have
-    // burned six per call. The point is that a code which will never clear
-    // surfaces immediately instead of costing 350ms of backoff first.
+    // burned the whole schedule per call. The point is that a code which will
+    // never clear surfaces immediately instead of paying any backoff at all.
     expect(gate.consumed).toBeLessThanOrEqual(2);
   });
 
-  it('leaves the previous content intact when promotion cannot complete', async () => {
-    // The release gate: a failed run never destroys last known-good output.
-    const target = join(root, 'runs', 'run-1');
-    const first = await createStaging(root, 'run-a');
-    await first.write(['manifest.json'], '{"generation":1}');
-    await promote(first, target);
+  // Also exhausts the full schedule -- see the note above.
+  it(
+    'leaves the previous content intact when promotion cannot complete',
+    { timeout: 60_000 },
+    async () => {
+      // The release gate: a failed run never destroys last known-good output.
+      const target = join(root, 'runs', 'run-1');
+      const first = await createStaging(root, 'run-a');
+      await first.write(['manifest.json'], '{"generation":1}');
+      await promote(first, target);
 
-    const second = await createStaging(root, 'run-b');
-    await second.write(['manifest.json'], '{"generation":2}');
-    failNext(99, 'EPERM');
-    await expect(promote(second, target)).rejects.toThrow();
-    gate.failures = 0;
+      const second = await createStaging(root, 'run-b');
+      await second.write(['manifest.json'], '{"generation":2}');
+      failNext(99, 'EPERM');
+      await expect(promote(second, target)).rejects.toThrow();
+      gate.failures = 0;
 
-    expect(JSON.parse(await readFile(join(target, 'manifest.json'), 'utf8'))).toEqual({
-      generation: 1,
-    });
-  });
+      expect(JSON.parse(await readFile(join(target, 'manifest.json'), 'utf8'))).toEqual({
+        generation: 1,
+      });
+    },
+  );
 });

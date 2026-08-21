@@ -34,7 +34,10 @@ function nowIso(): string {
 async function appendJournal(root: string, action: RecoveryAction): Promise<void> {
   const path = journalPath(root);
   await mkdir(dirname(path), { recursive: true });
-  await appendFile(path, JSON.stringify(action) + '\n', 'utf8');
+  // Retried for the same reason the renames are, and against the same codes:
+  // opening this file was measured failing with EPERM under load, from the
+  // same momentary external handle. See RENAME_RETRY_DELAYS_MS's comment.
+  await withTransientRetry(() => appendFile(path, JSON.stringify(action) + '\n', 'utf8'));
 }
 
 async function pathExists(path: string): Promise<boolean> {
@@ -139,7 +142,7 @@ export async function createStaging(root: string, runId: string): Promise<Stagin
  * Bounded, because a genuine permission problem must still surface rather than
  * spin.
  */
-const RENAME_RETRY_DELAYS_MS = [5, 15, 40, 90, 200] as const;
+const RENAME_RETRY_DELAYS_MS = [5, 15, 40, 90, 200, 400, 800, 1_500] as const;
 const TRANSIENT_RENAME_CODES = new Set(['EPERM', 'EACCES', 'EBUSY', 'ENOTEMPTY']);
 
 function isTransientRenameFailure(error: unknown): boolean {
@@ -151,17 +154,20 @@ function isTransientRenameFailure(error: unknown): boolean {
   );
 }
 
-async function renameWithRetry(from: string, to: string): Promise<void> {
+async function withTransientRetry<T>(operation: () => Promise<T>): Promise<T> {
   for (let attempt = 0; ; attempt += 1) {
     try {
-      await rename(from, to);
-      return;
+      return await operation();
     } catch (error) {
       const delay = RENAME_RETRY_DELAYS_MS[attempt];
       if (delay === undefined || !isTransientRenameFailure(error)) throw error;
       await new Promise((resolveDelay) => setTimeout(resolveDelay, delay));
     }
   }
+}
+
+async function renameWithRetry(from: string, to: string): Promise<void> {
+  await withTransientRetry(() => rename(from, to));
 }
 
 export async function promote(
@@ -192,12 +198,19 @@ export async function promote(
     // Restore last known good before surfacing the failure -- this is the
     // release gate: a failed run must leave the previous output intact.
     if (archived) await renameWithRetry(previous, target).catch(() => undefined);
+    // Recording the rollback must never replace the failure that caused it.
+    // If this append throws, `err` is lost and the caller is told the
+    // promotion failed for a filesystem-bookkeeping reason instead of the
+    // real one. The journal's last entry for this run then stays 'promoting',
+    // which `reconcilePendingPromotion` already resolves correctly: staging
+    // still exists, so it restores `previous` and abandons staging -- exactly
+    // what this branch just did by hand.
     await appendJournal(root, {
       runId: staging.runId,
       phase: 'rolled_back',
       target,
       at: nowIso(),
-    });
+    }).catch(() => undefined);
     throw err;
   }
 
@@ -212,7 +225,25 @@ export async function promote(
     // A stray archive directory is harmless; recovery cleans it up.
     await rm(previous, { recursive: true, force: true }).catch(() => undefined);
   }
-  await appendJournal(root, { runId: staging.runId, phase: 'completed', target, at: nowIso() });
+  // Past the commit point, exactly like the `rm` above: this run's content is
+  // already live, and this append is bookkeeping about a promotion that has
+  // already happened. Letting it throw reports a *successful* promotion as a
+  // failed run -- measured, not theorised: EPERM opening this file under load
+  // was one of the two causes of healthy captures being reported as `failed`.
+  //
+  // Swallowing is safe because recovery does not need this record to reach the
+  // right answer. Without it the run's last journal phase stays 'promoting',
+  // and `reconcilePendingPromotion` finds staging gone -- because the rename
+  // consumed it -- which is precisely its "the rename already succeeded"
+  // branch: it cleans up `previous` and writes the 'completed' entry itself.
+  // A missing entry therefore costs a deferred cleanup, never a rollback of
+  // live content.
+  await appendJournal(root, {
+    runId: staging.runId,
+    phase: 'completed',
+    target,
+    at: nowIso(),
+  }).catch(() => undefined);
   return { target, previousArchived: archived };
 }
 

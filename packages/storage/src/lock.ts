@@ -1,5 +1,6 @@
 // packages/storage/src/lock.ts
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { link, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { safeSegment } from '@genesys-archivist/security';
 
@@ -60,6 +61,54 @@ function isCreateContention(err: unknown): boolean {
   return code === 'EEXIST' || code === 'EPERM';
 }
 
+/**
+ * Creates `path` holding `contents`, failing if it already exists -- and,
+ * unlike `writeFile(..., { flag: 'wx' })`, never letting any other caller
+ * observe the file in a partially written state.
+ *
+ * `wx` gives atomic *creation*, not atomic *content*: it is
+ * `open(O_CREAT|O_EXCL)` followed by a separate `write`. Between those two
+ * syscalls the file exists and is empty. That window is not theoretical --
+ * measured on Windows, a concurrent reader saw a zero-length file on 7 of 67
+ * successful reads across 4,000 trials.
+ *
+ * It mattered because of what the reader does next. `readLockRecord` cannot
+ * distinguish "empty because the holder has not written yet" from "corrupt",
+ * and returns null for both; the reclaim path reads null as *stale* and
+ * removes the file. So a contender could delete a live holder's lock and then
+ * win it, and `acquireLock` granted the same key twice -- reproduced at
+ * roughly one overlap per 1,800 contested trials, which is exactly the rate
+ * at which the mutual-exclusion probe failed under full-suite load.
+ *
+ * Writing the bytes first and then `link`ing the finished file into place
+ * closes the window structurally rather than by timing: `link` is atomic and
+ * fails with EEXIST if the target exists, so the file at `path` is complete
+ * at the instant it becomes visible. Absence of a parseable record is
+ * therefore once again real evidence of staleness rather than a race.
+ *
+ * The temp file is created in the same directory, so it is always on the same
+ * volume -- a hard link cannot cross one.
+ *
+ * Staged once per `acquireLock` call rather than once per attempt, because
+ * `link` does not consume its source: one finished file can be offered to the
+ * target path as many times as the retry loop needs. Writing it per attempt
+ * instead turned every retry from one syscall into three, and contended
+ * acquisition slowed enough to push several tests past their timeouts -- a
+ * correctness fix has no business costing that, and it does not have to.
+ */
+async function stageExclusivePayload(path: string, contents: string): Promise<string> {
+  const temp = `${path}.${randomUUID()}.tmp`;
+  await writeFile(temp, contents, 'utf8');
+  return temp;
+}
+
+async function discardStagedPayload(temp: string): Promise<void> {
+  // Cleanup failure must never become operation failure, for the same reason
+  // release() swallows its own: this runs while a real error may already be
+  // propagating. A leftover temp file is inert -- nothing ever reads one.
+  await rm(temp, { force: true }).catch(() => undefined);
+}
+
 interface MutexRecord {
   readonly at: number;
 }
@@ -93,31 +142,38 @@ async function withReclaimMutex<T>(
   mutexPath: string,
   fn: () => Promise<T>,
 ): Promise<T | 'contended'> {
+  // `at` is stamped when the payload is staged rather than when it is finally
+  // linked. The gap is the retry loop below, which is syscalls rather than
+  // waits; and the value is only ever compared against RECLAIM_MUTEX_STALE_MS,
+  // five whole seconds, so being a few milliseconds early cannot change a
+  // verdict.
+  const temp = await stageExclusivePayload(mutexPath, JSON.stringify({ at: Date.now() }));
   let acquired = false;
-  for (let attempt = 0; attempt < MAX_ATTEMPTS && !acquired; attempt += 1) {
-    try {
-      await writeFile(mutexPath, JSON.stringify({ at: Date.now() }), {
-        encoding: 'utf8',
-        flag: 'wx',
-      });
-      acquired = true;
-    } catch (err) {
-      if (!isCreateContention(err)) throw err;
+  try {
+    for (let attempt = 0; attempt < MAX_ATTEMPTS && !acquired; attempt += 1) {
+      try {
+        await link(temp, mutexPath);
+        acquired = true;
+      } catch (err) {
+        if (!isCreateContention(err)) throw err;
 
-      const raw = await readFile(mutexPath, 'utf8').catch(() => null);
-      let parsed: unknown = null;
-      if (raw !== null) {
-        try {
-          parsed = JSON.parse(raw);
-        } catch {
-          parsed = null;
+        const raw = await readFile(mutexPath, 'utf8').catch(() => null);
+        let parsed: unknown = null;
+        if (raw !== null) {
+          try {
+            parsed = JSON.parse(raw);
+          } catch {
+            parsed = null;
+          }
         }
+        const heldAt = isMutexRecord(parsed) ? parsed.at : null;
+        const abandoned = heldAt === null || Date.now() - heldAt >= RECLAIM_MUTEX_STALE_MS;
+        if (!abandoned) return 'contended';
+        await rm(mutexPath, { force: true }).catch(() => undefined);
       }
-      const heldAt = isMutexRecord(parsed) ? parsed.at : null;
-      const abandoned = heldAt === null || Date.now() - heldAt >= RECLAIM_MUTEX_STALE_MS;
-      if (!abandoned) return 'contended';
-      await rm(mutexPath, { force: true }).catch(() => undefined);
     }
+  } finally {
+    await discardStagedPayload(temp);
   }
   if (!acquired) return 'contended';
 
@@ -168,9 +224,27 @@ export async function acquireLock(
   const mutexPath = `${path}.reclaim-mutex`;
   const record: LockRecord = { key, pid, acquiredAt: now(), ttlMs };
 
+  const temp = await stageExclusivePayload(path, JSON.stringify(record));
+  try {
+    return await acquireWithStagedRecord(path, mutexPath, temp, key, now);
+  } finally {
+    await discardStagedPayload(temp);
+  }
+}
+
+/** The retry loop itself, split out only so the staged payload above has a
+ * single, obvious lifetime: staged before, discarded after, whichever way this
+ * returns. */
+async function acquireWithStagedRecord(
+  path: string,
+  mutexPath: string,
+  temp: string,
+  key: string,
+  now: () => number,
+): Promise<Lock | null> {
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
     try {
-      await writeFile(path, JSON.stringify(record), { encoding: 'utf8', flag: 'wx' });
+      await link(temp, path);
       return makeLock(path, key);
     } catch (err) {
       if (!isCreateContention(err)) throw err;

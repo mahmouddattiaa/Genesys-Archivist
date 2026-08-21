@@ -61,65 +61,89 @@ describe('acquireLock', () => {
     await expect(acquireLock(root, '../../escape')).resolves.toBeNull();
   });
 
-  it('grants exactly one lock among many concurrent acquirers for the same key', async () => {
-    // Exercises the real race, not a sequential approximation of it: ten
-    // acquireLock calls for the same key are kicked off in the same tick.
-    // A read-then-write implementation would let more than one through here.
-    // Repeated across several fresh roots because async interleaving is
-    // nondeterministic -- a single lucky trial is weak evidence.
-    for (let trial = 0; trial < 8; trial += 1) {
-      const trialRoot = await mkdtemp(join(tmpdir(), 'archivist-lock-race-'));
-      try {
-        const attempts = await Promise.all(
-          Array.from({ length: 10 }, () => acquireLock(trialRoot, 'org_race')),
-        );
-        const granted = attempts.filter((lock) => lock !== null);
-        expect(granted).toHaveLength(1);
-      } finally {
-        await rm(trialRoot, { recursive: true, force: true });
-      }
-    }
-  });
+  /**
+   * The three tests below drive real, contended filesystem locking -- dozens of
+   * concurrent acquisitions against one key, each a genuine syscall. Vitest's 5s
+   * default is not a meaningful assertion about them; it just makes the suite
+   * fail whenever this file happens to run alongside something heavy. A timeout
+   * should catch a hang, not lose a race with the scheduler.
+   *
+   * `lock-mutual-exclusion.test.ts` reached the same conclusion independently
+   * and says so in its own header.
+   */
+  const CONTENDED = 60_000;
 
-  it('lets a fresh acquirer win after concurrent stale reclamation, still exactly once', async () => {
-    // This is the scenario that broke a naive "read stale, delete, retry"
-    // reclaim path: several callers observe the same stale record, but by
-    // the time they act on it, a faster caller may have already installed a
-    // fresh, live lock via its own legitimate `wx` create. Acting on the
-    // outdated staleness belief must not tear that down.
-    for (let trial = 0; trial < 8; trial += 1) {
-      const trialRoot = await mkdtemp(join(tmpdir(), 'archivist-lock-stale-race-'));
-      try {
-        let clock = 1_000;
-        await acquireLock(trialRoot, 'org_stale', { ttlMs: 100, now: () => clock });
-        clock += 1_000; // now well past the TTL
-        const attempts = await Promise.all(
-          Array.from({ length: 8 }, () =>
-            acquireLock(trialRoot, 'org_stale', { ttlMs: 100, now: () => clock }),
-          ),
-        );
-        const granted = attempts.filter((lock) => lock !== null);
-        expect(granted).toHaveLength(1);
-      } finally {
-        await rm(trialRoot, { recursive: true, force: true });
+  it(
+    'grants exactly one lock among many concurrent acquirers for the same key',
+    { timeout: CONTENDED },
+    async () => {
+      // Exercises the real race, not a sequential approximation of it: ten
+      // acquireLock calls for the same key are kicked off in the same tick.
+      // A read-then-write implementation would let more than one through here.
+      // Repeated across several fresh roots because async interleaving is
+      // nondeterministic -- a single lucky trial is weak evidence.
+      for (let trial = 0; trial < 8; trial += 1) {
+        const trialRoot = await mkdtemp(join(tmpdir(), 'archivist-lock-race-'));
+        try {
+          const attempts = await Promise.all(
+            Array.from({ length: 10 }, () => acquireLock(trialRoot, 'org_race')),
+          );
+          const granted = attempts.filter((lock) => lock !== null);
+          expect(granted).toHaveLength(1);
+        } finally {
+          await rm(trialRoot, { recursive: true, force: true });
+        }
       }
-    }
-  });
+    },
+  );
 
-  it('never grants a lock to a concurrent acquirer while a live holder still owns it', async () => {
-    for (let trial = 0; trial < 8; trial += 1) {
-      const trialRoot = await mkdtemp(join(tmpdir(), 'archivist-lock-live-race-'));
-      try {
-        await acquireLock(trialRoot, 'org_live');
-        const attempts = await Promise.all(
-          Array.from({ length: 8 }, () => acquireLock(trialRoot, 'org_live')),
-        );
-        expect(attempts.filter((lock) => lock !== null)).toHaveLength(0);
-      } finally {
-        await rm(trialRoot, { recursive: true, force: true });
+  it(
+    'lets a fresh acquirer win after concurrent stale reclamation, still exactly once',
+    { timeout: CONTENDED },
+    async () => {
+      // This is the scenario that broke a naive "read stale, delete, retry"
+      // reclaim path: several callers observe the same stale record, but by
+      // the time they act on it, a faster caller may have already installed a
+      // fresh, live lock via its own legitimate `wx` create. Acting on the
+      // outdated staleness belief must not tear that down.
+      for (let trial = 0; trial < 8; trial += 1) {
+        const trialRoot = await mkdtemp(join(tmpdir(), 'archivist-lock-stale-race-'));
+        try {
+          let clock = 1_000;
+          await acquireLock(trialRoot, 'org_stale', { ttlMs: 100, now: () => clock });
+          clock += 1_000; // now well past the TTL
+          const attempts = await Promise.all(
+            Array.from({ length: 8 }, () =>
+              acquireLock(trialRoot, 'org_stale', { ttlMs: 100, now: () => clock }),
+            ),
+          );
+          const granted = attempts.filter((lock) => lock !== null);
+          expect(granted).toHaveLength(1);
+        } finally {
+          await rm(trialRoot, { recursive: true, force: true });
+        }
       }
-    }
-  });
+    },
+  );
+
+  it(
+    'never grants a lock to a concurrent acquirer while a live holder still owns it',
+    { timeout: CONTENDED },
+    async () => {
+      for (let trial = 0; trial < 8; trial += 1) {
+        const trialRoot = await mkdtemp(join(tmpdir(), 'archivist-lock-live-race-'));
+        try {
+          await acquireLock(trialRoot, 'org_live');
+          const attempts = await Promise.all(
+            Array.from({ length: 8 }, () => acquireLock(trialRoot, 'org_live')),
+          );
+          expect(attempts.filter((lock) => lock !== null)).toHaveLength(0);
+        } finally {
+          await rm(trialRoot, { recursive: true, force: true });
+        }
+      }
+    },
+  );
 
   it('does not deadlock or throw when the lock file holds garbage instead of JSON', async () => {
     const dir = join(root, '.archivist', 'locks');
