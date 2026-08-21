@@ -211,6 +211,10 @@ re-checks it from the client side, against what a client is actually offered.
 Provisioning stays on the CLI, permanently. MCP tool arguments are chat-visible
 and client-logged, so `profile add` can never live here.
 
+For a non-engineering audience — what this is, what it produced against a real
+organisation, and what is not done yet — see
+**[docs/PRODUCT-OVERVIEW.md](docs/PRODUCT-OVERVIEW.md)**.
+
 Then read, in order:
 
 1. **[CLAUDE.md](CLAUDE.md)** — orientation for anyone (human or agent) about to write code here.
