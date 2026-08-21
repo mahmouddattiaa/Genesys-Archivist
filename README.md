@@ -115,19 +115,50 @@ configuration.
 
 ### Drive it from an AI client
 
+Register the server with your MCP client. Verified working against a real
+client over stdio — `npm run smoke:mcp:live` reproduces it.
+
 ```json
 {
   "mcpServers": {
-    "genesys-archivist": { "command": "genesys-archivist-mcp" }
+    "genesys-archivist": {
+      "command": "node",
+      "args": ["<repo>/apps/mcp-server/dist/bin.js"]
+    }
   }
 }
 ```
 
-STDIO only. The server writes protocol messages to stdout and everything else
-to stderr, opens no network listener, and **exposes no tool that accepts a
-credential** — a test walks every registered tool's input schema and fails if
-any property name is credential-shaped at any depth. Provisioning is CLI-only,
-forever.
+Use `node` with an absolute path to the built entry point. The `bin` name
+`genesys-archivist-mcp` only resolves once the package is installed globally
+or linked; a plain `node` invocation always works and is what the smoke test
+exercises.
+
+Run `npm run build` first — the client spawns the compiled output, not the
+TypeScript sources, and a stale `dist` is the most likely reason a change you
+just made appears to have no effect.
+
+Nine tools, two resource templates, three prompts:
+
+| Tool                       | Does                                                                       |
+| -------------------------- | -------------------------------------------------------------------------- |
+| `genesys_profiles_list`    | Safe profile metadata. Never a client ID, secret, or token.                |
+| `genesys_connection_check` | Validates one profile, resolves the organization, reports permission gaps. |
+| `genesys_flows_list`       | Paginated flow descriptors, capped, with a continuation cursor.            |
+| `genesys_flow_inspect`     | Bounded summary of one flow. Raw source is never inlined.                  |
+| `genesys_docs_plan`        | An immutable, expiring plan with a cryptographic hash.                     |
+| `genesys_docs_run_start`   | Starts a durable run from a plan; returns a run id immediately.            |
+| `genesys_docs_run_get`     | Run state, counts, warnings, result resource URIs.                         |
+| `genesys_docs_run_cancel`  | Cooperative and idempotent. Never deletes previous good output.            |
+| `genesys_flow_diff`        | Semantic diff between two versions.                                        |
+
+STDIO only: protocol on stdout, everything else on stderr, no network listener.
+**No tool accepts a credential** — a test walks every registered input schema
+and fails on a credential-shaped property name at any depth, and the smoke test
+re-checks it from the client side, against what a client is actually offered.
+
+Provisioning stays on the CLI, permanently. MCP tool arguments are chat-visible
+and client-logged, so `profile add` can never live here.
 
 Then read, in order:
 

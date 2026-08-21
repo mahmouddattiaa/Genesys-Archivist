@@ -30,7 +30,9 @@
     "spike:s1b": "node scripts/spike/s1b-corpus.mjs",
     "spike:s4": "node scripts/spike/s4-permissions.mjs",
     "spike:s5": "node scripts/spike/s5-assets.mjs",
-    "spike:s6": "node scripts/spike/s6-scale.mjs"
+    "spike:s6": "node scripts/spike/s6-scale.mjs",
+    "smoke:mcp": "node scripts/smoke/mcp-client-smoke.mjs",
+    "smoke:mcp:live": "node scripts/smoke/mcp-client-smoke.mjs --live"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
