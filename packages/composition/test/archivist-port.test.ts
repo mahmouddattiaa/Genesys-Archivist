@@ -7,20 +7,21 @@
 // tampered plan hash is rejected, and no secret or client ID ever appears
 // in a port return value or a persisted run manifest.
 //
-// KNOWN FLAKE, roughly 1 run in 6 on Windows. Two tests here
-// ("plans, starts, completes…" and "starting the same valid plan twice…")
-// intermittently fail, either on a run that never reaches a terminal state or
-// on ENOTEMPTY while the temp root is removed. Investigating it produced three
-// real fixes already — a guarded catch-persist and a backstopped
-// fire-and-forget in archivist-port.ts, a run drain in this file's afterEach,
-// and the removal of a silent `?? '.'` run-store root — but the residue is not
-// yet understood, and it is a test-lifecycle problem rather than a product
-// defect: startRun is fire-and-forget by contract, and this file races its own
-// teardown against work it deliberately started in the background.
+// This file used to fail roughly 1 run in 6, and the cause was not in it.
 //
-// It is recorded rather than retried-away on purpose. A retry here would hide
-// the one thing worth knowing: whether a run can ever get stuck non-terminal
-// in production, which is what an MCP client would poll forever on.
+// `promote` renames the live target aside and then renames staging into the
+// vacant path; on Windows that second rename intermittently failed with EPERM.
+// `run-store.save` promotes on every run state change, so one EPERM turned a
+// healthy run into one reported as `failed` -- a product defect on the
+// platform this project is developed on, wearing a flaky test as a disguise.
+// Fixed in packages/storage/src/atomic.ts with a bounded rename retry; see
+// packages/storage/test/promote-rename-retry.test.ts.
+//
+// Worth remembering for the next one: the three things done to this file
+// before finding it -- a longer poll budget, a raised vitest timeout, a drain
+// in afterEach -- were all reasonable, all improved something, and none of
+// them touched the cause. What found it was letting the swallowed exception
+// print once.
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

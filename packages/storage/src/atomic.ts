@@ -119,6 +119,51 @@ export async function createStaging(root: string, runId: string): Promise<Stagin
  * between them, not inside one. `recoverPendingPromotions` knows how to
  * finish or unwind whichever of those two renames it finds evidence of.
  */
+/**
+ * Windows fails a rename that POSIX would allow, transiently and at random.
+ *
+ * Measured here, not theorised: `promote` renames the live target aside and
+ * then renames staging into the now-vacant path, and that second rename failed
+ * with EPERM roughly one run in five under test. Not a logic error -- the path
+ * really is vacant -- but a virus scanner, the search indexer, or Explorer
+ * holding a momentary handle inside a directory tree that was being written a
+ * millisecond earlier. This file already acknowledges exactly that failure
+ * mode for its cleanup `rm`; the renames were left unguarded.
+ *
+ * It mattered far beyond a flaky test. `run-store.save` promotes on every run
+ * state change, so a single EPERM turned a healthy capture into a run reported
+ * as `failed`.
+ *
+ * A rename either happened or did not, so retrying one that failed is safe: it
+ * cannot half-apply and cannot produce a state a caller could observe as a mix.
+ * Bounded, because a genuine permission problem must still surface rather than
+ * spin.
+ */
+const RENAME_RETRY_DELAYS_MS = [5, 15, 40, 90, 200] as const;
+const TRANSIENT_RENAME_CODES = new Set(['EPERM', 'EACCES', 'EBUSY', 'ENOTEMPTY']);
+
+function isTransientRenameFailure(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    typeof (error as { code?: unknown }).code === 'string' &&
+    TRANSIENT_RENAME_CODES.has((error as { code: string }).code)
+  );
+}
+
+async function renameWithRetry(from: string, to: string): Promise<void> {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await rename(from, to);
+      return;
+    } catch (error) {
+      const delay = RENAME_RETRY_DELAYS_MS[attempt];
+      if (delay === undefined || !isTransientRenameFailure(error)) throw error;
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, delay));
+    }
+  }
+}
+
 export async function promote(
   staging: StagingArea,
   targetDir: string,
@@ -134,7 +179,7 @@ export async function promote(
   const previous = `${target}.previous-${staging.runId}`;
   let archived = false;
   try {
-    await rename(target, previous);
+    await renameWithRetry(target, previous);
     archived = true;
   } catch {
     // No existing target. A first run has nothing to preserve.
@@ -142,11 +187,11 @@ export async function promote(
 
   try {
     await mkdir(dirname(target), { recursive: true });
-    await rename(staging.dir, target);
+    await renameWithRetry(staging.dir, target);
   } catch (err) {
     // Restore last known good before surfacing the failure -- this is the
     // release gate: a failed run must leave the previous output intact.
-    if (archived) await rename(previous, target).catch(() => undefined);
+    if (archived) await renameWithRetry(previous, target).catch(() => undefined);
     await appendJournal(root, {
       runId: staging.runId,
       phase: 'rolled_back',
