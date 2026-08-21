@@ -84,6 +84,13 @@ npm run build
 
 ### Point it at an organization
 
+**First time against a new Genesys organisation?** Follow
+**[docs/SETUP-GENESYS.md](docs/SETUP-GENESYS.md)** — it walks through creating the
+least-privilege read-only role, the OAuth client, and where the credentials go. It also
+documents the one step nothing in the Genesys UI hints at: **a new role does not appear
+in the OAuth client's role picker until you have added a member to it** via _Change
+Membership_. That single omission costs people an hour.
+
 A profile holds the non-secret metadata and names the credential. **The client
 secret is read from stdin or a hidden prompt, never from a flag** — argv is
 visible in process listings and shell history, so `--client-secret` is refused
@@ -215,6 +222,35 @@ For a non-engineering audience — what this is, what it produced against a real
 organisation, and what is not done yet — see
 **[docs/PRODUCT-OVERVIEW.md](docs/PRODUCT-OVERVIEW.md)**.
 
+### If you are an AI agent integrating this tool
+
+Read these four, in this order, before running anything:
+
+1. **[docs/SETUP-GENESYS.md](docs/SETUP-GENESYS.md)** — the once-per-organisation admin
+   setup. Do not attempt a capture before this is done; every failure mode at that stage
+   traces back to it.
+2. **[AGENTS.md](AGENTS.md)** — the boundaries you must not cross. In particular: never
+   put a credential in a tool argument, and never widen the Genesys role to make a
+   permission error go away.
+3. This file's **[Status](#status)** and **[Known gaps](#known-gaps)** — what genuinely
+   works today versus what is still open. Do not promise a user the migration mode at
+   organisation scale; it is not ready.
+4. **[docs/PRODUCT-OVERVIEW.md](docs/PRODUCT-OVERVIEW.md)** — for explaining the tool to
+   the human you are working for.
+
+Operational notes that are easy to get wrong:
+
+- **`document` does not draw diagrams.** It writes `.mmd` sources in seconds; `render`
+  draws them and takes tens of minutes on a large organisation. Offer the second step,
+  do not assume it.
+- **Narration is opt-in** (`--narrate`) and needs a key stored by
+  `archivist profile set-narration-key`. Without it, everything else still works and
+  opens no socket.
+- **Re-running is cheap.** `--since-last` carried 394 of 502 flows forward on the
+  reference organisation and cut a six-minute run to under two.
+- **A `context` bundle is not migration-ready** and says so in its own manifest. Never
+  present one as sufficient for a platform migration.
+
 Then read, in order:
 
 1. **[CLAUDE.md](CLAUDE.md)** — orientation for anyone (human or agent) about to write code here.
@@ -246,6 +282,16 @@ docs/                  blueprint, design spec, plans, ADRs, spikes
 ```
 
 Dependency direction is enforced by ESLint, not by convention: `domain` imports nothing, `application` imports `domain` only, and `apps/*` stay thin.
+
+## Contributing
+
+This project is open to outside development. Fork it, branch, and open a pull request —
+every PR is reviewed before merge. **[CONTRIBUTING.md](CONTRIBUTING.md)** covers the
+workflow, the five rules that will get a change rejected, the TDD expectations, and a
+list of good first contributions drawn from the current known gaps.
+
+You do not need a Genesys organisation to contribute usefully: the documentation stage
+and most of capture are testable offline against fixtures.
 
 ## Never commit
 
