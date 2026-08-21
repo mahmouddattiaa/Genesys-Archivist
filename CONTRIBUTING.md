@@ -12,11 +12,14 @@ documentation stage, and most of capture, is testable offline against fixtures.
 
 ## The workflow
 
+Upstream: **https://github.com/mahmouddattiaa/Genesys-Archivist**
+
 ```bash
-# 1. Fork on GitHub, then:
-git clone https://github.com/<you>/<fork>.git
-cd <fork>
+# 1. Fork https://github.com/mahmouddattiaa/Genesys-Archivist on GitHub, then:
+git clone https://github.com/<you>/Genesys-Archivist.git
+cd Genesys-Archivist
 npm install
+git remote add upstream https://github.com/mahmouddattiaa/Genesys-Archivist.git
 
 # 2. Branch
 git checkout -b fix/unsupported-node-warning

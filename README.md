@@ -2,6 +2,8 @@
 
 Captures Genesys Cloud Architect flows and every resource they depend on, then generates business and technical documentation from that capture.
 
+**https://github.com/mahmouddattiaa/Genesys-Archivist**
+
 Two consumers, two guarantees:
 
 | Consumer                                       | Gets                                          | Guarantee                                                                          |
@@ -167,9 +169,22 @@ validator is.
 ### Keep it current
 
 ```bash
-archivist update            # pull the latest server from the configured git remote
-archivist update --check    # report what would change, without touching anything
+archivist update --check    # report only: current commit, how far behind, what would land
+archivist update            # pull, reinstall dependencies, rebuild -- prompts first
+archivist update --yes      # same, without the confirmation prompt
 ```
+
+`update` pulls from **https://github.com/mahmouddattiaa/Genesys-Archivist**, reinstalls
+dependencies, and rebuilds. It refuses, with a plain statement of what it found, when:
+
+- the working tree is dirty (it lists the paths, never the diff), or
+- `origin` does not point at that repository.
+
+That second check is a supply-chain control rather than a tidiness rule: the command runs
+`npm install` and a build against whatever it pulls, so it must never do that from a
+fork. Clones created before the repository was renamed from `genesys-architect-docs-mcp`
+still work — GitHub redirects the old path to the same repository, and both spellings are
+accepted.
 
 ### Drive it from an AI client
 

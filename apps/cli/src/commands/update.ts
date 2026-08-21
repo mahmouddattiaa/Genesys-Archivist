@@ -65,7 +65,7 @@ export interface RepoStatus {
    * the working tree is clean. */
   readonly dirtyPaths: readonly string[];
   /** False when the checked-out branch is not tracking the expected
-   * `origin` (github.com/mahmouddattiaa/genesys-architect-docs-mcp): no
+   * `origin` (github.com/mahmouddattiaa/Genesys-Archivist): no
    * upstream at all, an upstream on a different remote, or `origin` itself
    * repointed at a fork. */
   readonly remoteOk: boolean;
@@ -125,7 +125,7 @@ export async function runUpdate(deps: UpdateCommandDeps, options: UpdateOptions)
   if (!status.remoteOk) {
     deps.write(
       'Refusing to update: this checkout is not tracking the expected repository ' +
-        '(github.com/mahmouddattiaa/genesys-architect-docs-mcp).',
+        '(github.com/mahmouddattiaa/Genesys-Archivist).',
     );
     deps.write(`  ${status.remoteDetail ?? 'the remote could not be verified.'}`);
     return EXIT_FAILURE;
@@ -204,10 +204,31 @@ export async function runUpdate(deps: UpdateCommandDeps, options: UpdateOptions)
 // command, not by a test that would otherwise need a real git checkout.
 // ---------------------------------------------------------------------------
 
-/** github.com/mahmouddattiaa/genesys-architect-docs-mcp, lowercased, with no
- * protocol, no trailing `.git`, and no userinfo -- see `normalizeRemoteUrl`.
- * This is the one repo `archivist update` will ever pull from. */
-const EXPECTED_REMOTE = 'github.com/mahmouddattiaa/genesys-architect-docs-mcp';
+/** Lowercased, with no protocol, no trailing `.git`, and no userinfo -- see
+ * `normalizeRemoteUrl`. This is the repository `archivist update` pulls from. */
+export const EXPECTED_REMOTE = 'github.com/mahmouddattiaa/genesys-archivist';
+
+/**
+ * The repository was renamed from `genesys-architect-docs-mcp`, and GitHub
+ * redirects the old path permanently. An existing clone whose `origin` still
+ * carries the old name therefore fetches from *this* repository, not a
+ * different one -- so accepting it keeps those clones updatable without
+ * widening the trust boundary by a single repository.
+ *
+ * This matters more than a normal name change would: `update` runs
+ * `npm install` and a build against whatever it pulls, so this comparison is
+ * the control that stops it executing code from a fork. Anything added to this
+ * list must be the same repository, not merely a trusted-looking one.
+ */
+const RENAMED_FROM = 'github.com/mahmouddattiaa/genesys-architect-docs-mcp';
+
+const ACCEPTED_REMOTES: readonly string[] = [EXPECTED_REMOTE, RENAMED_FROM];
+
+/** True when `raw` identifies the repository this command may pull from,
+ * in any of the URL spellings git accepts for it. */
+export function isAcceptedRemote(raw: string): boolean {
+  return ACCEPTED_REMOTES.includes(normalizeRemoteUrl(raw));
+}
 
 // npm ships as npm.cmd on Windows. Naming the platform-correct executable
 // keeps this on execFile's no-shell path (see the file header on this
@@ -248,7 +269,7 @@ async function gitRaw(args: readonly string[], cwd: string): Promise<string> {
  * `https://host/owner/repo(.git)`, `ssh://git@host/owner/repo(.git)`,
  * `git@host:owner/repo(.git)` -- to a bare, lowercased `host/owner/repo`, so
  * the three all compare equal against `EXPECTED_REMOTE`. */
-function normalizeRemoteUrl(raw: string): string {
+export function normalizeRemoteUrl(raw: string): string {
   const trimmed = raw.trim().replace(/\.git$/i, '');
   const scpLike = /^[^/@]+@([^:]+):(.+)$/.exec(trimmed);
   if (scpLike) {
@@ -334,7 +355,7 @@ async function gatherRepoStatus(): Promise<RepoStatus> {
   }
 
   const remoteUrl = await git(['remote', 'get-url', remoteName], cwd);
-  if (normalizeRemoteUrl(remoteUrl) !== EXPECTED_REMOTE) {
+  if (!isAcceptedRemote(remoteUrl)) {
     return notTracking(
       `origin points to "${redactUserinfo(remoteUrl)}", not https://${EXPECTED_REMOTE}.`,
     );
