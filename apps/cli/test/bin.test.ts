@@ -28,12 +28,20 @@ async function run(deps: CliDeps, argv: readonly string[]): Promise<void> {
 }
 
 describe('archivist CLI', () => {
-  it('exposes exactly the release commands: capture, doctor, document, profile, render, verify', () => {
+  it('exposes exactly the release commands: capture, doctor, document, profile, render, update, verify', () => {
     const { deps } = fakeDeps();
     const names = buildProgram(deps)
       .commands.map((c) => c.name())
       .sort();
-    expect(names).toEqual(['capture', 'doctor', 'document', 'profile', 'render', 'verify']);
+    expect(names).toEqual([
+      'capture',
+      'doctor',
+      'document',
+      'profile',
+      'render',
+      'update',
+      'verify',
+    ]);
   });
 
   it('rejects an unknown command rather than doing something surprising', async () => {

@@ -41,6 +41,7 @@ import {
   runProfileValidate,
   type ProfileCommandDeps,
 } from './commands/profile.js';
+import { createRealUpdateDeps, runUpdate, type UpdateCommandDeps } from './commands/update.js';
 
 // commander v7's typings model a CJS `export = commander` namespace rather
 // than true ESM named exports (see node_modules/commander/typings/index.d.ts).
@@ -98,6 +99,13 @@ export interface CliDeps {
    * without wiring this field).
    */
   readonly profile?: ProfileCommandDeps;
+  /**
+   * Optional for the same reason `profile` above is: existing `CliDeps`
+   * fakes in this codebase's own suite that don't exercise `update` keep
+   * type-checking unchanged. `buildRealDeps` always supplies it; `update`'s
+   * own action handler fails loudly, not silently, if it is ever missing.
+   */
+  readonly update?: UpdateCommandDeps;
 }
 
 export type { CaptureCommand, CaptureOutcome } from './commands/capture.js';
@@ -183,6 +191,23 @@ const PROFILE_HELP_DETAIL = [
   'The client secret is never accepted as a flag: --client-secret (or anything',
   'matching --secret/--password/--token/--credential) is refused with an',
   'explanation, on every subcommand.',
+].join('\n');
+
+// ---------------------------------------------------------------------------
+// update --help text
+// ---------------------------------------------------------------------------
+
+const UPDATE_HELP_DETAIL = [
+  '',
+  'Unlike every other command here, this one executes code fetched from the',
+  'internet on this machine: a fast-forward git merge, then whatever npm ci',
+  'and the build script decide to run. It refuses outright on a dirty',
+  'working tree or a remote that is not this repository, never resets or',
+  'cleans the checkout, and never merges anything but a fast-forward.',
+  '',
+  'With no flags: checks for updates, shows what would land, asks to',
+  'confirm, then pulls, installs, and rebuilds. --check stops after showing',
+  'what would land. --yes skips the confirmation prompt.',
 ].join('\n');
 
 function toCaptureArgv(opts: {
@@ -435,6 +460,31 @@ export function buildProgram(deps: CliDeps): Command {
       deps.exit(await runProfileCommand(deps.profile, parsed));
     });
 
+  program
+    .command('update')
+    .description(
+      'Pull the latest archivist release from GitHub, reinstall dependencies, and rebuild.',
+    )
+    .addHelpText('after', UPDATE_HELP_DETAIL)
+    .option(
+      '--check',
+      'report only: current commit, how many commits behind, and what would land. Changes nothing.',
+    )
+    .option('--yes', 'skip the confirmation prompt before pulling, installing, and building')
+    .allowUnknownOption(false)
+    .action(async (opts: { readonly check?: boolean; readonly yes?: boolean }) => {
+      if (deps.update === undefined) {
+        deps.write('error: archivist update is not configured for this invocation.');
+        deps.exit(EXIT_FAILURE);
+        return;
+      }
+      const code = await runUpdate(deps.update, {
+        check: opts.check === true,
+        yes: opts.yes === true,
+      });
+      deps.exit(code);
+    });
+
   return program;
 }
 
@@ -670,6 +720,7 @@ async function buildRealDeps(): Promise<CliDeps> {
       confirm: (message) => confirmFromStdin(process.stdin, process.stdout, message),
       checkOutputRootWritable,
     },
+    update: createRealUpdateDeps(write),
   };
 }
 
