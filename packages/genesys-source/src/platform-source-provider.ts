@@ -104,6 +104,15 @@ export class PlatformSourceProvider implements GenesysSourceProvider {
   readonly #regionKey: string;
   readonly #logger: Logger | undefined;
   readonly #readers: ReadonlyMap<string, (id: string) => Promise<DependencyResolution>>;
+  /**
+   * Languages declared by the flows this provider has loaded.
+   *
+   * A Genesys system prompt carries every locale Genesys supports -- 477 on a
+   * real tenant -- while a flow typically declares one. Without this, a
+   * single-flow migration capture downloaded all 477 and took 259 seconds
+   * instead of four, for 476 files nothing would ever play.
+   */
+  readonly #languagesInUse = new Set<string>();
 
   /** Keyed `flowId:versionId` -> the configuration body. */
   readonly #flowConfigCache = new BoundedCache<string, FlowConfiguration>(FLOW_CONFIG_CACHE_LIMIT);
@@ -120,7 +129,13 @@ export class PlatformSourceProvider implements GenesysSourceProvider {
     this.#client = client;
     this.#regionKey = regionKey;
     this.#logger = logger;
-    this.#readers = createResourceReaders(client);
+    // The readers ask, at download time, which languages are worth fetching.
+    // A closure rather than a value because flows are loaded before their
+    // resources are resolved, so the set is not known when the readers are
+    // built -- only by the time one of them needs it.
+    this.#readers = createResourceReaders(client, () =>
+      this.#languagesInUse.size > 0 ? this.#languagesInUse : null,
+    );
   }
 
   async validateConnection(): Promise<ConnectionIdentity> {
@@ -244,6 +259,32 @@ export class PlatformSourceProvider implements GenesysSourceProvider {
    * through `resource-readers.ts`'s registry, or reported `unsupported` if
    * this adapter has never learned to read it.
    */
+  /**
+   * Notes the languages a flow declares, so prompt audio can be narrowed to
+   * them at download time.
+   *
+   * `supportedLanguages` is the authority; `defaultLanguage` is included too
+   * because a flow can play its default without listing it. Lower-cased
+   * because Genesys is inconsistent across the two: a flow configuration says
+   * "en-US", a prompt resource says "en-us".
+   */
+  #recordLanguages(configuration: unknown): void {
+    if (typeof configuration !== 'object' || configuration === null) return;
+    const record = configuration as Record<string, unknown>;
+    const supported = record['supportedLanguages'];
+    if (Array.isArray(supported)) {
+      for (const entry of supported) {
+        if (typeof entry === 'string' && entry.length > 0) {
+          this.#languagesInUse.add(entry.toLowerCase());
+        }
+      }
+    }
+    const fallback = record['defaultLanguage'];
+    if (typeof fallback === 'string' && fallback.length > 0) {
+      this.#languagesInUse.add(fallback.toLowerCase());
+    }
+  }
+
   async resolveDependencies(
     refs: readonly DependencyRef[],
   ): Promise<readonly DependencyResolution[]> {
@@ -294,11 +335,13 @@ export class PlatformSourceProvider implements GenesysSourceProvider {
       const cacheKey = `${flowId}:${versionId}`;
       const cached = this.#flowConfigCache.get(cacheKey);
       if (cached !== undefined) {
+        this.#recordLanguages(cached);
         this.#flowSelfCache.set(flowId, { versionId, configuration: cached });
         return { versionId, configuration: cached };
       }
       const configuration = await getFlowVersionConfiguration(this.#client, flowId, versionId);
       this.#flowConfigCache.set(cacheKey, configuration);
+      this.#recordLanguages(configuration);
       this.#flowSelfCache.set(flowId, { versionId, configuration });
       return { versionId, configuration };
     }
@@ -311,6 +354,7 @@ export class PlatformSourceProvider implements GenesysSourceProvider {
     const configuration = await getFlowLatestConfiguration(this.#client, flowId);
     const resolvedVersionId = await this.#bestEffortLatestVersionId(flowId);
     this.#flowConfigCache.set(`${flowId}:${resolvedVersionId}`, configuration);
+    this.#recordLanguages(configuration);
     this.#flowSelfCache.set(flowId, { versionId: resolvedVersionId, configuration });
     return { versionId: resolvedVersionId, configuration };
   }

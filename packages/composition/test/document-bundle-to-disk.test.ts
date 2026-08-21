@@ -129,6 +129,7 @@ describe('documentBundleToDisk: writes and promotes', () => {
       bundleDir: bundleB,
       outputRoot,
       generatedAt: '2026-08-20T15:05:00Z',
+      renderer: DEGRADED_RENDERER,
     });
 
     // Both flows' documents survive: the second call never saw flow-a's
@@ -213,6 +214,7 @@ describe('documentBundleToDisk: writes and promotes', () => {
       bundleDir: emptyBundle,
       outputRoot,
       generatedAt: '2026-08-20T15:10:00Z',
+      renderer: DEGRADED_RENDERER,
     });
     expect(result.documentsWritten).toBe(0);
 

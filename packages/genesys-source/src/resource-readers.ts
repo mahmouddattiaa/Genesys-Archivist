@@ -182,13 +182,35 @@ interface DownloadedAsset {
  * so a reader can compare what exists against what was captured. Returning
  * partial audio is acceptable; returning partial audio *silently* is not.
  */
+/**
+ * Narrows prompt resources to the languages the flow actually uses.
+ *
+ * Never returns empty when input was non-empty: if nothing matches -- a flow
+ * declaring a language the prompt does not carry -- the whole set is kept
+ * rather than silently capturing no audio at all. Missing audio a caller did
+ * not ask for is a bug; missing audio because a filter matched nothing is a
+ * worse one, because it looks like the prompt has none.
+ */
+function selectLanguages(
+  resources: readonly PromptResource[],
+  wanted: ReadonlySet<string> | null,
+): readonly PromptResource[] {
+  if (wanted === null || wanted.size === 0) return resources;
+  const matched = resources.filter((r) => {
+    const language = (r.language ?? '').toLowerCase();
+    return language.length > 0 && wanted.has(language);
+  });
+  return matched.length > 0 ? matched : resources;
+}
+
 async function downloadAllAssets(
   client: PlatformApiClient,
   resources: readonly PromptResource[],
   refetchResources: () => Promise<readonly PromptResource[]>,
+  wanted: ReadonlySet<string> | null,
 ): Promise<readonly DownloadedAsset[]> {
   const assets: DownloadedAsset[] = [];
-  for (const resource of resources) {
+  for (const resource of selectLanguages(resources, wanted)) {
     if (
       resource.mediaUri === null ||
       resource.mediaUri === undefined ||
@@ -222,8 +244,23 @@ async function downloadAllAssets(
   return assets;
 }
 
+/**
+ * Which prompt languages are worth downloading.
+ *
+ * A Genesys *system* prompt ships in every locale Genesys supports -- measured
+ * at 477 on a real tenant. A flow that declares `supportedLanguages: ["en-US"]`
+ * needs exactly one of them, and downloading the other 476 took a single-flow
+ * migration capture from four seconds to 259.
+ *
+ * Returning null means "no filter known", which downloads everything: that is
+ * the honest fallback when the caller cannot say what the flow supports, and it
+ * is the behaviour that existed before this filter.
+ */
+export type LanguageFilter = () => ReadonlySet<string> | null;
+
 export function createResourceReaders(
   client: PlatformApiClient,
+  languagesInUse: LanguageFilter = () => null,
 ): ReadonlyMap<string, ResourceReader> {
   const readers = new Map<string, ResourceReader>();
 
@@ -263,10 +300,15 @@ export function createResourceReaders(
     makeReader('userPrompt', async (id) => {
       const prompt = await getUserPrompt(client, id);
       const resources = prompt.resources ?? [];
-      const assets = await downloadAllAssets(client, resources, async () => {
-        const fresh = await getUserPrompt(client, id);
-        return fresh.resources ?? [];
-      });
+      const assets = await downloadAllAssets(
+        client,
+        resources,
+        async () => {
+          const fresh = await getUserPrompt(client, id);
+          return fresh.resources ?? [];
+        },
+        languagesInUse(),
+      );
       return {
         displayName: prompt.name,
         metadata: {
@@ -287,10 +329,15 @@ export function createResourceReaders(
     makeReader('systemPrompt', async (id) => {
       const prompt = await getSystemPrompt(client, id);
       const resources = prompt.resources ?? [];
-      const assets = await downloadAllAssets(client, resources, async () => {
-        const fresh = await getSystemPrompt(client, id);
-        return fresh.resources ?? [];
-      });
+      const assets = await downloadAllAssets(
+        client,
+        resources,
+        async () => {
+          const fresh = await getSystemPrompt(client, id);
+          return fresh.resources ?? [];
+        },
+        languagesInUse(),
+      );
       return {
         displayName: prompt.name ?? null,
         metadata: {
