@@ -329,13 +329,45 @@ export class BundleWriter {
       ...(this.#assets.size > 0 ? { assetBytes: this.#assetByteTotal } : {}),
     };
 
+    // What could not be read, and of what kinds.
+    //
+    // A reference this capture could not resolve is a resource a migration
+    // would have to recreate from nothing. Naming the types matters more than
+    // the count: "520 unresolved" is alarming and useless, while "nluDomain,
+    // knowledgeBase, contactList" tells a migration engineer exactly which
+    // parts of the estate this bundle cannot carry.
+    const unresolvedTypes = [
+      ...new Set(
+        (this.#graph?.nodes ?? [])
+          .filter((node) => node.resolutionStatus !== 'resolved')
+          .map((node) => node.type),
+      ),
+    ].sort();
+
+    if (unresolvedReferences > 0 && this.#policy.mode === 'migration') {
+      caveats.push(
+        `${String(unresolvedReferences)} referenced resource(s) could not be read, across ` +
+          `${String(unresolvedTypes.length)} type(s): ${unresolvedTypes.join(', ')}. ` +
+          'A migration target will need these recreated by hand; they are not in this bundle.',
+      );
+    }
+
     const migrationReadiness: MigrationReadiness = {
-      // A context capture is never migration-ready, however many flows it
-      // holds: it deliberately skipped the resource bodies and the audio a
-      // migration would have to recreate. Deciding this from the mode rather
-      // than from what happens to be present means a context bundle cannot
-      // drift into looking importable as its flow count grows.
-      archyImportableYaml: this.#policy.mode === 'migration' && this.#flows.size > 0,
+      // Migration-ready means every referenced resource was actually read.
+      //
+      // This used to be `mode === 'migration' && flows > 0` -- mode and a
+      // count, nothing about whether the capture succeeded at reading what the
+      // flows point at. A whole-organization run then stamped itself
+      // importable while 520 references across 39 resource types had resolved
+      // `unsupported`, because this adapter has no reader for them. That is
+      // the bundle claiming a capability it does not have, which is exactly
+      // what ADR-018's readiness flags exist to prevent.
+      //
+      // It went unnoticed because the only migration bundle ever built by hand
+      // held one flow with three unresolved references, and nobody read the
+      // flag against them.
+      archyImportableYaml:
+        this.#policy.mode === 'migration' && this.#flows.size > 0 && unresolvedReferences === 0,
       assetsCaptured: this.#policy.captureAssets,
       ...(caveats.length > 0 ? { caveats } : {}),
     };

@@ -84,3 +84,10 @@ export type { DiffFlowDeps } from './diff-flow.js';
 // itself.
 export { createRunStore } from './run-store.js';
 export type { RunManifest, RunStore, RunStoreOptions, LoadRunResult } from './run-store.js';
+
+// Drawing the Mermaid sources an already-written documents tree contains.
+// Deliberately separate from documenting: writing the sources takes seconds,
+// drawing them launches a browser and takes tens of minutes across an
+// organization, so the two are different decisions.
+export { renderDiagrams } from './render-diagrams.js';
+export type { RenderDiagramsOptions, RenderDiagramsResult } from './render-diagrams.js';

@@ -20,6 +20,7 @@ import { asFlowId, asOrganizationId, asProfileId } from '@genesys-archivist/doma
 import {
   createGenesysProvider,
   documentBundleToDisk,
+  renderDiagrams,
   openProfileStore,
   resolveSecretStore,
   runCapture,
@@ -63,6 +64,14 @@ export interface VerificationOutcome {
   readonly findings: readonly { readonly code: string; readonly message: string }[];
 }
 
+export interface RenderOutcome {
+  readonly found: number;
+  readonly rendered: number;
+  readonly skipped: number;
+  readonly failed: readonly { readonly path: string; readonly reason: string }[];
+  readonly rendererDegraded: boolean;
+}
+
 export interface DocumentBundleOutcome {
   readonly ok: boolean;
   readonly documentsWritten: number;
@@ -75,7 +84,11 @@ export interface CliDeps {
   readonly doctor: () => Promise<DoctorReport>;
   readonly capture: (command: CaptureCommand) => Promise<CaptureOutcome>;
   readonly verifyBundle: (bundleDir: string) => Promise<VerificationOutcome>;
-  readonly documentBundle: (bundleDir: string) => Promise<DocumentBundleOutcome>;
+  readonly documentBundle: (
+    bundleDir: string,
+    options?: { readonly renderDiagrams?: boolean },
+  ) => Promise<DocumentBundleOutcome>;
+  readonly renderDiagrams?: (bundleDir: string, force: boolean) => Promise<RenderOutcome>;
   /**
    * Optional so every existing `CliDeps` fake in this codebase's own test
    * suite -- none of which exercise `profile` -- keeps type-checking
@@ -325,15 +338,73 @@ export function buildProgram(deps: CliDeps): Command {
       'Generate business.md, technical.md, and operations.md for every flow in a captured bundle.',
     )
     .requiredOption('--bundle <dir>', 'path to a capture bundle directory')
-    .action(async (opts: { readonly bundle: string }) => {
-      const result = await deps.documentBundle(opts.bundle);
+    .option(
+      '--svg',
+      'also draw each diagram as an .svg (slow: launches a browser, ~11 renders per flow). ' +
+        'Omit this and run "archivist render" later if you decide you want pictures.',
+    )
+    .action(async (opts: { readonly bundle: string; readonly svg?: boolean }) => {
+      const result = await deps.documentBundle(opts.bundle, { renderDiagrams: opts.svg === true });
       deps.write(
         result.ok
           ? `Generated documentation for ${String(result.documentsWritten)} flow(s).`
           : 'Documentation generation did not complete.',
       );
       for (const warning of result.warnings ?? []) deps.write(`  warning: ${warning}`);
+      if (opts.svg !== true) {
+        // Said once, here, rather than left for the reader to discover a
+        // folder full of .mmd files they cannot open.
+        deps.write(
+          '  Diagrams were written as Mermaid source (.mmd). To draw them as ' +
+            'images: archivist render --bundle <dir>',
+        );
+      }
       deps.exit(result.ok ? EXIT_OK : EXIT_FAILURE);
+    });
+
+  program
+    .command('render')
+    .description('Draw the Mermaid diagrams in an already-documented bundle as .svg images.')
+    .requiredOption('--bundle <dir>', 'path to a bundle that has already been documented')
+    .option('--force', 're-draw diagrams that already have an .svg beside them')
+    .addHelpText(
+      'after',
+      [
+        '',
+        'Separate from "document" on purpose. Writing the diagram sources takes',
+        'seconds; drawing them launches a headless browser and runs roughly',
+        'eleven renders per flow, so a 500-flow organization is thousands of',
+        'renders and tens of minutes.',
+        '',
+        'Document first, read what you needed, and run this only if you want the',
+        'pictures. Nothing is lost by waiting: the .mmd sources are always written.',
+      ].join('\n'),
+    )
+    .action(async (opts: { readonly bundle: string; readonly force?: boolean }) => {
+      if (deps.renderDiagrams === undefined) {
+        deps.write('Rendering is not available in this build.');
+        deps.exit(EXIT_FAILURE);
+        return;
+      }
+      const result = await deps.renderDiagrams(opts.bundle, opts.force === true);
+      if (result.found === 0) {
+        deps.write('No diagram sources found. Run "archivist document --bundle <dir>" first.');
+        deps.exit(EXIT_FAILURE);
+        return;
+      }
+      deps.write(
+        `Rendered ${String(result.rendered)} of ${String(result.found)} diagram(s)` +
+          (result.skipped > 0 ? `, skipped ${String(result.skipped)} already drawn` : '') +
+          '.',
+      );
+      if (result.rendererDegraded) {
+        deps.write(
+          '  No browser was available, so nothing could be drawn. The .mmd sources are intact. ' +
+            'Install one with: npx playwright install chromium',
+        );
+      }
+      for (const failure of result.failed) deps.write(`  failed: ${failure.reason}`);
+      deps.exit(result.failed.length === 0 && !result.rendererDegraded ? EXIT_OK : EXIT_FAILURE);
     });
 
   program
@@ -555,10 +626,13 @@ async function buildRealDeps(): Promise<CliDeps> {
     doctor: realDoctorReport,
     capture: (command) => realCapture(command, profileStore),
     verifyBundle: async (bundleDir) => verifyBundle(resolve(bundleDir)),
-    documentBundle: async (bundleDir) => {
+    documentBundle: async (bundleDir, options) => {
       const dir = resolve(bundleDir);
       const result = await documentBundleToDisk({
         bundleDir: dir,
+        // Off unless asked for. Writing the .mmd sources takes seconds;
+        // drawing them is ~11 renders per flow through a headless browser.
+        renderDiagrams: options?.renderDiagrams === true,
         // Documentation lands beside the bundle it was generated from rather
         // than in the profile's output root. A bundle is self-describing and
         // portable; a reader who is handed one should get its documents with
@@ -576,6 +650,18 @@ async function buildRealDeps(): Promise<CliDeps> {
         ),
       };
     },
+    renderDiagrams: async (bundleDir, force) =>
+      renderDiagrams({
+        documentsDir: resolve(bundleDir),
+        force,
+        onProgress: (done, total) => {
+          // Only at intervals: one line per diagram would be thousands of
+          // lines across an organization, which is noise, not progress.
+          if (done === total || done % 50 === 0) {
+            write(`  rendered ${String(done)}/${String(total)}`);
+          }
+        },
+      }),
     profile: {
       write,
       profileStore,

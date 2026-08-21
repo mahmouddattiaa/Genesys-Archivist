@@ -43,6 +43,18 @@ export interface DocumentBundleToDiskOptions {
    * the null pair if Playwright's browser is missing.
    */
   readonly renderer?: RendererBundle;
+  /**
+   * Render each Mermaid source to a sibling `.svg`. **Off by default.**
+   *
+   * Rendering launches a headless browser and draws every diagram: roughly
+   * eleven per flow, so a 502-flow organization is ~5,500 renders and tens of
+   * minutes. Documenting the same organization takes seconds. Tying the two
+   * together meant nobody could have the fast one.
+   *
+   * The `.mmd` sources are always written, so rendering can be done later
+   * against an existing documents tree -- see `archivist render`.
+   */
+  readonly renderDiagrams?: boolean;
   readonly organizationId?: string;
   readonly region?: string;
 }
@@ -165,7 +177,7 @@ export async function documentBundleToDisk(
   let diagramsRendered = 0;
   let rendererDegraded = false;
 
-  if (diagrams.length > 0) {
+  if (diagrams.length > 0 && options.renderDiagrams === true) {
     const renderer = options.renderer ?? (await createRenderer());
     rendererDegraded = renderer.degraded;
     for (const relPath of diagrams) {
